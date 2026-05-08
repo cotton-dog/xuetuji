@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lockscreen-v1';
+const CACHE_NAME = '雪兔机';
 const ASSETS = [
   './',
   './index.html',
