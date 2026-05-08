@@ -2,596 +2,134 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>汉字去重工具 - 自动移除重复汉字｜一键复制结果</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lock Screen Professional V4</title>
     <style>
         * {
+            margin: 0;
+            padding: 0;
             box-sizing: border-box;
+            font-family: "PingFang SC", "SF Pro Display", sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
-        body {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e6f0fa 100%);
-            min-height: 100vh;
+        body, html {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .container {
+            height: 100vh;
+            width: 100vw;
+            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 100px 0 60px 0;
+            color: #5d6d56;
+        }
+
+        /* 时间日期区 */
+        .header { text-align: center; }
+        .date-text { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
+        .time-text { font-size: 110px; font-weight: 600; line-height: 1; letter-spacing: -2px; }
+
+        /* 底部功能区 */
+        .bottom-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 45px;
+        }
+
+        /* 外部灰色底座 - 新尺寸 */
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            background-color: #8c938d;
+            border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', 'Noto Sans CJK SC', 'Microsoft YaHei', 'PingFang SC', system-ui, -apple-system, sans-serif;
-            margin: 0;
-            padding: 20px;
         }
 
-        .card {
-            max-width: 1100px;
-            width: 100%;
-            background: white;
-            border-radius: 48px;
-            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.2), 0 4px 12px rgba(0, 0, 0, 0.05);
-            overflow: hidden;
-            transition: all 0.2s;
+        /* SVG 图标尺寸控制 */
+        .icon-circle svg {
+            width: 85px;
+            height: 85px;
         }
 
-        .header {
-            background: #0f2b2d;
-            padding: 26px 34px;
-            color: white;
+        .icon-shape {
+            fill: white;
         }
 
-        .header h1 {
-            margin: 0 0 8px 0;
-            font-weight: 700;
-            font-size: 1.9rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .header h1:before {
-            content: "✂️";
-            font-size: 1.8rem;
-        }
-
-        .badge {
-            background: #f59e0b;
-            color: #0f2b2d;
-            font-size: 0.7rem;
-            font-weight: bold;
-            padding: 4px 14px;
-            border-radius: 60px;
-            margin-left: 6px;
-            vertical-align: middle;
-        }
-
-        .sub {
-            margin: 0;
-            opacity: 0.9;
-            font-size: 0.9rem;
-            border-left: 3px solid #f59e0b;
-            padding-left: 14px;
-        }
-
-        .content {
-            padding: 32px 34px 36px;
-        }
-
-        .info-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            flex-wrap: wrap;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .rule-tip {
-            background: #fef3e2;
-            border-radius: 60px;
-            padding: 6px 18px;
-            font-size: 0.8rem;
-            color: #b45309;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: 500;
-        }
-
-        .stats {
-            background: #eef2ff;
-            padding: 6px 20px;
-            border-radius: 60px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            color: #1e3a8a;
-            font-family: monospace;
-        }
-
-        /* 双栏布局：输入区+输出去重区 */
-        .double-panel {
-            display: flex;
-            gap: 24px;
-            flex-wrap: wrap;
-            margin-bottom: 24px;
-        }
-
-        .panel {
-            flex: 1;
-            min-width: 240px;
-            background: #ffffff;
-            border-radius: 28px;
-            transition: 0.2s;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
-            border: 1px solid #e9edf2;
-        }
-
-        .panel-title {
-            padding: 14px 20px 6px 20px;
-            font-weight: 700;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-            color: #334155;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            border-bottom: 1px dashed #e2e8f0;
-        }
-
-        .panel-title span:first-child {
-            font-size: 1.2rem;
-        }
-
-        .textarea-box {
-            padding: 12px 16px 16px 16px;
-        }
-
-        .input-area {
-            width: 100%;
-            min-height: 280px;
-            padding: 18px 20px;
-            font-size: 1rem;
-            line-height: 1.6;
-            font-family: 'Segoe UI', 'Noto Sans CJK SC', 'PingFang SC', 'Microsoft YaHei', monospace;
-            border: 2px solid #e2e8f0;
-            border-radius: 24px;
-            resize: vertical;
-            outline: none;
-            transition: 0.2s;
-            background: #fefefe;
-            color: #0f172a;
-            font-weight: 450;
-        }
-
-        .input-area:focus {
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
-        }
-
-        /* 结果区域样式 - 可复制，保留原格式，去重后文字清晰 */
-        .result-area {
-            width: 100%;
-            min-height: 280px;
-            padding: 18px 20px;
-            font-size: 1rem;
-            line-height: 1.6;
-            font-family: 'Segoe UI', 'Noto Sans CJK SC', 'PingFang SC', 'Microsoft YaHei', monospace;
-            background-color: #fafcff;
-            border: 2px solid #e2e8f0;
-            border-radius: 24px;
-            resize: vertical;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-break: break-word;
-            color: #0c4a6e;
-            font-weight: 450;
-        }
-
-        .result-area:focus {
-            outline: none;
-            border-color: #3b82f6;
-        }
-
-        .copy-success {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #10b981;
-            color: white;
-            padding: 12px 28px;
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            z-index: 1000;
-            animation: fadeOut 2s ease forwards;
-            pointer-events: none;
-        }
-
-        @keyframes fadeOut {
-            0% { opacity: 1; transform: translateX(-50%) translateY(0); }
-            70% { opacity: 1; }
-            100% { opacity: 0; transform: translateX(-50%) translateY(-20px); visibility: hidden; }
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-            justify-content: flex-start;
-            align-items: center;
-        }
-
-        .btn {
-            border: none;
-            background: #f1f5f9;
-            padding: 10px 24px;
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: 0.2s;
-            font-family: inherit;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #1e293b;
-        }
-
-        .btn-primary {
-            background: #f97316;
-            color: white;
-            box-shadow: 0 2px 6px rgba(249, 115, 22, 0.3);
-        }
-
-        .btn-primary:hover {
-            background: #ea580c;
-            transform: translateY(-2px);
-        }
-
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            background: white;
-            border: 1px solid #cbd5e1;
-        }
-
-        .btn-outline:hover {
-            background: #f8fafc;
-            border-color: #f97316;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .btn:active {
-            transform: translateY(1px);
-        }
-
-        footer {
-            font-size: 0.7rem;
-            text-align: center;
-            padding: 20px 24px 12px;
-            color: #6c757d;
-            border-top: 1px solid #eef2f8;
-            margin-top: 20px;
-        }
-
-        .status-badge {
-            background: #e6f7ec;
-            border-radius: 30px;
-            padding: 4px 14px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            color: #2e7d32;
-        }
-
-        @media (max-width: 750px) {
-            .content {
-                padding: 20px;
-            }
-            .double-panel {
-                flex-direction: column;
-            }
-            .header h1 {
-                font-size: 1.5rem;
-            }
+        .line-cut {
+            fill: #8c938d;
         }
     </style>
 </head>
 <body>
-<div class="card">
+
+<div class="container">
     <div class="header">
-        <h1>
-            汉字去重 · 一键智能移除重复
-            <span class="badge">保留首次出现 | 标点/数字/字母不动</span>
-        </h1>
-        <div class="sub">✂️ 只需导入文本，自动生成去重结果（只对汉字去重，重复汉字仅保留第一个）✅ 一键复制纯净结果</div>
+        <div class="date-text" id="date">5月8日周五 · 丙午年三月廿二</div>
+        <div class="time-text" id="time">00:20</div>
     </div>
-    <div class="content">
-        <div class="info-bar">
-            <div class="rule-tip">
-                🧠 核心规则：每个汉字第一次出现保留，之后所有的相同汉字自动剔除（标点/英文/数字完美保留）
-            </div>
-            <div class="stats" id="statsPanel">
-                📝 待去重汉字数: 0 → ✨ 去重后汉字数: 0
-            </div>
+
+    <div class="bottom-bar">
+        <!-- 手电筒图标（左边第一个） -->
+        <div class="icon-circle">
+            <svg viewBox="0 0 100 100">
+                <path class="icon-shape" d="
+                    M 34,22 
+                    C 34,18 38,15 50,15 
+                    C 62,15 66,18 66,22 
+                    L 66,26 
+                    C 66,32 60,34 58,40 
+                    L 58,74 
+                    C 58,82 42,82 42,74 
+                    L 42,40 
+                    C 40,34 34,32 34,26 
+                    Z" />
+                
+                <rect class="line-cut" x="34" y="27" width="32" height="4" />
+                
+                <rect class="line-cut" x="44.5" y="44" width="11" height="20" rx="5.5" />
+                
+                <circle class="icon-shape" cx="50" cy="57.5" r="3.5" />
+            </svg>
         </div>
 
-        <!-- 双栏布局：左侧输入区 + 右侧去重结果区 -->
-        <div class="double-panel">
-            <!-- 左侧：原始文本输入区 (可导入任何文字) -->
-            <div class="panel">
-                <div class="panel-title">
-                    <span>📄</span> 原始文本 (粘贴 / 导入)
-                    <span class="status-badge">编辑即自动去重</span>
-                </div>
-                <div class="textarea-box">
-                    <textarea id="sourceText" class="input-area" placeholder="在此输入或粘贴含有重复汉字的文本...&#10;&#10;例如：你好你好，世界世界。春风春风十里，重复的汉字会自动删除，保留每个汉字第一次出现的位置。&#10;&#10;标点、数字123和字母abc都会原样保留！"></textarea>
-                </div>
-            </div>
-
-            <!-- 右侧：去重结果区 (可直接复制，已自动处理) -->
-            <div class="panel">
-                <div class="panel-title">
-                    <span>✨</span> 去重结果 (已移除重复汉字)
-                    <span class="status-badge">点击复制即可使用</span>
-                </div>
-                <div class="textarea-box">
-                    <div id="resultContainer" class="result-area" contenteditable="false">等待输入...</div>
-                </div>
-            </div>
+        <!-- 相机图标（右边第二个） -->
+        <div class="icon-circle">
+            <svg viewBox="0 0 100 100">
+                <rect class="icon-shape" x="22" y="32" width="56" height="40" rx="10" />
+                <path class="icon-shape" d="M 37,32 L 63,32 C 61,24 39,24 37,32 Z" />
+                <circle cx="50" cy="53" r="12" fill="none" stroke="#8c938d" stroke-width="4" />
+                <circle class="line-cut" cx="67" cy="41" r="2.5" />
+            </svg>
         </div>
-
-        <div class="action-buttons">
-            <button class="btn btn-primary" id="copyResultBtn">
-                📋 一键复制去重结果
-            </button>
-            <button class="btn btn-outline" id="clearAllBtn">
-                🧹 清空所有
-            </button>
-            <button class="btn btn-outline" id="loadExampleBtn">
-                📋 载入示例文本
-            </button>
-        </div>
-        <footer>
-            💡 <strong>去重逻辑说明</strong> : 只针对汉字（CJK统一汉字, 范围4E00-9FFF）进行去重。<br>
-            ✅ 每个汉字第一次出现时保留，后续重复的相同汉字自动移除，其它字符（标点、数字、字母、换行、空格等）全部保留原始位置。<br>
-            🚀 您在左侧输入或修改文字后，<strong>右侧结果实时生成</strong>，无需手动删除，直接复制右侧内容即可获得纯净去重文本。
-        </footer>
     </div>
 </div>
 
 <script>
-    (function() {
-        // DOM 元素
-        const sourceTextarea = document.getElementById('sourceText');
-        const resultContainer = document.getElementById('resultContainer');
-        const statsPanel = document.getElementById('statsPanel');
-        const copyBtn = document.getElementById('copyResultBtn');
-        const clearBtn = document.getElementById('clearAllBtn');
-        const exampleBtn = document.getElementById('loadExampleBtn');
-
-        // 判断是否为汉字 (CJK 基本汉字区块 4E00-9FFF，也可涵盖部分扩展但常用足够)
-        function isChineseChar(char) {
-            if (!char || char.length === 0) return false;
-            const code = char.charCodeAt(0);
-            return code >= 0x4E00 && code <= 0x9FFF;
-        }
-
-        /**
-         * 核心去重函数：对原始文本字符串进行汉字去重。
-         * 规则：遍历每个字符，保留所有非汉字字符；对于汉字，利用Set记录首次出现的汉字，
-         * 如果该汉字已经出现过，则跳过（不加入结果），否则加入结果并记录入Set。
-         * 最终返回去重后的字符串（保留原始顺序，标点/数字/字母原位保留）。
-         */
-        function deduplicateChineseCharacters(originalText) {
-            if (!originalText) return '';
-            const seenChinese = new Set();     // 记录已经出现过的汉字
-            let result = '';
-            for (let i = 0; i < originalText.length; i++) {
-                const ch = originalText[i];
-                if (isChineseChar(ch)) {
-                    // 汉字去重逻辑
-                    if (!seenChinese.has(ch)) {
-                        seenChinese.add(ch);
-                        result += ch;
-                    }
-                    // 如果已经出现过该汉字 => 跳过（不添加到结果）
-                } else {
-                    // 非汉字（标点、数字、字母、空格、换行等）全部保留
-                    result += ch;
-                }
-            }
-            return result;
-        }
-
-        // 统计原始文本中的汉字总数 和 去重结果中的汉字总数 (用于显示优化)
-        function countChineseCharacters(str) {
-            if (!str) return 0;
-            let count = 0;
-            for (let i = 0; i < str.length; i++) {
-                if (isChineseChar(str[i])) count++;
-            }
-            return count;
-        }
-
-        // 更新统计栏信息
-        function updateStats(originalText, dedupedText) {
-            const originalChineseCount = countChineseCharacters(originalText);
-            const dedupedChineseCount = countChineseCharacters(dedupedText);
-            const removedCount = originalChineseCount - dedupedChineseCount;
-            statsPanel.innerHTML = `📊 原始汉字: ${originalChineseCount}  →  ✨ 去重后: ${dedupedChineseCount}  ${removedCount > 0 ? `(移除重复 ${removedCount} 个)` : `(无重复)`}`;
-        }
-
-        // 实时执行去重并刷新右侧结果区 + 统计数据
-        function performDeduplicationAndUpdate() {
-            const sourceText = sourceTextarea.value;
-            // 执行去重算法
-            const dedupedText = deduplicateChineseCharacters(sourceText);
-            // 更新结果展示区域（纯文本，方便复制，并且保留格式）
-            resultContainer.innerText = dedupedText;
-            // 更新统计栏
-            updateStats(sourceText, dedupedText);
-        }
-
-        // 防抖优化 (高频输入时避免频繁开销，但实时感强，用短延迟)
-        let dedupTimer = null;
-        function debouncedDedupe() {
-            if (dedupTimer) clearTimeout(dedupTimer);
-            dedupTimer = setTimeout(() => {
-                performDeduplicationAndUpdate();
-                dedupTimer = null;
-            }, 10);  // 极短延迟保证流畅且避免冗余重绘
-        }
-
-        // 清空所有输入和结果
-        function clearEverything() {
-            sourceTextarea.value = '';
-            resultContainer.innerText = '';
-            performDeduplicationAndUpdate();  // 会更新统计为0
-            // 让文本框获得焦点
-            sourceTextarea.focus();
-        }
-
-        // 复制去重结果到剪贴板
-        async function copyDedupedResult() {
-            const dedupedText = resultContainer.innerText;
-            if (!dedupedText || dedupedText.trim() === '') {
-                // 空内容提示
-                showToastMessage('没有内容可复制', '#f97316');
-                return;
-            }
-            try {
-                await navigator.clipboard.writeText(dedupedText);
-                showToastMessage('✅ 去重结果已复制到剪贴板！', '#10b981');
-            } catch (err) {
-                console.error('复制失败: ', err);
-                // 降级方案
-                const textarea = document.createElement('textarea');
-                textarea.value = dedupedText;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                showToastMessage('📋 复制成功 (兼容模式)', '#10b981');
-            }
-        }
-
-        // 轻提示浮层
-        let toastTimeout = null;
-        function showToastMessage(message, bgColor = '#10b981') {
-            // 移除已有的提示
-            const existingToast = document.querySelector('.copy-success');
-            if (existingToast) existingToast.remove();
-            const toast = document.createElement('div');
-            toast.className = 'copy-success';
-            toast.textContent = message;
-            toast.style.backgroundColor = bgColor;
-            document.body.appendChild(toast);
-            if (toastTimeout) clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => {
-                if (toast && toast.remove) toast.remove();
-            }, 2000);
-        }
-
-        // 载入一个有代表性的示例（包含重复汉字、标点、数字、字母，验证去重效果）
-        function loadExample() {
-            const exampleText = 
-"🌿 示例：春风春风十里，不如你。春风再美也比不上你的笑。\n" +
-"青山一道同云雨，青山明月何曾照我归。重复测试：你好你好世界世界！\n" +
-"汉字去重功能：你你我我他他，山山水水，花花草草。\n" +
-"保留标点符号：，。！？；：“”‘’、——以及数字1234567890，英文字母abcdefg都不会被删除！\n" +
-"只有重复汉字会被自动剔除：重复重复重复看效果。相同汉字只保留第一个：星星星星 → 去重后只剩一个星。\n" +
-"高阶例子：琵琶琵琶，葡萄葡萄，电电脑脑。恭喜恭喜发财，新年快乐快乐。\n" +
-"➡️ 右侧自动生成干净文本，复制直接使用。";
-            sourceTextarea.value = exampleText;
-            // 立即执行去重更新
-            performDeduplicationAndUpdate();
-            // 让用户看到效果
-            showToastMessage('已载入示例，右侧为去重结果', '#3b82f6');
-        }
-
-        // 监听文本框变化 (包括输入、粘贴、剪切等)
-        function bindEvents() {
-            if (sourceTextarea) {
-                sourceTextarea.addEventListener('input', debouncedDedupe);
-                sourceTextarea.addEventListener('paste', function(e) {
-                    // 为了让粘贴后立刻去重，使用微任务触发
-                    setTimeout(() => {
-                        debouncedDedupe();
-                    }, 5);
-                });
-                sourceTextarea.addEventListener('cut', function() {
-                    setTimeout(() => {
-                        debouncedDedupe();
-                    }, 5);
-                });
-            }
-            // 复制按钮事件
-            if (copyBtn) {
-                copyBtn.addEventListener('click', copyDedupedResult);
-            }
-            // 清空按钮
-            if (clearBtn) {
-                clearBtn.addEventListener('click', clearEverything);
-            }
-            // 示例按钮
-            if (exampleBtn) {
-                exampleBtn.addEventListener('click', loadExample);
-            }
-        }
-
-        // 初始化: 设置默认内容（演示去重效果并且让用户看到自动移除重复的魅力，同时复制方便）
-        function initDefaultContent() {
-            // 一段带明显重复的示例，直接展示去重前和去重后的对比
-            const defaultSource = 
-"你好你好，欢迎使用汉字去重工具。请问你你你叫什么名字？我的名字叫去重助手，助手助手真方便。\n" +
-"测试：山山水水，花花绿绿，开开心心，高高兴兴。\n" +
-"技术特色：只删除重复汉字，不改变标点符号！！！数字123456和字母ABCD保持原样。\n" +
-"重复演示：去去重重，智能能能，强大大大。复制右侧结果直接使用✨";
-            sourceTextarea.value = defaultSource;
-            performDeduplicationAndUpdate();
-        }
-
-        // 额外确保点击结果区域也可以选择全部，方便手动复制
-        function enhanceResultSelection() {
-            if (resultContainer) {
-                resultContainer.addEventListener('click', () => {
-                    // 只是提升体验：如果用户想要快速全选结果，但不自动干扰复制，可以双击全选，方便手动复制
-                });
-                // 支持双击全选结果区域内容
-                resultContainer.addEventListener('dblclick', (e) => {
-                    const selection = window.getSelection();
-                    const range = document.createRange();
-                    range.selectNodeContents(resultContainer);
-                    selection?.removeAllRanges();
-                    selection?.addRange(range);
-                    showToastMessage('👆 已选中全部结果，Ctrl+C 复制', '#64748b');
-                });
-            }
-        }
-
-        // 监听窗口加载完成
-        window.addEventListener('DOMContentLoaded', () => {
-            bindEvents();
-            enhanceResultSelection();
-            initDefaultContent();
-            // 如果初始化之后要确保统计显示正确
-            setTimeout(() => {
-                performDeduplicationAndUpdate();
-            }, 20);
-        });
-    })();
+    function update() {
+        const d = new Date();
+        const h = String(d.getHours()).padStart(2, '0');
+        const m = String(d.getMinutes()).padStart(2, '0');
+        document.getElementById('time').textContent = `${h}:${m}`;
+        
+        const month = d.getMonth() + 1;
+        const date = d.getDate();
+        const dayArr = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+        const day = dayArr[d.getDay()];
+        document.getElementById('date').textContent = `${month}月${date}日${day} · 丙午年三月廿二`;
+    }
+    setInterval(update, 1000);
+    update();
 </script>
+
 </body>
 </html>
