@@ -2,11 +2,14 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#5d6d56">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
     <title>雪兔机</title>
     <link rel="manifest" href="manifest.json">
+    
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <style>
         * {
             margin: 0;
@@ -15,23 +18,24 @@
             font-family: "PingFang SC", "SF Pro Display", sans-serif;
             -webkit-font-smoothing: antialiased;
         }
-        
-        /* 关键：让背景覆盖整个屏幕包括状态栏区域 */
+
+        /* 关键修复：让背景图从 html 级别就开始铺，直接顶破天花板 */
         html {
             height: 100%;
-            background: #5d6d56;
+            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
+            background-size: cover;
         }
-        
-        body, html {
+
+        body {
             height: 100%;
             overflow: hidden;
+            background: transparent; /* 必须透明，否则会挡住 html 的背景 */
         }
-        
+
         .container {
             height: 100vh;
             width: 100vw;
-            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
-            background-size: cover;
+            /* 这里不需要 background 了，已经在 html 设置过了 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -39,18 +43,19 @@
             padding: 100px 0 60px 0;
             color: #5d6d56;
         }
-        
+
+        /* 以下是你原始的代码，完全没动 */
         .header { text-align: center; }
         .date-text { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
         .time-text { font-size: 110px; font-weight: 600; line-height: 1; letter-spacing: -2px; }
-        
+
         .bottom-bar {
             width: 100%;
             display: flex;
             justify-content: space-between;
             padding: 0 45px;
         }
-        
+
         .icon-circle {
             width: 60px;
             height: 60px;
@@ -60,12 +65,12 @@
             justify-content: center;
             align-items: center;
         }
-        
+
         .icon-circle svg {
             width: 85px;
             height: 85px;
         }
-        
+
         .icon-shape { fill: white; }
         .line-cut { fill: #8c938d; }
     </style>
