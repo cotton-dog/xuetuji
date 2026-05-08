@@ -46,7 +46,7 @@
             padding: 0 45px;
         }
 
-        /* 外部灰色底座 - 新尺寸 */
+        /* 外部灰色底座 */
         .icon-circle {
             width: 60px;
             height: 60px;
@@ -71,26 +71,7 @@
             fill: #8c938d;
         }
         
-        /* ---------- 新增加的安装按钮样式 ---------- */
-        .install-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #4CAF50;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            border: none;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        }
-        .install-btn.hide {
-            display: none;
-        }
+        /* 删掉了不需要的 .install-btn 样式 */
     </style>
 </head>
 <body>
@@ -102,30 +83,15 @@
     </div>
 
     <div class="bottom-bar">
-        <!-- 手电筒图标（左边第一个） -->
         <div class="icon-circle">
             <svg viewBox="0 0 100 100">
-                <path class="icon-shape" d="
-                    M 34,22 
-                    C 34,18 38,15 50,15 
-                    C 62,15 66,18 66,22 
-                    L 66,26 
-                    C 66,32 60,34 58,40 
-                    L 58,74 
-                    C 58,82 42,82 42,74 
-                    L 42,40 
-                    C 40,34 34,32 34,26 
-                    Z" />
-                
+                <path class="icon-shape" d="M 34,22 C 34,18 38,15 50,15 C 62,15 66,18 66,22 L 66,26 C 66,32 60,34 58,40 L 58,74 C 58,82 42,82 42,74 L 42,40 C 40,34 34,32 34,26 Z" />
                 <rect class="line-cut" x="34" y="27" width="32" height="4" />
-                
                 <rect class="line-cut" x="44.5" y="44" width="11" height="20" rx="5.5" />
-                
                 <circle class="icon-shape" cx="50" cy="57.5" r="3.5" />
             </svg>
         </div>
 
-        <!-- 相机图标（右边第二个） -->
         <div class="icon-circle">
             <svg viewBox="0 0 100 100">
                 <rect class="icon-shape" x="22" y="32" width="56" height="40" rx="10" />
@@ -137,10 +103,7 @@
     </div>
 </div>
 
-<button id="installBtn" class="install-btn">⬇️ 安装应用</button>
-
 <script>
-    // 您原有的时间更新代码
     function update() {
         const d = new Date();
         const h = String(d.getHours()).padStart(2, '0');
@@ -156,37 +119,12 @@
     setInterval(update, 1000);
     update();
 
-    // 新增：处理应用安装的逻辑
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-
-    // 监听 beforeinstallprompt 事件，这是浏览器准备好安装的信号
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // 阻止默认的自动弹窗，我们手动控制
-        e.preventDefault();
-        // 保存事件，以便后面使用
-        deferredPrompt = e;
-        // 显示我们的安装按钮
-        installBtn.classList.remove('hide');
-    });
-
-    // 当用户点击我们的安装按钮时
-    installBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        // 显示浏览器的安装弹窗
-        deferredPrompt.prompt();
-        // 等待用户对弹窗做出选择
-        const { outcome } = await deferredPrompt.userChoice;
-        console.log(`用户选择: ${outcome}`);
-        // 使用过后，清理保存的事件
-        deferredPrompt = null;
-        // 隐藏安装按钮，避免重复点击
-        installBtn.classList.add('hide');
-    });
-    
-    // 注册 Service Worker
+    // 简化后的安装逻辑：只需要注册 Service Worker 即可
+    // 浏览器会自动检测 manifest 并根据需要提供原生安装选项
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js');
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js');
+        });
     }
 </script>
 
