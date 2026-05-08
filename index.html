@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#5d6d56">
     <title>雪兔机</title>
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        /* 这里是你原本的所有锁屏样式，完全没动 */
         * {
             margin: 0;
             padding: 0;
@@ -15,10 +15,18 @@
             font-family: "PingFang SC", "SF Pro Display", sans-serif;
             -webkit-font-smoothing: antialiased;
         }
+        
+        /* 关键：让背景覆盖整个屏幕包括状态栏区域 */
+        html {
+            height: 100%;
+            background: #5d6d56;
+        }
+        
         body, html {
             height: 100%;
             overflow: hidden;
         }
+        
         .container {
             height: 100vh;
             width: 100vw;
@@ -31,15 +39,18 @@
             padding: 100px 0 60px 0;
             color: #5d6d56;
         }
+        
         .header { text-align: center; }
         .date-text { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
         .time-text { font-size: 110px; font-weight: 600; line-height: 1; letter-spacing: -2px; }
+        
         .bottom-bar {
             width: 100%;
             display: flex;
             justify-content: space-between;
             padding: 0 45px;
         }
+        
         .icon-circle {
             width: 60px;
             height: 60px;
@@ -49,10 +60,12 @@
             justify-content: center;
             align-items: center;
         }
+        
         .icon-circle svg {
             width: 85px;
             height: 85px;
         }
+        
         .icon-shape { fill: white; }
         .line-cut { fill: #8c938d; }
     </style>
@@ -86,7 +99,6 @@
 </div>
 
 <script>
-    // 时间更新逻辑
     function update() {
         const d = new Date();
         const h = String(d.getHours()).padStart(2, '0');
@@ -98,10 +110,11 @@
     setInterval(update, 1000);
     update();
 
-    // 注册 Service Worker (安装引擎)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js');
+            navigator.serviceWorker.register('./sw.js').catch(err => {
+                console.log('ServiceWorker 注册失败:', err);
+            });
         });
     }
 </script>
