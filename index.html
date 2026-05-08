@@ -7,18 +7,12 @@
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <style>
-        /* 这里是你原本的所有锁屏样式，完全没动 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: "PingFang SC", "SF Pro Display", sans-serif;
             -webkit-font-smoothing: antialiased;
-        }
-        html {
-            height: 100%;
-            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
-            background-size: cover;
         }
         body, html {
             height: 100%;
@@ -27,7 +21,8 @@
         .container {
             height: 100vh;
             width: 100vw;
-            /* 原 background 已移除，不再重复加载图片 */
+            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
+            background-size: cover;
             display: flex;
             flex-direction: column;
             align-items: center;
