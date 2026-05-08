@@ -6,7 +6,7 @@
     <title>Lock Screen Professional V4</title>
     <link rel="manifest" href="manifest.json">
     <style>
-        /* ---------- 您原有的所有样式，完全没动 ---------- */
+        /* 这里是你原本的所有锁屏样式，完全没动 */
         * {
             margin: 0;
             padding: 0;
@@ -14,12 +14,10 @@
             font-family: "PingFang SC", "SF Pro Display", sans-serif;
             -webkit-font-smoothing: antialiased;
         }
-
         body, html {
             height: 100%;
             overflow: hidden;
         }
-
         .container {
             height: 100vh;
             width: 100vw;
@@ -32,21 +30,15 @@
             padding: 100px 0 60px 0;
             color: #5d6d56;
         }
-
-        /* 时间日期区 */
         .header { text-align: center; }
         .date-text { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
         .time-text { font-size: 110px; font-weight: 600; line-height: 1; letter-spacing: -2px; }
-
-        /* 底部功能区 */
         .bottom-bar {
             width: 100%;
             display: flex;
             justify-content: space-between;
             padding: 0 45px;
         }
-
-        /* 外部灰色底座 */
         .icon-circle {
             width: 60px;
             height: 60px;
@@ -56,22 +48,12 @@
             justify-content: center;
             align-items: center;
         }
-
-        /* SVG 图标尺寸控制 */
         .icon-circle svg {
             width: 85px;
             height: 85px;
         }
-
-        .icon-shape {
-            fill: white;
-        }
-
-        .line-cut {
-            fill: #8c938d;
-        }
-        
-        /* 删掉了不需要的 .install-btn 样式 */
+        .icon-shape { fill: white; }
+        .line-cut { fill: #8c938d; }
     </style>
 </head>
 <body>
@@ -91,7 +73,6 @@
                 <circle class="icon-shape" cx="50" cy="57.5" r="3.5" />
             </svg>
         </div>
-
         <div class="icon-circle">
             <svg viewBox="0 0 100 100">
                 <rect class="icon-shape" x="22" y="32" width="56" height="40" rx="10" />
@@ -104,29 +85,24 @@
 </div>
 
 <script>
+    // 时间更新逻辑
     function update() {
         const d = new Date();
         const h = String(d.getHours()).padStart(2, '0');
         const m = String(d.getMinutes()).padStart(2, '0');
         document.getElementById('time').textContent = `${h}:${m}`;
-        
-        const month = d.getMonth() + 1;
-        const date = d.getDate();
         const dayArr = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-        const day = dayArr[d.getDay()];
-        document.getElementById('date').textContent = `${month}月${date}日${day} · 丙午年三月廿二`;
+        document.getElementById('date').textContent = `${d.getMonth() + 1}月${d.getDate()}日${dayArr[d.getDay()]} · 丙午年三月廿二`;
     }
     setInterval(update, 1000);
     update();
 
-    // 简化后的安装逻辑：只需要注册 Service Worker 即可
-    // 浏览器会自动检测 manifest 并根据需要提供原生安装选项
+    // 注册 Service Worker (安装引擎)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js');
         });
     }
 </script>
-
 </body>
 </html>
