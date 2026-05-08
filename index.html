@@ -2,17 +2,11 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>雪兔机</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lock Screen Professional V4</title>
     <link rel="manifest" href="manifest.json">
-    
-    <meta name="theme-color" content="transparent">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
     <style>
-        /* ---------- 您的样式，精准微调 ---------- */
-        * {
+         {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -20,59 +14,63 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 核心修改：让 html 直接承载背景图，实现真正的壁纸全铺满 */
-        html {
-            height: 100%;
-            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
-            background-size: cover;
-            background-attachment: fixed;
-        }
-
-        body {
+        body, html {
             height: 100%;
             overflow: hidden;
-            background: transparent; /* 透明 body 才能看到 html 的壁纸 */
         }
 
         .container {
             height: 100vh;
             width: 100vw;
-            /* background 删掉，因为已经挂在 html 上了 */
+            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
+            background-size: cover;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
             padding: 100px 0 60px 0;
             color: #5d6d56;
-            background: transparent;
         }
 
-        /* 以下是您原有的图标和标题样式，完全没动 */
+        /* 时间日期区 */
         .header { text-align: center; }
         .date-text { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
         .time-text { font-size: 110px; font-weight: 600; line-height: 1; letter-spacing: -2px; }
-        .bottom-bar { width: 100%; display: flex; justify-content: space-between; padding: 0 45px; }
-        .icon-circle { width: 60px; height: 60px; background-color: #8c938d; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
-        .icon-circle svg { width: 85px; height: 85px; }
-        .icon-shape { fill: white; }
-        .line-cut { fill: #8c938d; }
-        
-        /* 您的安装按钮样式 */
-        .install-btn {
-            position: fixed;
-            bottom: 150px; /* 稍微往上提一点，避开图标 */
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(76, 175, 80, 0.8);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 30px;
-            border: none;
-            font-size: 16px;
-            font-weight: bold;
-            z-index: 1000;
+
+        /* 底部功能区 */
+        .bottom-bar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 45px;
         }
-        .hide { display: none; }
+
+        /* 外部灰色底座 */
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            background-color: #8c938d;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* SVG 图标尺寸控制 */
+        .icon-circle svg {
+            width: 85px;
+            height: 85px;
+        }
+
+        .icon-shape {
+            fill: white;
+        }
+
+        .line-cut {
+            fill: #8c938d;
+        }
+        
+        /* 删掉了不需要的 .install-btn 样式 */
     </style>
 </head>
 <body>
@@ -92,6 +90,7 @@
                 <circle class="icon-shape" cx="50" cy="57.5" r="3.5" />
             </svg>
         </div>
+
         <div class="icon-circle">
             <svg viewBox="0 0 100 100">
                 <rect class="icon-shape" x="22" y="32" width="56" height="40" rx="10" />
@@ -103,42 +102,30 @@
     </div>
 </div>
 
-<button id="installBtn" class="install-btn hide">⬇️ 安装应用</button>
-
 <script>
-    // 时间逻辑
     function update() {
         const d = new Date();
         const h = String(d.getHours()).padStart(2, '0');
         const m = String(d.getMinutes()).padStart(2, '0');
         document.getElementById('time').textContent = `${h}:${m}`;
+        
+        const month = d.getMonth() + 1;
+        const date = d.getDate();
         const dayArr = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-        document.getElementById('date').textContent = `${d.getMonth() + 1}月${d.getDate()}日${dayArr[d.getDay()]} · 丙午年三月廿二`;
+        const day = dayArr[d.getDay()];
+        document.getElementById('date').textContent = `${month}月${date}日${day} · 丙午年三月廿二`;
     }
     setInterval(update, 1000);
     update();
 
-    // 您最看重的安装逻辑，原封不动保留
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        installBtn.classList.remove('hide');
-    });
-
-    installBtn.addEventListener('click', async () => {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        installBtn.classList.add('hide');
-    });
-    
+    // 简化后的安装逻辑：只需要注册 Service Worker 即可
+    // 浏览器会自动检测 manifest 并根据需要提供原生安装选项
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js');
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js');
+        });
     }
 </script>
+
 </body>
 </html>
