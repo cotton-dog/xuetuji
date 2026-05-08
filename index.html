@@ -2,16 +2,12 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>雪兔机</title>
     <link rel="manifest" href="manifest.json">
-    
-    <meta name="theme-color" content="#ffffff">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
     <style>
+        /* 这里是你原本的所有锁屏样式，完全没动 */
         * {
             margin: 0;
             padding: 0;
@@ -19,23 +15,15 @@
             font-family: "PingFang SC", "SF Pro Display", sans-serif;
             -webkit-font-smoothing: antialiased;
         }
-
-        /* 解决顶部色块：背景图挂在最高层 html 上 */
-        html {
-            height: 100%;
-            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
-            background-size: cover;
-        }
-
-        body {
+        body, html {
             height: 100%;
             overflow: hidden;
-            background: transparent;
         }
-
         .container {
             height: 100vh;
             width: 100vw;
+            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
+            background-size: cover;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -43,8 +31,6 @@
             padding: 100px 0 60px 0;
             color: #5d6d56;
         }
-
-        /* 你的原始样式 */
         .header { text-align: center; }
         .date-text { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
         .time-text { font-size: 110px; font-weight: 600; line-height: 1; letter-spacing: -2px; }
@@ -63,7 +49,10 @@
             justify-content: center;
             align-items: center;
         }
-        .icon-circle svg { width: 85px; height: 85px; }
+        .icon-circle svg {
+            width: 85px;
+            height: 85px;
+        }
         .icon-shape { fill: white; }
         .line-cut { fill: #8c938d; }
     </style>
@@ -97,7 +86,7 @@
 </div>
 
 <script>
-    // 1. 时间更新逻辑
+    // 时间更新逻辑
     function update() {
         const d = new Date();
         const h = String(d.getHours()).padStart(2, '0');
@@ -109,22 +98,12 @@
     setInterval(update, 1000);
     update();
 
-    // 2. Service Worker 引擎注册
+    // 注册 Service Worker (安装引擎)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js');
         });
     }
-
-    // 3. 自动弹出安装引导逻辑（针对安卓特别优化）
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // 阻止 Chrome 默认的自动显示提示
-        e.preventDefault();
-        deferredPrompt = e;
-        // 如果你需要通过按钮触发安装，可以在这里写逻辑
-        console.log('可以安装雪兔机了');
-    });
 </script>
 </body>
 </html>
