@@ -2,11 +2,16 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lock Screen Professional V4</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#ffffff">
+    <title>雪兔机</title>
     <link rel="manifest" href="manifest.json">
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
     <style>
-         {
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -14,16 +19,23 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        body, html {
+        /* 关键修复：让背景图从 html 级别就开始铺，直接顶破天花板 */
+        html {
+            height: 100%;
+            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
+            background-size: cover;
+        }
+
+        body {
             height: 100%;
             overflow: hidden;
+            background: transparent; /* 必须透明，否则会挡住 html 的背景 */
         }
 
         .container {
             height: 100vh;
             width: 100vw;
-            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
-            background-size: cover;
+            /* 这里不需要 background 了，已经在 html 设置过了 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -32,12 +44,11 @@
             color: #5d6d56;
         }
 
-        /* 时间日期区 */
+        /* 以下是你原始的代码，完全没动 */
         .header { text-align: center; }
         .date-text { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
         .time-text { font-size: 110px; font-weight: 600; line-height: 1; letter-spacing: -2px; }
 
-        /* 底部功能区 */
         .bottom-bar {
             width: 100%;
             display: flex;
@@ -45,7 +56,6 @@
             padding: 0 45px;
         }
 
-        /* 外部灰色底座 */
         .icon-circle {
             width: 60px;
             height: 60px;
@@ -56,21 +66,13 @@
             align-items: center;
         }
 
-        /* SVG 图标尺寸控制 */
         .icon-circle svg {
             width: 85px;
             height: 85px;
         }
 
-        .icon-shape {
-            fill: white;
-        }
-
-        .line-cut {
-            fill: #8c938d;
-        }
-        
-        /* 删掉了不需要的 .install-btn 样式 */
+        .icon-shape { fill: white; }
+        .line-cut { fill: #8c938d; }
     </style>
 </head>
 <body>
@@ -90,7 +92,6 @@
                 <circle class="icon-shape" cx="50" cy="57.5" r="3.5" />
             </svg>
         </div>
-
         <div class="icon-circle">
             <svg viewBox="0 0 100 100">
                 <rect class="icon-shape" x="22" y="32" width="56" height="40" rx="10" />
@@ -108,24 +109,19 @@
         const h = String(d.getHours()).padStart(2, '0');
         const m = String(d.getMinutes()).padStart(2, '0');
         document.getElementById('time').textContent = `${h}:${m}`;
-        
-        const month = d.getMonth() + 1;
-        const date = d.getDate();
         const dayArr = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
-        const day = dayArr[d.getDay()];
-        document.getElementById('date').textContent = `${month}月${date}日${day} · 丙午年三月廿二`;
+        document.getElementById('date').textContent = `${d.getMonth() + 1}月${d.getDate()}日${dayArr[d.getDay()]} · 丙午年三月廿二`;
     }
     setInterval(update, 1000);
     update();
 
-    // 简化后的安装逻辑：只需要注册 Service Worker 即可
-    // 浏览器会自动检测 manifest 并根据需要提供原生安装选项
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js');
+            navigator.serviceWorker.register('./sw.js').catch(err => {
+                console.log('ServiceWorker 注册失败:', err);
+            });
         });
     }
 </script>
-
 </body>
 </html>
