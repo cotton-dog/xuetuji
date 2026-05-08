@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lock Screen Professional V4</title>
+    
+    <!-- 添加 PWA 配置文件链接（新增） -->
+    <link rel="manifest" href="manifest.json">
+    
     <style>
         * {
             margin: 0;
@@ -129,6 +133,11 @@
     }
     setInterval(update, 1000);
     update();
+    
+    // 注册 Service Worker（新增）
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js');
+    }
 </script>
 
 </body>
