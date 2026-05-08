@@ -2,12 +2,13 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="transparent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>雪兔机</title>
     <link rel="manifest" href="manifest.json">
     
+    <meta name="theme-color" content="transparent">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <style>
@@ -19,65 +20,56 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 核心修复：直接把背景锁死在 html 这一层，并强行拉满物理全屏 */
-        html {
-            height: 100vh;
-            width: 100vw;
-            /* 背景图链接我绝对没动你的！ */
-            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
-            background-size: cover;
-            background-attachment: fixed;
-        }
-
-        body {
+        /* 重点：让 html 和 body 成为一个绝对的、不缩水的 100% 容器 */
+        html, body {
             height: 100%;
             width: 100%;
             overflow: hidden;
-            background: transparent; /* 必须透明 */
+            background-color: #000; /* 给个底色，防止闪烁 */
+        }
+
+        /* 模拟手机壁纸的逻辑：它是独立于所有内容之外的一层 */
+        .wallpaper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            /* 你的背景图链接 */
+            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
+            background-size: cover;
+            z-index: 0;
         }
 
         .container {
+            position: relative;
+            z-index: 1; /* 保证文字和图标在壁纸上面 */
             height: 100vh;
             width: 100vw;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
+            /* 这里的 padding-top 可以根据你的状态栏高度微调，保证时间不被摄像头挡住 */
             padding: 100px 0 60px 0;
             color: #5d6d56;
             background: transparent;
-            position: relative;
-            z-index: 1;
         }
 
-        /* 你的图标和原有样式，一个字都没删 */
+        /* 你的原始图标样式 */
         .header { text-align: center; }
         .date-text { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
         .time-text { font-size: 110px; font-weight: 600; line-height: 1; letter-spacing: -2px; }
-
-        .bottom-bar {
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 45px;
-        }
-
-        .icon-circle {
-            width: 60px;
-            height: 60px;
-            background-color: #8c938d;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
+        .bottom-bar { width: 100%; display: flex; justify-content: space-between; padding: 0 45px; }
+        .icon-circle { width: 60px; height: 60px; background-color: #8c938d; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
         .icon-circle svg { width: 85px; height: 85px; }
         .icon-shape { fill: white; }
         .line-cut { fill: #8c938d; }
     </style>
 </head>
 <body>
+
+<div class="wallpaper"></div>
 
 <div class="container">
     <div class="header">
@@ -106,7 +98,6 @@
 </div>
 
 <script>
-    // 时间逻辑
     function update() {
         const d = new Date();
         const h = String(d.getHours()).padStart(2, '0');
@@ -118,7 +109,6 @@
     setInterval(update, 1000);
     update();
 
-    // 注册逻辑（我发誓没删这个！）
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js').catch(err => {
