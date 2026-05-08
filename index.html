@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#ffffff">
+    <meta name="theme-color" content="#d5e8d4">
     <title>雪兔机</title>
     <link rel="manifest" href="manifest.json">
     
@@ -19,32 +19,39 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 关键修复：让背景图从 html 级别就开始铺，直接顶破天花板 */
-        html {
+        /* 关键：让背景图绝对定位，强行占领全屏每一像素 */
+        html, body {
             height: 100%;
-            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
-            background-size: cover;
+            width: 100%;
+            overflow: hidden;
+            background-color: #ffffff;
         }
 
-        body {
-            height: 100%;
-            overflow: hidden;
-            background: transparent; /* 必须透明，否则会挡住 html 的背景 */
+        /* 创建一个专门的背景层，防止它被容器撑开或裁切 */
+        .full-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
+            background-size: cover;
+            z-index: -1; /* 保证它在所有内容后面 */
         }
 
         .container {
             height: 100vh;
             width: 100vw;
-            /* 这里不需要 background 了，已经在 html 设置过了 */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
             padding: 100px 0 60px 0;
             color: #5d6d56;
+            position: relative;
+            background: transparent;
         }
 
-        /* 以下是你原始的代码，完全没动 */
         .header { text-align: center; }
         .date-text { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
         .time-text { font-size: 110px; font-weight: 600; line-height: 1; letter-spacing: -2px; }
@@ -76,6 +83,8 @@
     </style>
 </head>
 <body>
+
+<div class="full-background"></div>
 
 <div class="container">
     <div class="header">
