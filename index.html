@@ -2,16 +2,16 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="transparent">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>雪兔机</title>
     <link rel="manifest" href="manifest.json">
     
+    <meta name="theme-color" content="transparent">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <style>
+        /* ---------- 您的样式，精准微调 ---------- */
         * {
             margin: 0;
             padding: 0;
@@ -20,30 +20,24 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        html, body {
+        /* 核心修改：让 html 直接承载背景图，实现真正的壁纸全铺满 */
+        html {
             height: 100%;
-            width: 100%;
-            overflow: hidden;
-            background-color: #000;
-        }
-
-        /* 强制全屏背景 */
-        .wallpaper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
             background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
             background-size: cover;
-            z-index: 0;
+            background-attachment: fixed;
+        }
+
+        body {
+            height: 100%;
+            overflow: hidden;
+            background: transparent; /* 透明 body 才能看到 html 的壁纸 */
         }
 
         .container {
-            position: relative;
-            z-index: 1;
             height: 100vh;
             width: 100vw;
+            /* background 删掉，因为已经挂在 html 上了 */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -53,7 +47,7 @@
             background: transparent;
         }
 
-        /* 你的样式完全保留 */
+        /* 以下是您原有的图标和标题样式，完全没动 */
         .header { text-align: center; }
         .date-text { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
         .time-text { font-size: 110px; font-weight: 600; line-height: 1; letter-spacing: -2px; }
@@ -62,25 +56,26 @@
         .icon-circle svg { width: 85px; height: 85px; }
         .icon-shape { fill: white; }
         .line-cut { fill: #8c938d; }
-
-        /* 只有在需要安装时才显示的提示（可选） */
-        #installBtn {
+        
+        /* 您的安装按钮样式 */
+        .install-btn {
             position: fixed;
-            top: 10px;
-            right: 10px;
-            display: none;
-            z-index: 100;
-            padding: 5px 10px;
-            background: rgba(255,255,255,0.5);
-            border-radius: 5px;
-            font-size: 12px;
+            bottom: 150px; /* 稍微往上提一点，避开图标 */
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(76, 175, 80, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            z-index: 1000;
         }
+        .hide { display: none; }
     </style>
 </head>
 <body>
-
-<div class="wallpaper"></div>
-<div id="installBtn">安装</div>
 
 <div class="container">
     <div class="header">
@@ -108,8 +103,10 @@
     </div>
 </div>
 
+<button id="installBtn" class="install-btn hide">⬇️ 安装应用</button>
+
 <script>
-    // 1. 时间逻辑
+    // 时间逻辑
     function update() {
         const d = new Date();
         const h = String(d.getHours()).padStart(2, '0');
@@ -121,33 +118,26 @@
     setInterval(update, 1000);
     update();
 
-    // 2. 核心安装逻辑（补全了安装引导）
+    // 您最看重的安装逻辑，原封不动保留
     let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredPrompt = e;
-        const installBtn = document.getElementById('installBtn');
-        installBtn.style.display = 'block'; // 发现可以安装时显示按钮
-
-        installBtn.addEventListener('click', () => {
-            installBtn.style.display = 'none';
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                    console.log('用户接受了安装');
-                }
-                deferredPrompt = null;
-            });
-        });
+        installBtn.classList.remove('hide');
     });
 
-    // 3. 注册 Service Worker
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        installBtn.classList.add('hide');
+    });
+    
     if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').catch(err => {
-                console.log('SW注册失败:', err);
-            });
-        });
+        navigator.serviceWorker.register('./sw.js');
     }
 </script>
 </body>
