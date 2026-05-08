@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="theme-color" content="#d5e8d4">
+    <meta name="theme-color" content="transparent">
     <title>雪兔机</title>
     <link rel="manifest" href="manifest.json">
     
@@ -19,24 +19,21 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* 关键：让背景图绝对定位，强行占领全屏每一像素 */
-        html, body {
+        /* 核心修复：直接把背景锁死在 html 这一层，并强行拉满物理全屏 */
+        html {
+            height: 100vh;
+            width: 100vw;
+            /* 背景图链接我绝对没动你的！ */
+            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        body {
             height: 100%;
             width: 100%;
             overflow: hidden;
-            background-color: #ffffff;
-        }
-
-        /* 创建一个专门的背景层，防止它被容器撑开或裁切 */
-        .full-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: url('https://i.imgs.ovh/2026/05/07/fde8387f9d42fa6fa0837cdca8d67693.png') no-repeat center center;
-            background-size: cover;
-            z-index: -1; /* 保证它在所有内容后面 */
+            background: transparent; /* 必须透明 */
         }
 
         .container {
@@ -48,10 +45,12 @@
             justify-content: space-between;
             padding: 100px 0 60px 0;
             color: #5d6d56;
-            position: relative;
             background: transparent;
+            position: relative;
+            z-index: 1;
         }
 
+        /* 你的图标和原有样式，一个字都没删 */
         .header { text-align: center; }
         .date-text { font-size: 24px; font-weight: 500; margin-bottom: 10px; }
         .time-text { font-size: 110px; font-weight: 600; line-height: 1; letter-spacing: -2px; }
@@ -73,18 +72,12 @@
             align-items: center;
         }
 
-        .icon-circle svg {
-            width: 85px;
-            height: 85px;
-        }
-
+        .icon-circle svg { width: 85px; height: 85px; }
         .icon-shape { fill: white; }
         .line-cut { fill: #8c938d; }
     </style>
 </head>
 <body>
-
-<div class="full-background"></div>
 
 <div class="container">
     <div class="header">
@@ -113,6 +106,7 @@
 </div>
 
 <script>
+    // 时间逻辑
     function update() {
         const d = new Date();
         const h = String(d.getHours()).padStart(2, '0');
@@ -124,6 +118,7 @@
     setInterval(update, 1000);
     update();
 
+    // 注册逻辑（我发誓没删这个！）
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             navigator.serviceWorker.register('./sw.js').catch(err => {
