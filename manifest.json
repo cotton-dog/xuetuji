@@ -1,7 +1,7 @@
 {
   "name": "Lock Screen Professional",
-  "short_name": "锁屏专业版",
-  "description": "专业锁屏界面体验",
+  "short_name": "雪兔机",
+  "description": "雪兔机",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
