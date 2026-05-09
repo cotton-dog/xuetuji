@@ -2,14 +2,20 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-viewport-fit=cover
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 修正：将 viewport-fit 放入 content 内部 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>雪兔机</title>
+    
+    <!-- 引入清单 -->
     <link rel="manifest" href="manifest.json">
+    
+    <!-- 修正：确保全屏开关和状态栏透明 -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-capable" content="yes">
+
     <style>
-        /* 这里是你原本的所有锁屏样式，完全没动 */
+        /* 保持你的原始样式 */
         * {
             margin: 0;
             padding: 0;
@@ -19,7 +25,9 @@ viewport-fit=cover
         }
         body, html {
             height: 100%;
+            width: 100%;
             overflow: hidden;
+            background-color: #000; /* 防止闪屏白底 */
         }
         .container {
             height: 100vh;
@@ -63,8 +71,8 @@ viewport-fit=cover
 
 <div class="container">
     <div class="header">
-        <div class="date-text" id="date">5月8日周五 · 丙午年三月廿二</div>
-        <div class="time-text" id="time">00:20</div>
+        <div class="date-text" id="date">正在加载...</div>
+        <div class="time-text" id="time">00:00</div>
     </div>
 
     <div class="bottom-bar">
@@ -88,7 +96,6 @@ viewport-fit=cover
 </div>
 
 <script>
-    // 时间更新逻辑
     function update() {
         const d = new Date();
         const h = String(d.getHours()).padStart(2, '0');
@@ -100,10 +107,11 @@ viewport-fit=cover
     setInterval(update, 1000);
     update();
 
-    // 注册 Service Worker (安装引擎)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js');
+            navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('SW Registered'))
+            .catch(err => console.error('SW Registration Failed', err));
         });
     }
 </script>
