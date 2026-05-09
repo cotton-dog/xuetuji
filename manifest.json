@@ -3,7 +3,7 @@
   "short_name": "雪兔机",
   "description": "雪兔机",
   "start_url": "./index.html",
-  "display": "standalone",
+  "display":"fullscreen",
   "orientation": "portrait",
   "background_color": "#5d6d56",
   "theme_color": "#5d6d56",
