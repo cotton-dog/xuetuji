@@ -3,93 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>微信启动页</title>
+    <title>微信</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* 基础样式重置，确保全屏适配 */
+        /* 基础样式重置 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
             -webkit-tap-highlight-color: transparent;
+            user-select: none; /* 仿iOS，禁止长按选中文本 */
         }
 
         html, body {
             width: 100%;
             height: 100%;
-            background-color: #000000;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            background-color: #000;
         }
 
-        /* 主容器：全屏沉浸 */
+        /* ==================== 🛠️ 新增：完全同步主屏幕的 iOS 状态栏 ==================== */
+        .status-bar {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #FFF; /* 微信地球背景为暗色，状态栏文字设为纯白 */
+            font-size: 14px;
+            font-weight: 590;          
+            z-index: 100; 
+            pointer-events: none; 
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .battery-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .battery-icon {
+            width: 25px;
+            height: 12px;
+            border: 1px solid #FFF; /* 适配白字 */
+            border-radius: 3px;
+            position: relative;
+            padding: 1px;
+        }
+
+        .battery-level {
+            height: 100%;
+            background-color: #FFF; /* 适配白字 */
+            border-radius: 1px;
+            transition: width 0.3s ease;
+        }
+
+        .battery-tip {
+            width: 2px;
+            height: 4px;
+            background-color: #FFF; /* 适配白字 */
+            border-radius: 0 1px 1px 0;
+        }
+
+        /* ==================== 📲 完好保留：全屏背景图容器 (加入返回动画支撑) ==================== */
         .container {
             position: relative;
             width: 100%;
             height: 100%;
-            background-color: #000000;
-            overflow: hidden;
+            background-image: url('https://i.imgs.ovh/2026/05/21/57e6b7c2239da21d46d9436512499458.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            /* 严格控制整体底部抬高距离，让按钮高度贴近原图 */
+            padding-bottom: calc(32px + env(safe-area-inset-bottom));
+            
+            /* 用于滑动返回的性能加速与过渡 */
+            will-change: transform, opacity;
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
         }
 
-        /* 右上角语言按钮 */
+        /* 右上角语言按钮（原封不动） */
         .lang-btn {
             position: absolute;
-            top: 50px;
+            top: calc(24px + env(safe-area-inset-top));
             right: 24px;
-            color: #ffffff;
-            font-size: 16px;
-            font-weight: 500;
-            opacity: 0.8;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 15px;
+            font-weight: bold;
             cursor: pointer;
-            z-index: 10;
+            letter-spacing: 1px;
+            z-index: 80;
         }
 
-        /* 中央主图区域：彻底铺满全屏幕 */
-        .main-visual {
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* 底部按钮外层：让它们各执一端，死贴两侧（原封不动） */
+        .button-group {
             width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1;
-        }
-
-        /* 核心背景图：完美裁剪并充满屏幕，不再缩小 */
-        .bg-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover; /* 关键：铺满且防变形 */
-            pointer-events: none;
-        }
-
-        /* 底部按钮栏容器 */
-        .bottom-bar {
-            position: absolute;
-            bottom: 65px; /* 留出底部小横条的空间 */
-            left: 0;
-            width: 100%;
-            padding: 0 24px;
+            /* 缩减两侧边距，让按钮像原图一样极度贴边 */
+            padding: 0 20px; 
             display: flex;
             justify-content: space-between;
-            gap: 20px;
-            z-index: 5;
+            z-index: 80;
         }
 
-        /* 通用按钮样式 */
+        /* 按钮精确调校（原封不动） */
         .btn {
-            flex: 1;
-            height: 48px;
-            border-radius: 8px;
-            font-size: 16px;
+            /* 彻底砍掉宽度！固定成原图那种精巧的小短块 */
+            width: 120px; 
+            height: 48px; 
+            border: none;
+            /* 极小的微圆角 */
+            border-radius: 6px; 
+            font-size: 15px;
             font-weight: 500;
+            letter-spacing: 2px;
+            text-indent: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            border: none;
             transition: opacity 0.1s ease;
         }
 
@@ -97,105 +141,238 @@
             opacity: 0.8;
         }
 
-        /* 登录按钮（微信绿） */
+        /* 微信绿（原封不动） */
         .btn-login {
-            background-color: #07c160;
-            color: #ffffff;
+            background-color: #07C160;
+            color: #FFFFFF;
         }
 
-        /* 注册按钮（纯白） */
+        /* 纯白（原封不动） */
         .btn-register {
-            background-color: #ffffff;
+            background-color: #FFFFFF;
             color: #191919;
         }
 
-        /* 模拟苹果底部返回小横杠 */
+        /* 底部系统黑线（调高了不透明度，使其在黑色背景中隐约可见） */
         .home-indicator {
             position: absolute;
             bottom: 8px;
+            width: 134px;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.35);
+            border-radius: 100px;
             left: 50%;
             transform: translateX(-50%);
-            width: 135px;
-            height: 5px;
-            background: rgba(255, 255, 255, 0.5); /* 微信界面里用半透明白色小横杠 */
-            border-radius: 10px;
-            z-index: 100;
-            pointer-events: none; /* 让它不阻挡手势滑动 */
+            pointer-events: none;
+            z-index: 80;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="status-bar">
+        <div class="status-left">
+            <span class="status-carrier" style="display: none;">中国移动</span>
+            <span class="status-time" id="statusBarTime">00:00</span>
+        </div>
+        <div class="status-right">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <div class="battery-container">
+                <div class="battery-icon">
+                    <div id="battery-level" class="battery-level" style="width: 100%;"></div>
+                </div>
+                <div class="battery-tip"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" id="appContainer">
         <div class="lang-btn">语言</div>
 
-        <div class="main-visual">
-            <img class="bg-image" src="https://i.imgs.ovh/2026/05/21/57e6b7c2239da21d46d9436512499458.jpg" alt="WeChat Backdrop">
-        </div>
-
-        <div class="bottom-bar">
-            <button class="btn btn-login">登 录</button>
-            <button class="btn btn-register">注 册</button>
+        <div class="button-group">
+            <button class="btn btn-login">登录</button>
+            <button class="btn btn-register">注册</button>
         </div>
 
         <div class="home-indicator"></div>
     </div>
 
     <script>
-        // ========== 📱 全局手势返回控制系统 ==========
-        let startX = 0;
-        let startY = 0;
-        const SWIPE_THRESHOLD = 50; // 划过多少像素触发返回
+        // ==================== 🕒 1. 高精度时间刷新与电池适配 ====================
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('statusBarTime').textContent = `${hours}:${minutes}`;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
 
-        // 函数：触发返回桌面
-        function goBackToHome() {
-            // 如果是在普通的网页跳转中，使用这行返回上一页（即你的index.html桌面）
-            if (document.referrer || window.history.length > 1) {
-                window.history.back();
+        async function updateBattery() {
+            try {
+                const battery = await navigator.getBattery();
+                const refreshBatteryUI = () => {
+                    const level = Math.round(battery.level * 100);
+                    document.getElementById('battery-level').style.width = level + '%';
+                };
+                refreshBatteryUI();
+                battery.addEventListener('levelchange', refreshBatteryUI);
+            } catch (e) {
+                document.getElementById('battery-level').style.width = '100%';
+            }
+        }
+        updateBattery();
+
+
+        // ==================== 📲 2. 仿 iOS 全屏双向手势滑动返回桌面 ====================
+        const appContainer = document.getElementById('appContainer');
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        let swipeDirection = ""; // "leftToRight" 或 "rightToLeft"
+
+        // 返回主界面的函数
+        function exitApp() {
+            // 返回上一个页面（如果它是从 index.html 跳过来的话）
+            if (document.referrer !== "") {
+                window.location.href = "index.html";
             } else {
-                // 如果是直接打开的，就强制跳转回 index.html
-                window.location.href = './index.html';
+                // 如果是直接打开的独立页面，就调用默认的历史返回
+                window.history.back();
             }
         }
 
-        // 监听触摸开始
+        // 触控开始
         window.addEventListener('touchstart', (e) => {
             startX = e.touches[0].clientX;
-            startY = e.touches[0].clientY;
+            const screenWidth = window.innerWidth;
+            
+            // 边缘判定：允许靠近左边缘或右边缘的区域触发返回手势
+            if (startX < 50) {
+                isDragging = true;
+                swipeDirection = "leftToRight";
+                appContainer.style.transition = 'none'; // 滑动时取消动画跟随手指
+            } else if (startX > screenWidth - 50) {
+                isDragging = true;
+                swipeDirection = "rightToLeft";
+                appContainer.style.transition = 'none';
+            }
         }, { passive: true });
 
-        // 监听触摸结束（抬起手指时判定）
-        window.addEventListener('touchend', (e) => {
-            const endX = e.changedTouches[0].clientX;
-            const endY = e.changedTouches[0].clientY;
-
-            const diffX = endX - startX;
-            const diffY = endY - startY;
-
+        // 触控移动
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentX = e.touches[0].clientX;
             const screenWidth = window.innerWidth;
-            const screenHeight = window.innerHeight;
+            let diffX = currentX - startX;
 
-            // 1. 边缘侧滑返回（左边缘向右划，或右边缘向左划）
-            // 判定条件：从屏幕边缘 40px 以内发起滑动
-            const edgeMargin = 40; 
+            if (swipeDirection === "leftToRight" && diffX > 0) {
+                // 向右滑：界面往右平移，逐渐变透明
+                appContainer.style.transform = `translateX(${diffX}px)`;
+                appContainer.style.opacity = (1 - diffX / screenWidth).toFixed(2);
+            } else if (swipeDirection === "rightToLeft" && diffX < 0) {
+                // 向左滑：界面往左平移，逐渐变透明
+                appContainer.style.transform = `translateX(${diffX}px)`;
+                appContainer.style.opacity = (1 - Math.abs(diffX) / screenWidth).toFixed(2);
+            }
+        }, { passive: true });
+
+        // 触控结束
+        window.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
             
-            if (startX < edgeMargin && diffX > SWIPE_THRESHOLD) {
-                // 左侧边缘向右滑
-                goBackToHome();
-                return;
-            }
-            if (startX > (screenWidth - edgeMargin) && diffX < -SWIPE_THRESHOLD) {
-                // 右侧边缘向左滑
-                goBackToHome();
-                return;
-            }
+            const screenWidth = window.innerWidth;
+            let diffX = currentX - startX;
+            const returnThreshold = 100; // 滑动超过 100px 就触发返回
 
-            // 2. 底部小横杠上滑返回
-            // 判定条件：从屏幕底部 60px 以内发起滑动，且向上滑动的距离超过阀值
-            if (startY > (screenHeight - 60) && diffY < -SWIPE_THRESHOLD) {
-                // 底部向上滑
-                goBackToHome();
-                return;
+            // 恢复顺滑的贝塞尔曲线动画
+            appContainer.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease';
+
+            if (swipeDirection === "leftToRight") {
+                if (diffX > returnThreshold) {
+                    // 超过阈值，完美划出屏幕并返回
+                    appContainer.style.transform = `translateX(${screenWidth}px)`;
+                    appContainer.style.opacity = '0';
+                    setTimeout(exitApp, 300);
+                } else {
+                    // 未达到阈值，弹回原位
+                    appContainer.style.transform = 'translateX(0px)';
+                    appContainer.style.opacity = '1';
+                }
+            } else if (swipeDirection === "rightToLeft") {
+                if (Math.abs(diffX) > returnThreshold) {
+                    // 超过阈值，完美从左侧划出屏幕并返回
+                    appContainer.style.transform = `translateX(-${screenWidth}px)`;
+                    appContainer.style.opacity = '0';
+                    setTimeout(exitApp, 300);
+                } else {
+                    // 未达到阈值，弹回原位
+                    appContainer.style.transform = 'translateX(0px)';
+                    appContainer.style.opacity = '1';
+                }
+            }
+        });
+
+        // ==================== 💻 3. 桌面端鼠标模拟滑动返回 ====================
+        let isMouseDown = false;
+        window.addEventListener('mousedown', (e) => {
+            startX = e.clientX;
+            const screenWidth = window.innerWidth;
+            if (startX < 50) {
+                isMouseDown = true;
+                swipeDirection = "leftToRight";
+                appContainer.style.transition = 'none';
+            } else if (startX > screenWidth - 50) {
+                isMouseDown = true;
+                swipeDirection = "rightToLeft";
+                appContainer.style.transition = 'none';
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isMouseDown) return;
+            currentX = e.clientX;
+            const screenWidth = window.innerWidth;
+            let diffX = currentX - startX;
+
+            if (swipeDirection === "leftToRight" && diffX > 0) {
+                appContainer.style.transform = `translateX(${diffX}px)`;
+                appContainer.style.opacity = (1 - diffX / screenWidth).toFixed(2);
+            } else if (swipeDirection === "rightToLeft" && diffX < 0) {
+                appContainer.style.transform = `translateX(${diffX}px)`;
+                appContainer.style.opacity = (1 - Math.abs(diffX) / screenWidth).toFixed(2);
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (!isMouseDown) return;
+            isMouseDown = false;
+            const screenWidth = window.innerWidth;
+            let diffX = currentX - startX;
+            const returnThreshold = 100;
+
+            appContainer.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease';
+
+            if (swipeDirection === "leftToRight") {
+                if (diffX > returnThreshold) {
+                    appContainer.style.transform = `translateX(${screenWidth}px)`;
+                    appContainer.style.opacity = '0';
+                    setTimeout(exitApp, 300);
+                } else {
+                    appContainer.style.transform = 'translateX(0px)';
+                    appContainer.style.opacity = '1';
+                }
+            } else if (swipeDirection === "rightToLeft") {
+                if (Math.abs(diffX) > returnThreshold) {
+                    appContainer.style.transform = `translateX(-${screenWidth}px)`;
+                    appContainer.style.opacity = '0';
+                    setTimeout(exitApp, 300);
+                } else {
+                    appContainer.style.transform = 'translateX(0px)';
+                    appContainer.style.opacity = '1';
+                }
             }
         });
     </script>
