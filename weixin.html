@@ -12,7 +12,7 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            user-select: none; /* 防止长按文字出现选择框，更像原生App */
+            user-select: none; 
         }
 
         html, body {
@@ -20,334 +20,321 @@
             height: 100%;
             overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-            background-color: #000;
+            background-color: #111111; /* 修改底层色，彻底掐死黑杠 */
         }
 
-        /* ==================== 1. 仿 iOS 系统状态栏 ==================== */
-        .status-bar {
-            position: absolute;
-            top: 0;
+        /* 核心修复：微信本身不再生成状态栏，而是让出空间（Placeholder），使外壳的状态栏能露出来 */
+        .status-bar-placeholder {
             width: 100%;
-            padding: 12px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            /* 关键点：因为微信背景是深色，这里强制初始化为纯白色，确保能看见 */
-            color: #FFFFFF; 
-            font-size: 14px;
-            font-weight: 590;          
-            z-index: 100; 
-            pointer-events: none; 
-            transition: color 0.3s ease; /* 预留颜色平滑过渡动效 */
+            height: 44px; /* 标准 iOS 状态栏占位高度 */
+            background-color: #111111; 
         }
 
-        .status-right {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .battery-container {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .battery-icon {
-            width: 25px;
-            height: 12px;
-            border: 1px solid #FFFFFF; /* 边框颜色跟随状态栏整体 */
-            border-radius: 3px;
-            position: relative;
-            padding: 1px;
-            transition: border-color 0.3s ease;
-        }
-
-        .battery-level {
-            height: 100%;
-            background-color: #FFFFFF; /* 电量颜色跟随状态栏整体 */
-            border-radius: 1px;
-            transition: width 0.3s ease, background-color 0.3s ease;
-        }
-
-        .battery-tip {
-            width: 2px;
-            height: 4px;
-            background-color: #FFFFFF;
-            border-radius: 0 1px 1px 0;
-            transition: background-color 0.3s ease;
-        }
-
-        /* ==================== 2. 全屏背景图容器 ==================== */
-        .container {
-            position: relative;
+        /* ==================== 2. 全局 App 弹性底框 ==================== */
+        .app-container {
             width: 100%;
             height: 100%;
-            background-image: url('https://i.imgs.ovh/2026/05/21/57e6b7c2239da21d46d9436512499458.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background-color: #111111;
+            color: #ffffff;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            /* 严格控制整体底部抬高距离，让按钮高度贴近原图 */
-            padding-bottom: calc(32px + env(safe-area-inset-bottom));
-            
-            /* 为边缘滑动返回增加顺滑的过渡动画 */
+            position: relative;
+            transform-origin: center center;
             will-change: transform, opacity;
-            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
         }
 
-        /* 右上角语言按钮 */
-        .lang-btn {
-            position: absolute;
-            top: calc(24px + env(safe-area-inset-top));
-            right: 24px;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 15px;
-            font-weight: bold;
-            cursor: pointer;
-            letter-spacing: 1px;
-            z-index: 90;
-        }
-
-        /* 底部按钮外层：让它们各执一端，死贴两侧 */
-        .button-group {
-            width: 100%;
-            /* 缩减两侧边距，让按钮像原图一样极度贴边 */
-            padding: 0 20px; 
+        /* ==================== 3. 微信主导航栏 ==================== */
+        .nav-bar {
+            height: 44px;
             display: flex;
             justify-content: space-between;
-            z-index: 90;
+            align-items: center;
+            padding: 0 16px;
+            background-color: #111111;
+            border-bottom: 0.5px solid #222222;
         }
 
-        /* 按钮精确调校 */
-        .btn {
-            /* 彻底砍掉宽度！固定成原图那种精巧的小短块 */
-            width: 120px; 
-            height: 48px; 
-            border: none;
-            /* 极小的微圆角 */
-            border-radius: 6px; 
-            font-size: 15px;
-            font-weight: 500;
-            letter-spacing: 2px;
-            text-indent: 2px;
+        .nav-left {
             display: flex;
             align-items: center;
-            justify-content: center;
+            font-size: 16px;
+            color: #ffffff;
             cursor: pointer;
-            transition: opacity 0.1s ease;
         }
 
-        .btn:active {
-            opacity: 0.8;
+        .nav-left i {
+            font-size: 20px;
+            margin-right: 6px;
         }
 
-        /* 微信绿 */
-        .btn-login {
-            background-color: #07C160;
-            color: #FFFFFF;
+        .nav-title {
+            font-size: 17px;
+            font-weight: 600;
         }
 
-        /* 纯白 */
-        .btn-register {
-            background-color: #FFFFFF;
-            color: #191919;
+        .nav-right i {
+            font-size: 18px;
+            color: #ffffff;
         }
 
-        /* 底部系统黑线 */
-        .home-indicator {
-            position: absolute;
-            bottom: 8px;
-            width: 134px;
-            height: 5px;
-            background-color: rgba(255, 255, 255, 0.25);
-            border-radius: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            pointer-events: none;
-            z-index: 100;
+        /* ==================== 4. 聊天内容流动区域 ==================== */
+        .chat-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            background-color: #191919;
+            -webkit-overflow-scrolling: touch; 
+        }
+
+        /* 时间标签 */
+        .chat-time {
+            align-self: center;
+            background-color: rgba(255, 255, 255, 0.08);
+            color: #888888;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        /* 消息基础骨架 */
+        .message-row {
+            display: flex;
+            align-items: flex-start;
+            max-width: 85%;
+        }
+
+        /* 对方的消息（左边） */
+        .msg-left {
+            align-self: flex-start;
+        }
+
+        /* 我的消息（右边） */
+        .msg-right {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        /* 头像 */
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            background-size: cover;
+            background-position: center;
+            flex-shrink: 0;
+        }
+
+        .msg-left .avatar {
+            background-image: url('https://img.cdn1.vip/i/69fda8bde0be8f_1778231485.jpg');
+            margin-right: 10px;
+        }
+
+        .msg-right .avatar {
+            background-image: url('https://img.cdn1.vip/i/69fda8be2c02df_1778231486.jpg');
+            margin-left: 10px;
+        }
+
+        /* 气泡 */
+        .bubble {
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-size: 15px;
+            line-height: 1.4;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .msg-left .bubble {
+            background-color: #2c2c2e;
+            color: #ffffff;
+        }
+
+        .msg-right .bubble {
+            background-color: #07c160;
+            color: #ffffff;
+        }
+
+        /* ==================== 5. 底部聊天工具栏 ==================== */
+        .input-panel {
+            height: 56px;
+            background-color: #111111;
+            border-top: 0.5px solid #222222;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 12px;
+            padding-bottom: env(safe-area-inset-bottom); /* 保护小黑条区域 */
+        }
+
+        .input-panel i {
+            font-size: 24px;
+            color: #cccccc;
+        }
+
+        .input-box {
+            flex: 1;
+            height: 38px;
+            background-color: #2c2c2e;
+            border-radius: 6px;
+            border: none;
+            padding: 0 10px;
+            color: #ffffff;
+            font-size: 15px;
+        }
+
+        .input-box:focus {
+            outline: none;
         }
     </style>
 </head>
 <body>
 
-    <div class="status-bar" id="statusBar">
-        <div class="status-left">
-            <span id="statusBarTime">00:00</span>
-        </div>
-        <div class="status-right">
-            <i class="fas fa-signal"></i>
-            <i class="fas fa-wifi"></i>
-            <div class="battery-container">
-                <div class="battery-icon">
-                    <div id="battery-level" class="battery-level" style="width: 100%;"></div>
-                </div>
-                <div class="battery-tip"></div>
+    <div class="status-bar-placeholder"></div>
+
+    <div class="app-container" id="appContainer">
+        
+        <div class="nav-bar">
+            <div class="nav-left" id="navBackBtn">
+                <i class="fas fa-chevron-left"></i>
+                <span>雪兔</span>
+            </div>
+            <div class="nav-title">宝贝</div>
+            <div class="nav-right">
+                <i class="fas fa-ellipsis-h"></i>
             </div>
         </div>
-    </div>
 
-    <div class="container" id="appContainer">
-        <div class="lang-btn">语言</div>
+        <div class="chat-content">
+            <div class="chat-time">10:25</div>
+            
+            <div class="message-row msg-left">
+                <div class="avatar"></div>
+                <div class="bubble">你在干嘛呀？手机弄好了嘛？</div>
+            </div>
 
-        <div class="button-group">
-            <button class="btn btn-login">登录</button>
-            <button class="btn btn-register">注册</button>
+            <div class="message-row msg-right">
+                <div class="avatar"></div>
+                <div class="bubble">正在调试最后的手势呢，有点头大 😭</div>
+            </div>
+
+            <div class="message-row msg-left">
+                <div class="avatar"></div>
+                <div class="bubble">加油加油！弄好了一起去吃好吃的！</div>
+            </div>
         </div>
 
-        <div class="home-indicator"></div>
+        <div class="input-panel">
+            <i class="far fa-comment-dots"></i>
+            <input type="text" class="input-box" placeholder="发送消息..." readonly>
+            <i class="far fa-smile"></i>
+            <i class="fas fa-plus-circle"></i>
+        </div>
+
     </div>
 
     <script>
-        // ==================== 📱 状态栏高精度实时时间 ====================
-        function updateTime() {
-            const now = new Date();
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            document.getElementById('statusBarTime').textContent = `${hours}:${minutes}`;
-        }
-        setInterval(updateTime, 1000);
-        updateTime();
-
-        // ==================== 🔋 获取并展示真实电池电量 ====================
-        async function updateBattery() {
-            try {
-                const battery = await navigator.getBattery();
-                const refreshBatteryUI = () => {
-                    const level = Math.round(battery.level * 100);
-                    const levelEl = document.getElementById('battery-level');
-                    levelEl.style.width = level + '%';
-                    
-                    if (battery.charging) {
-                        levelEl.style.backgroundColor = '#4cd964'; // 充电中变成绿色
-                    } else if (level <= 20) {
-                        levelEl.style.backgroundColor = '#ff3b30'; // 低电量变成红色
-                    } else {
-                        // 保持与文字颜色一致（当前为白色）
-                        levelEl.style.backgroundColor = document.getElementById('statusBar').style.color || '#FFFFFF';
-                    }
-                };
-                refreshBatteryUI();
-                battery.addEventListener('levelchange', refreshBatteryUI);
-                battery.addEventListener('chargingchange', refreshBatteryUI);
-            } catch (e) {
-                document.getElementById('battery-level').style.width = '100%';
-            }
-        }
-        updateBattery();
-
-        // ==================== 🎨 状态栏颜色自适应算法 ====================
-        // 这个函数会扫描微信首屏最上方的一小块区域，智能判定是深色还是浅色背景
-        function adaptStatusBarColor() {
-            const statusBar = document.getElementById('statusBar');
-            const batteryIcon = document.querySelector('.battery-icon');
-            const batteryLevel = document.getElementById('battery-level');
-            const batteryTip = document.querySelector('.battery-tip');
-
-            // 微信首屏背景图是深沉的宇宙黑色，这里强制让状态栏元素变成白色
-            const targetColor = "#FFFFFF"; 
-            
-            statusBar.style.color = targetColor;
-            batteryIcon.style.borderColor = targetColor;
-            batteryTip.style.backgroundColor = targetColor;
-            if (batteryLevel.style.backgroundColor !== 'rgb(76, 217, 100)' && batteryLevel.style.backgroundColor !== 'rgb(255, 59, 48)') {
-                batteryLevel.style.backgroundColor = targetColor;
-            }
-        }
-        // 初始化时运行一次颜色判定
-        window.addEventListener('DOMContentLoaded', adaptStatusBarColor);
-
-        // ==================== 👈👉 仿 iOS 左右双向边缘滑动返回桌面 ====================
-        const appContainer = document.getElementById('appContainer');
+        // ==================== 📱 高仿 iOS 侧滑无缝返回核心交互 ====================
         let startX = 0;
         let startY = 0;
         let currentX = 0;
+        let currentY = 0;
         let isDragging = false;
-        let swipeDirection = ''; //记录是从左边缘划入还是右边缘划入
+        let swipeDirection = ''; 
 
-        const EDGE_THRESHOLD = 30; // 边缘触发判定距离：距离屏幕左右边缘30px以内触发手势
+        const appContainer = document.getElementById('appContainer');
+        const triggerDistance = window.innerWidth * 0.35; 
 
         function handleStart(e) {
             const touch = e.touches ? e.touches[0] : e;
             startX = touch.clientX;
             startY = touch.clientY;
-            const screenWidth = window.innerWidth;
-
-            // 只有当手指从“极左边缘”或“极右边缘”切入时，才激活苹果返回手势
-            if (startX <= EDGE_THRESHOLD) {
-                isDragging = true;
-                swipeDirection = 'left-to-right';
-                appContainer.style.transition = 'none'; // 拖拽时关闭过渡动画
-            } else if (startX >= screenWidth - EDGE_THRESHOLD) {
-                isDragging = true;
-                swipeDirection = 'right-to-left';
-                appContainer.style.transition = 'none';
-            }
+            isDragging = true;
+            swipeDirection = '';
+            appContainer.style.transition = 'none'; 
         }
 
         function handleMove(e) {
             if (!isDragging) return;
             const touch = e.touches ? e.touches[0] : e;
             currentX = touch.clientX;
-            
+            currentY = touch.clientY;
+
             let deltaX = currentX - startX;
-            
-            if (swipeDirection === 'left-to-right') {
-                if (deltaX > 0) {
-                    // 向右滑动时，App页面整体往右错位，并产生轻微淡出
-                    appContainer.style.transform = `translateX(${deltaX}px) scale(0.98)`;
-                    appContainer.style.opacity = (1 - deltaX / window.innerWidth).toFixed(2);
+            let deltaY = currentY - startY;
+
+            if (swipeDirection === '') {
+                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+                    swipeDirection = deltaX > 0 ? 'left-to-right' : 'right-to-left';
+                } else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
+                    isDragging = false; 
                 }
-            } else if (swipeDirection === 'right-to-left') {
-                if (deltaX < 0) {
-                    // 向左滑动时，App页面整体往左错位，并产生轻微淡出
-                    appContainer.style.transform = `translateX(${deltaX}px) scale(0.98)`;
-                    appContainer.style.opacity = (1 - Math.abs(deltaX) / window.innerWidth).toFixed(2);
-                }
+            }
+
+            // 侧滑拉动时的动态弹性缩放视差动效
+            if (swipeDirection === 'left-to-right' && deltaX > 0) {
+                let moveFactor = deltaX;
+                let scaleFactor = 1 - (deltaX / window.innerWidth) * 0.08;
+                let opacityFactor = 1 - (deltaX / window.innerWidth) * 0.3;
+                appContainer.style.transform = `translateX(${moveFactor}px) scale(${scaleFactor})`;
+                appContainer.style.opacity = opacityFactor;
+            } else if (swipeDirection === 'right-to-left' && deltaX < 0) {
+                let moveFactor = deltaX;
+                let scaleFactor = 1 - (Math.abs(deltaX) / window.innerWidth) * 0.08;
+                let opacityFactor = 1 - (Math.abs(deltaX) / window.innerWidth) * 0.3;
+                appContainer.style.transform = `translateX(${moveFactor}px) scale(${scaleFactor})`;
+                appContainer.style.opacity = opacityFactor;
             }
         }
 
         function handleEnd() {
             if (!isDragging) return;
             isDragging = false;
-            
             let deltaX = currentX - startX;
-            const triggerDistance = window.innerWidth * 0.35; // 滑动超过屏幕宽度的35%即判定返回成功
 
             appContainer.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease';
 
             if (swipeDirection === 'left-to-right' && deltaX > triggerDistance) {
-                // 成功返回：丝滑滑出右侧屏幕，并跳转回主页
                 appContainer.style.transform = 'translateX(100%)';
                 appContainer.style.opacity = '0';
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    // 【核心修复】：不再调用 URL 刷新网页，而是发跨文档信号让父级 index.html 把自己滑下去
+                    window.parent.postMessage('closeApp', '*');
+                    setTimeout(() => { appContainer.style.transform = 'translateX(0px) scale(1)'; appContainer.style.opacity = '1'; }, 200);
                 }, 300);
             } else if (swipeDirection === 'right-to-left' && Math.abs(deltaX) > triggerDistance) {
-                // 成功返回：丝滑滑出左侧屏幕，并跳转回主页
                 appContainer.style.transform = 'translateX(-100%)';
                 appContainer.style.opacity = '0';
                 setTimeout(() => {
-                    window.location.href = 'index.html';
+                    window.parent.postMessage('closeApp', '*');
+                    setTimeout(() => { appContainer.style.transform = 'translateX(0px) scale(1)'; appContainer.style.opacity = '1'; }, 200);
                 }, 300);
             } else {
-                // 放弃返回：缩回原位
+                // 没拉到位，弹回
                 appContainer.style.transform = 'translateX(0px) scale(1)';
                 appContainer.style.opacity = '1';
             }
         }
 
-        // 同时绑定手机端触摸事件与桌面端鼠标模拟事件
+        // 绑定触摸和鼠标事件
         window.addEventListener('touchstart', handleStart, { passive: true });
         window.addEventListener('touchmove', handleMove, { passive: true });
         window.addEventListener('touchend', handleEnd);
-
         window.addEventListener('mousedown', handleStart);
         window.addEventListener('mousemove', handleMove);
         window.addEventListener('mouseup', handleEnd);
+
+        // 点击左上角返回按钮
+        document.getElementById('navBackBtn').addEventListener('click', () => {
+            appContainer.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease';
+            appContainer.style.transform = 'translateY(100%)';
+            setTimeout(() => {
+                window.parent.postMessage('closeApp', '*');
+                setTimeout(() => { appContainer.style.transform = 'translateX(0px) scale(1)'; appContainer.style.opacity = '1'; }, 100);
+            }, 300);
+        });
     </script>
 </body>
 </html>
