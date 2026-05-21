@@ -26,7 +26,8 @@
             position: relative;
             width: 100%;
             height: 100%;
-            background-image: url('https://i.imgs.ovh/2026/05/21/57e6b7c2239da21d46d9436512499458.jpg');
+            /* 1. 已经为你更换了全新的背景图片链接 */
+            background-image: url('https://i.imgs.ovh/2026/05/22/ac09fe9be2e85954c2cb4e3d5fb2d4c7.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -36,7 +37,10 @@
             align-items: center;
             /* 严格控制整体底部抬高距离，让按钮高度贴近原图 */
             padding-bottom: calc(32px + env(safe-area-inset-bottom));
-            will-change: transform, opacity; /* 增加物理硬件加速，保证上滑丝滑 */
+            
+            /* 强制全屏覆盖，不给顶部留一丝缝隙，彻底解决白色横线问题 */
+            margin-top: 0;
+            border: none;
         }
 
         /* 右上角语言按钮 */
@@ -95,12 +99,12 @@
             color: #191919;
         }
 
-        /* 【已删除】原先丑陋的 .home-indicator 系统黑杠已经彻底拔除，改用全隐形手势控制 */
+        /* 2. 【已按要求删除】：原先极丑的系统底部白杠 `.home-indicator` 已被彻底拔除，干净清爽 */
     </style>
 </head>
 <body>
 
-    <div class="container" id="appContainer">
+    <div class="container">
         <div class="lang-btn">语言</div>
 
         <div class="button-group">
@@ -110,78 +114,49 @@
     </div>
 
     <script>
-        const appContainer = document.getElementById('appContainer');
-        
-        let startX = 0;
-        let startY = 0;
-        let isHomeSwiping = false;
+        let edgeStartX = 0;
+        let edgeStartY = 0;
+        let isRightEdgeSwiping = false;
 
-        function handleTouchStart(e) {
-            const touch = e.touches ? e.touches[0] : e;
-            const windowHeight = window.innerHeight;
+        window.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            const screenWidth = window.innerWidth;
             
-            // 【安全边界】：只有当手指从屏幕最底部的 45px 区域内往上划时，才激活返回桌面手势
-            if (touch.clientY > windowHeight - 45) {
-                startX = touch.clientX;
-                startY = touch.clientY;
-                isHomeSwiping = true;
-                appContainer.style.transition = 'none'; 
+            // 判定手指是否落在屏幕最右侧边缘（靠右 40px 内的范围）
+            if (touch.clientX > screenWidth - 40) {
+                edgeStartX = touch.clientX;
+                edgeStartY = touch.clientY;
+                isRightEdgeSwiping = true;
             }
-        }
+        }, { passive: true });
 
-        function handleTouchMove(e) {
-            if (!isHomeSwiping) return;
-            const touch = e.touches ? e.touches[0] : e;
-            let diffY = touch.clientY - startY;
+        window.addEventListener('touchmove', (e) => {
+            if (!isRightEdgeSwiping) return;
+            
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - edgeStartX;
+            const deltaY = touch.clientY - edgeStartY;
 
-            // 只有向上滑（diffY为负数）时才产生动画联动
-            if (diffY < 0) {
-                // 产生由大变小、向上升起的渐隐回弹感，高级感拉满
-                let scalePercent = 1 - Math.abs(diffY) / 1200;
-                if(scalePercent < 0.85) scalePercent = 0.85;
-                appContainer.style.transform = `translateY(${diffY}px) scale(${scalePercent})`;
-                appContainer.style.opacity = `${1 - Math.abs(diffY)/500}`;
+            // 如果上下滑动的位移过大，说明用户不是在做侧滑，及时拦截释放
+            if (Math.abs(deltaY) > Math.abs(deltaX)) {
+                isRightEdgeSwiping = false;
             }
-        }
+        }, { passive: true });
 
-        function handleTouchEnd(e) {
-            if (!isHomeSwiping) return;
-            isHomeSwiping = false;
+        window.addEventListener('touchend', (e) => {
+            if (!isRightEdgeSwiping) return;
+            isRightEdgeSwiping = false;
 
-            const touch = e.changedTouches ? e.changedTouches[0] : e;
-            let diffY = touch.clientY - startY;
+            const touch = e.changedTouches[0];
+            const deltaX = touch.clientX - edgeStartX;
 
-            appContainer.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease';
-
-            // 划动超过 80 像素，直接判定成功回桌面
-            if (diffY < -80) {
-                appContainer.style.transform = 'translateY(-30%) scale(0.85)';
-                appContainer.style.opacity = '0';
-                
-                setTimeout(() => {
-                    // 通知外部主页把这个微信层隐藏，并将状态栏颜色恢复为黑色
-                    window.parent.postMessage('closeApp', '*');
-                    
-                    // 延迟重置样式，等待下一次被重新点开
-                    setTimeout(() => {
-                        appContainer.style.transform = 'translateY(0) scale(1)';
-                        appContainer.style.opacity = '1';
-                    }, 350);
-                }, 150);
-            } else {
-                // 划动力度不够，弹回原位
-                appContainer.style.transform = 'translateY(0px) scale(1)';
-                appContainer.style.opacity = '1';
+            // 从右往左划，deltaX 是个负数。当向左拉动超过 60 像素时，判定返回成功！
+            if (deltaX < -60) {
+                // 向外层的桌面大框架发出返回通知，安全且不误触
+                window.parent.postMessage('closeWechat', '*');
             }
-        }
-
-        window.addEventListener('touchstart', handleTouchStart, { passive: true });
-        window.addEventListener('touchmove', handleTouchMove, { passive: true });
-        window.addEventListener('touchend', handleTouchEnd);
-
-        window.addEventListener('mousedown', handleTouchStart);
-        window.addEventListener('mousemove', handleTouchMove);
-        window.addEventListener('mouseup', handleTouchEnd);
+        });
     </script>
+
 </body>
 </html>
