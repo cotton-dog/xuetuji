@@ -22,71 +22,53 @@
             overflow: hidden;
         }
 
-        /* 主容器，模拟手机屏幕比例 */
+        /* 主容器：全屏沉浸 */
         .container {
             position: relative;
             width: 100%;
             height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            background: radial-gradient(circle at 50% 50%, #001a3a 0%, #000000 70%);
+            background-color: #000000;
+            overflow: hidden;
         }
 
         /* 右上角语言按钮 */
         .lang-btn {
             position: absolute;
-            top: 40px;
+            top: 50px;
             right: 24px;
             color: #ffffff;
             font-size: 16px;
             font-weight: 500;
-            opacity: 0.9;
+            opacity: 0.8;
             cursor: pointer;
             z-index: 10;
         }
 
-        /* 中央主图区域（地球与人） */
+        /* 中央主图区域：彻底铺满全屏幕 */
         .main-visual {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -55%);
+            top: 0;
+            left: 0;
             width: 100%;
-            max-width: 500px;
-            aspect-ratio: 1 / 1;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
+            z-index: 1;
         }
 
-        /* 核心背景图：使用你提供的还原链接 */
+        /* 核心背景图：完美裁剪并充满屏幕，不再缩小 */
         .bg-image {
-            width: 92%;
-            height: 92%;
-            object-fit: contain;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 关键：铺满且防变形 */
             pointer-events: none;
-        }
-
-        /* 底部地平线弧线：完美遮挡并制造剪影效果 */
-        .horizon {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 160%;
-            height: 160px;
-            background-color: #000000;
-            border-top-left-radius: 50% 100%;
-            border-top-right-radius: 50% 100%;
-            z-index: 2;
         }
 
         /* 底部按钮栏容器 */
         .bottom-bar {
             position: absolute;
-            bottom: 40px;
+            bottom: 65px; /* 留出底部小横条的空间 */
             left: 0;
             width: 100%;
             padding: 0 24px;
@@ -126,6 +108,20 @@
             background-color: #ffffff;
             color: #191919;
         }
+
+        /* 模拟苹果底部返回小横杠 */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 135px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5); /* 微信界面里用半透明白色小横杠 */
+            border-radius: 10px;
+            z-index: 100;
+            pointer-events: none; /* 让它不阻挡手势滑动 */
+        }
     </style>
 </head>
 <body>
@@ -137,13 +133,71 @@
             <img class="bg-image" src="https://i.imgs.ovh/2026/05/21/57e6b7c2239da21d46d9436512499458.jpg" alt="WeChat Backdrop">
         </div>
 
-        <div class="horizon"></div>
-
         <div class="bottom-bar">
             <button class="btn btn-login">登 录</button>
             <button class="btn btn-register">注 册</button>
         </div>
+
+        <div class="home-indicator"></div>
     </div>
 
+    <script>
+        // ========== 📱 全局手势返回控制系统 ==========
+        let startX = 0;
+        let startY = 0;
+        const SWIPE_THRESHOLD = 50; // 划过多少像素触发返回
+
+        // 函数：触发返回桌面
+        function goBackToHome() {
+            // 如果是在普通的网页跳转中，使用这行返回上一页（即你的index.html桌面）
+            if (document.referrer || window.history.length > 1) {
+                window.history.back();
+            } else {
+                // 如果是直接打开的，就强制跳转回 index.html
+                window.location.href = './index.html';
+            }
+        }
+
+        // 监听触摸开始
+        window.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        // 监听触摸结束（抬起手指时判定）
+        window.addEventListener('touchend', (e) => {
+            const endX = e.changedTouches[0].clientX;
+            const endY = e.changedTouches[0].clientY;
+
+            const diffX = endX - startX;
+            const diffY = endY - startY;
+
+            const screenWidth = window.innerWidth;
+            const screenHeight = window.innerHeight;
+
+            // 1. 边缘侧滑返回（左边缘向右划，或右边缘向左划）
+            // 判定条件：从屏幕边缘 40px 以内发起滑动
+            const edgeMargin = 40; 
+            
+            if (startX < edgeMargin && diffX > SWIPE_THRESHOLD) {
+                // 左侧边缘向右滑
+                goBackToHome();
+                return;
+            }
+            if (startX > (screenWidth - edgeMargin) && diffX < -SWIPE_THRESHOLD) {
+                // 右侧边缘向左滑
+                goBackToHome();
+                return;
+            }
+
+            // 2. 底部小横杠上滑返回
+            // 判定条件：从屏幕底部 60px 以内发起滑动，且向上滑动的距离超过阀值
+            if (startY > (screenHeight - 60) && diffY < -SWIPE_THRESHOLD) {
+                // 底部向上滑
+                goBackToHome();
+                return;
+            }
+        });
+    </script>
 </body>
 </html>
