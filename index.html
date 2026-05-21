@@ -505,7 +505,14 @@
     <div class="screen-slider-wrapper" id="sliderWrapper">
         
         <div class="page-container" data-page-index="0">
-            <div class="grid-slot"><div class="app-item"><div class="app-icon icon-weixin"></div><div class="app-name">微信</div></div></div>
+           <div class="grid-slot">
+    <a href="weixin.html" style="text-decoration: none; display: block; width: 100%;" data-native>
+        <div class="app-item">
+            <div class="app-icon icon-weixin"></div>
+            <div class="app-name">微信</div>
+        </div>
+    </a>
+</div>
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-photos"><i class="fas fa-images" style="color: #ff9500;"></i></div><div class="app-name">照片</div></div></div>
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-camera"><i class="fas fa-camera"></i></div><div class="app-name">相机</div></div></div>
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-weather"><i class="fas fa-cloud-sun"></i></div><div class="app-name">天气</div></div></div>
@@ -971,6 +978,12 @@
                 stopEditingMode();
             }
         }, true);
+// 拦截微信图标的点击，防止在抖动编辑模式下误跳转
+document.querySelector('a[href="weixin.html"]').addEventListener('click', function(e) {
+    if (isEditing) { 
+        e.preventDefault(); // 如果正在编辑抖动，阻止跳转
+    }
+});
 // 自动注册 PWA 的 Service Worker 后台脚本
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
