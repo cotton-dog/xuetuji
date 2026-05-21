@@ -26,7 +26,7 @@
         body, html {
             height: 100%;
             overflow: hidden;
-            background-color: #FFD1E0; /* 基础背景色 */
+            background-color: #FFD1E0; 
             position: relative;
         }
 
@@ -44,6 +44,11 @@
             font-weight: 590;          
             z-index: 100; 
             pointer-events: none; 
+        }
+
+        /* 当微信打开时，外壳状态栏强行变白，完美融合微信深色背景 */
+        body.weixin-open .status-bar {
+            color: #ffffff !important;
         }
 
         .status-left .status-time {
@@ -72,7 +77,7 @@
         .battery-icon {
             width: 25px;
             height: 12px;
-            border: 1px solid #333;
+            border: 1px solid currentColor;
             border-radius: 3px;
             position: relative;
             padding: 1px;
@@ -80,7 +85,7 @@
 
         .battery-level {
             height: 100%;
-            background-color: #333;
+            background-color: currentColor;
             border-radius: 1px;
             transition: width 0.3s ease;
         }
@@ -88,7 +93,7 @@
         .battery-tip {
             width: 2px;
             height: 4px;
-            background-color: #333;
+            background-color: currentColor;
             border-radius: 0 1px 1px 0;
         }
 
@@ -226,7 +231,7 @@
         .action-button > :not(.torch-icon-custom):not(.camera-icon-custom) { display: none; }
 
 
-        /* ==================== 3. 多页面滑块支撑（整体往上提） ==================== */
+        /* ==================== 3. 多页面滑块支撑 ==================== */
         .screen-slider-wrapper {
             position: absolute;
             top: 0;
@@ -239,7 +244,6 @@
             z-index: 10;
         }
 
-        /* 每一页的大容器 */
         .page-container {
             min-width: 100%;
             width: 100%;
@@ -262,7 +266,6 @@
             opacity: 1;
         }
 
-        /* 静态网格槽位 */
         .grid-slot {
             width: 65px;
             height: 75px;
@@ -274,7 +277,6 @@
             border-radius: 12px;
         }
 
-        /* 半透明小底框 */
         .shaking-mode .grid-slot::before {
             content: "";
             position: absolute;
@@ -289,7 +291,6 @@
             pointer-events: none;
         }
 
-        /* 图标主体 */
         .app-item {
             display: flex;
             flex-direction: column;
@@ -335,7 +336,6 @@
             display: none !important;
         }
 
-        /* 图标定制颜色 */
         .icon-messages { background: linear-gradient(135deg, #44d86a, #26af47); }
         .icon-phone { background: linear-gradient(135deg, #44d86a, #26af47); }
         .icon-safari { background: linear-gradient(135deg, #5fc9f8, #0c96e1); }
@@ -367,7 +367,6 @@
             -webkit-backdrop-filter: blur(25px);
             border-radius: 27px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             justify-items: center;
@@ -379,20 +378,10 @@
             transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
         }
 
-        .unlocked .dock {
-            transform: scale(1);
-        }
-
-        .dock .grid-slot {
-            height: 52px; 
-            justify-content: center; 
-        }
-        .dock .grid-slot::before {
-            top: auto; 
-        }
-        .dock .app-icon { 
-            margin-bottom: 0; 
-        }
+        .unlocked .dock { transform: scale(1); opacity: 1; }
+        .dock .grid-slot { height: 52px; justify-content: center; }
+        .dock .grid-slot::before { top: auto; }
+        .dock .app-icon { margin-bottom: 0; }
 
         /* ==================== 5. 分页指示器 ==================== */
         .page-dots-indicator {
@@ -409,9 +398,7 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        .unlocked .page-dots-indicator {
-            opacity: 1;
-        }
+        .unlocked .page-dots-indicator { opacity: 1; }
         .page-dot {
             width: 7px;
             height: 7px;
@@ -424,7 +411,6 @@
             transform: scale(1.15);
         }
 
-        /* 底部操作指示条 */
         .home-indicator {
             position: absolute;
             bottom: 8px;
@@ -435,36 +421,28 @@
             background: #555;
             border-radius: 10px;
             z-index: 110; 
-        }
-        .unlocked .home-indicator, .shaking-mode .home-indicator {
             display: none;
         }
-
-        /* 晃动动画 */
-        .shaking .app-icon {
-            animation: iOSShake 0.28s infinite ease-in-out;
+        body.weixin-open .home-indicator {
+            background: #ffffff !important; /* 微信内变白条更逼真 */
         }
 
+        .shaking .app-icon { animation: iOSShake 0.28s infinite ease-in-out; }
         @keyframes iOSShake {
             0% { transform: rotate(-1.5deg); }
             50% { transform: rotate(1.5deg) scale(1.02); }
             100% { transform: rotate(-1.5deg); }
         }
 
-        /* 排序占位图 */
-        .sortable-ghost {
-            opacity: 0 !important; 
-        }   
+        .sortable-ghost { opacity: 0 !important; }   
         .sortable-drag {
             opacity: 0.95 !important;
             box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important;
             z-index: 999999 !important; 
         }
 
-        /* 【重要修复】：当打开微信时，给 body 加上此类名，彻底掐断桌面的滑动切页响应 */
-        .app-active-lock {
-            touch-action: none !important;
-        }
+        /* 锁死桌面拦截层 */
+        .app-active-lock { touch-action: none !important; }
     </style>
 </head>
 <body>
@@ -497,6 +475,7 @@
         transform: translateY(100%); 
         transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         will-change: transform;
+        background-color: #000;
     "></iframe>
 
     <div class="edit-mode-header">
@@ -509,19 +488,13 @@
             <div id="date">9月13日 星期五</div>
             <div id="time">10:27</div>
         </div>
-
         <div class="bottom-actions">
-            <div class="action-button">
-                <div class="torch-icon-custom"></div>
-            </div>
-            <div class="action-button">
-                <div class="camera-icon-custom"></div>
-            </div>
+            <div class="action-button"><div class="torch-icon-custom"></div></div>
+            <div class="action-button"><div class="camera-icon-custom"></div></div>
         </div>
     </div>
 
     <div class="screen-slider-wrapper" id="sliderWrapper">
-        
         <div class="page-container" data-page-index="0">
             <div class="grid-slot">
                 <div class="app-item" id="appWeixin">
@@ -529,7 +502,6 @@
                     <div class="app-name">微信</div>
                 </div>
             </div>
-
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-photos"><i class="fas fa-images" style="color: #ff9500;"></i></div><div class="app-name">照片</div></div></div>
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-camera"><i class="fas fa-camera"></i></div><div class="app-name">相机</div></div></div>
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-weather"><i class="fas fa-cloud-sun"></i></div><div class="app-name">天气</div></div></div>
@@ -545,7 +517,6 @@
             <div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div>
             <div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div>
         </div>
-
     </div>
 
     <div class="page-dots-indicator" id="dotsIndicator">
@@ -564,11 +535,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
     <script>
-        // ========== 完好保留：日历与时钟逻辑 ==========
+        // ========== 完好保留原有高精度日历与算法 ==========
         const GAN = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
         const ZHI = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
         const LUNAR_MONTHS = ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
-        const LUNAR_DAYS = ["初一", "初二", "初三", "初外", "初五", "初六", "初七", "初八", "初九", "初十",
+        const LUNAR_DAYS = ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
                             "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
                             "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"];
         
@@ -629,7 +600,6 @@
             document.getElementById('date').textContent = formatFullDate(now);
         }
 
-        // ========== 完好保留：电池电量逻辑 ==========
         async function updateBattery() {
             try {
                 const battery = await navigator.getBattery();
@@ -641,7 +611,7 @@
                     } else if (level <= 20) {
                         document.getElementById('battery-level').style.backgroundColor = '#ff3b30';
                     } else {
-                        document.getElementById('battery-level').style.backgroundColor = '#333';
+                        document.getElementById('battery-level').style.backgroundColor = 'currentColor';
                     }
                 };
                 refreshBatteryUI();
@@ -656,7 +626,7 @@
         updateTime();
         updateBattery();
 
-        // ========== 完好保留：丝滑滑动解锁逻辑 ==========
+        // ========== 解锁滑动逻辑 ==========
         const lockScreen = document.getElementById('lockScreen');
         let startY = 0;
         let currentY = 0;
@@ -693,25 +663,21 @@
             } else {
                 lockScreen.style.transform = 'translateY(0px)';
             }
-            startY = 0;
-            currentY = 0;
         });
 
-        // 桌面端鼠标模拟解锁
+        // 桌面鼠标模拟解锁
         window.addEventListener('mousedown', (e) => {
             if (document.body.classList.contains('unlocked')) return;
             startY = e.clientY;
             isDragging = true;
             lockScreen.style.transition = 'none';
         });
-
         window.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
             currentY = e.clientY;
             let diffY = currentY - startY;
             if (diffY < 0) lockScreen.style.transform = `translateY(${diffY}px)`;
         });
-
         window.addEventListener('mouseup', () => {
             if (!isDragging) return;
             isDragging = false;
@@ -726,8 +692,7 @@
             }
         });
 
-
-        // ==================== 📱 无限动态追加页面控制系统 ====================
+        // ==================== 📱 动态页面控制系统 ====================
         let currentPage = 0;
         let totalPages = 1; 
         let baseStartX = 0;
@@ -739,7 +704,6 @@
 
         function updateSliderPosition() {
             sliderWrapper.style.transform = `translateX(-${currentPage * 100}%)`;
-            
             dotsIndicator.innerHTML = '';
             for (let i = 0; i < totalPages; i++) {
                 const dot = document.createElement('div');
@@ -753,78 +717,56 @@
             const newPage = document.createElement('div');
             newPage.className = 'page-container';
             newPage.setAttribute('data-page-index', totalPages - 1);
-            
             for (let i = 0; i < 24; i++) {
                 const slot = document.createElement('div');
                 slot.className = 'grid-slot';
                 newPage.appendChild(slot);
             }
             sliderWrapper.appendChild(newPage);
-            
-            newPage.querySelectorAll('.grid-slot').forEach(slot => {
-                bindSlotSortable(slot);
-            });
-
+            newPage.querySelectorAll('.grid-slot').forEach(slot => bindSlotSortable(slot));
             updateSliderPosition();
         }
 
         function checkAndCleanEmptyPages() {
             if (totalPages <= 1) return;
             const pages = document.querySelectorAll('.page-container');
-            
             for (let i = pages.length - 1; i > 0; i--) {
                 const page = pages[i];
                 if (page.querySelectorAll('.app-item').length === 0) {
                     page.remove();
                     totalPages--;
-                    if (currentPage >= totalPages) {
-                        currentPage = totalPages - 1;
-                    }
+                    if (currentPage >= totalPages) currentPage = totalPages - 1;
                 }
             }
-            
             document.querySelectorAll('.page-container').forEach((page, idx) => {
                 page.setAttribute('data-page-index', idx);
             });
-
             updateSliderPosition();
         }
 
-        // ==================== 📱 全局边缘追踪判定器 ====================
         function checkEdgePointer(clientX) {
             if (!isEditing || !document.querySelector('.sortable-drag')) {
                 clearEdgeTimer();
                 return;
             }
-
             const edgeMargin = 40; 
             const screenWidth = window.innerWidth;
-
             if (clientX > screenWidth - edgeMargin && currentPage === totalPages - 1) {
                 if (!edgeTimer) {
                     edgeTimer = setTimeout(() => {
-                        createNewPage(); 
-                        currentPage++;
-                        updateSliderPosition();
-                        clearEdgeTimer();
+                        createNewPage(); currentPage++; updateSliderPosition(); clearEdgeTimer();
                     }, 700); 
                 }
-            }
-            else if (clientX > screenWidth - edgeMargin && currentPage < totalPages - 1) {
+            } else if (clientX > screenWidth - edgeMargin && currentPage < totalPages - 1) {
                 if (!edgeTimer) {
                     edgeTimer = setTimeout(() => {
-                        currentPage++;
-                        updateSliderPosition();
-                        clearEdgeTimer();
+                        currentPage++; updateSliderPosition(); clearEdgeTimer();
                     }, 700);
                 }
-            }
-            else if (clientX < edgeMargin && currentPage > 0) {
+            } else if (clientX < edgeMargin && currentPage > 0) {
                 if (!edgeTimer) {
                     edgeTimer = setTimeout(() => {
-                        currentPage--;
-                        updateSliderPosition();
-                        clearEdgeTimer();
+                        currentPage--; updateSliderPosition(); clearEdgeTimer();
                     }, 700);
                 }
             } else {
@@ -833,35 +775,23 @@
         }
 
         function clearEdgeTimer() {
-            if (edgeTimer) {
-                clearTimeout(edgeTimer);
-                edgeTimer = null;
-            }
+            if (edgeTimer) { clearTimeout(edgeTimer); edgeTimer = null; }
         }
 
         window.addEventListener('touchmove', (e) => {
-            if (e.touches && e.touches[0]) {
-                checkEdgePointer(e.touches[0].clientX);
-            }
+            if (e.touches && e.touches[0]) checkEdgePointer(e.touches[0].clientX);
         }, { passive: true });
-
-        window.addEventListener('dragover', (e) => {
-            checkEdgePointer(e.clientX);
-        });
-
+        window.addEventListener('dragover', (e) => checkEdgePointer(e.clientX));
         window.addEventListener('touchend', clearEdgeTimer);
         window.addEventListener('mouseup', clearEdgeTimer);
 
-
-        // ==================== 📱 Sortable 跨越页槽位绑定 ====================
+        // ==================== Sortable 图标拖拽系统 ====================
         let isEditing = false; 
         let longPressTimer;
         let preventClickFlag = false; 
-
         let startTouchX = 0;
         let startTouchY = 0;
         const MOVE_THRESHOLD = 10; 
-
         const sortableInstances = [];
 
         function bindSlotSortable(slot) {
@@ -873,7 +803,6 @@
                 disabled: !isEditing, 
                 fallbackOnBody: true,
                 swapThreshold: 0.65,
-                
                 onAdd: function (evt) {
                     if (evt.to.children.length > 1) {
                         const existingApp = evt.to.firstElementChild === evt.item ? evt.to.lastElementChild : evt.to.firstElementChild;
@@ -882,26 +811,19 @@
                     checkAndCleanEmptyPages();
                 },
                 onEnd: function () {
-                    clearEdgeTimer();
-                    checkAndCleanEmptyPages();
+                    clearEdgeTimer(); checkAndCleanEmptyPages();
                 }
             });
             sortableInstances.push(sInstance);
         }
 
-        document.querySelectorAll('.grid-slot').forEach(slot => {
-            bindSlotSortable(slot);
-        });
+        document.querySelectorAll('.grid-slot').forEach(slot => bindSlotSortable(slot));
 
         function startEditingMode() {
             if (isEditing) return;
             isEditing = true;
             document.body.classList.add('shaking-mode');
-            
-            document.querySelectorAll('.app-item').forEach(app => {
-                app.classList.add('shaking');
-            });
-
+            document.querySelectorAll('.app-item').forEach(app => app.classList.add('shaking'));
             sortableInstances.forEach(inst => inst.option('disabled', false));
         }
 
@@ -909,60 +831,45 @@
             if (!isEditing) return;
             isEditing = false;
             document.body.classList.remove('shaking-mode');
-            
-            document.querySelectorAll('.app-item').forEach(app => {
-                app.classList.remove('shaking');
-            });
-
+            document.querySelectorAll('.app-item').forEach(app => app.classList.remove('shaking'));
             sortableInstances.forEach(inst => inst.option('disabled', true));
-            clearEdgeTimer();
-            checkAndCleanEmptyPages(); 
+            clearEdgeTimer(); checkAndCleanEmptyPages(); 
         }
 
         function handleStart(e) {
             if (!document.body.classList.contains('unlocked')) return;
-            // 【核心修复】：如果当前用户正在微信应用里玩，立刻拦截并禁止执行桌面的翻页或编辑长按判断！
-            if (document.body.classList.contains('app-active-lock')) return;
+            if (document.body.classList.contains('app-active-lock')) return; // 微信运行时锁手势
             
             const touch = e.touches ? e.touches[0] : e;
-            baseStartX = touch.clientX;
-            baseStartY = touch.clientY;
-            startTouchX = touch.clientX;
-            startTouchY = touch.clientY;
+            baseStartX = touch.clientX; baseStartY = touch.clientY;
+            startTouchX = touch.clientX; startTouchY = touch.clientY;
             isPageMoving = true;
 
             if (e.target.closest('.app-item') && !isEditing) {
                 longPressTimer = setTimeout(() => {
-                    preventClickFlag = true; 
-                    startEditingMode();
+                    preventClickFlag = true; startEditingMode();
                     if (navigator.vibrate) navigator.vibrate(50); 
                 }, 700); 
             }
         }
 
         function handleMove(e) {
-            // 【核心修复】：应用打开状态下直接屏蔽桌面滑块
             if (document.body.classList.contains('app-active-lock')) return;
-
             const touch = e.touches ? e.touches[0] : e;
             const diffX = touch.clientX - baseStartX;
             const diffY = touch.clientY - baseStartY;
 
             if (longPressTimer) {
                 if (Math.abs(touch.clientX - startTouchX) > MOVE_THRESHOLD || Math.abs(touch.clientY - startTouchY) > MOVE_THRESHOLD) {
-                    clearTimeout(longPressTimer);
-                    longPressTimer = null;
+                    clearTimeout(longPressTimer); longPressTimer = null;
                 }
             }
 
             if (isPageMoving && !document.querySelector('.sortable-drag')) {
                 if (Math.abs(diffX) > 40 && Math.abs(diffY) < 30) {
                     isPageMoving = false; 
-                    if (diffX < 0 && currentPage < totalPages - 1) {
-                        currentPage++;
-                    } else if (diffX > 0 && currentPage > 0) {
-                        currentPage--;
-                    }
+                    if (diffX < 0 && currentPage < totalPages - 1) currentPage++;
+                    else if (diffX > 0 && currentPage > 0) currentPage--;
                     updateSliderPosition();
                 }
             }
@@ -970,63 +877,46 @@
 
         function handleCancel() {
             isPageMoving = false;
-            if (longPressTimer) {
-                clearTimeout(longPressTimer);
-                longPressTimer = null;
-            }
+            if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
         }
 
         window.addEventListener('touchstart', handleStart, { passive: true });
         window.addEventListener('touchmove', handleMove, { passive: true });
         window.addEventListener('touchend', handleCancel, { passive: true });
-
         window.addEventListener('mousedown', handleStart);
         window.addEventListener('mousemove', handleMove);
         window.addEventListener('mouseup', handleCancel);
 
-        document.getElementById('btnDone').addEventListener('click', () => {
-            stopEditingMode();
-        });
-
+        document.getElementById('btnDone').addEventListener('click', () => stopEditingMode());
         window.addEventListener('click', (e) => {
-            if (preventClickFlag) {
-                preventClickFlag = false;
-                return;
-            }
-            if (isEditing && !e.target.closest('.app-item') && !e.target.closest('.edit-mode-header')) {
-                stopEditingMode();
-            }
+            if (preventClickFlag) { preventClickFlag = false; return; }
+            if (isEditing && !e.target.closest('.app-item') && !e.target.closest('.edit-mode-header')) stopEditingMode();
         }, true);
 
-        // ==================== 📱 微信组件点击打开与双向返回联动监听逻辑 ====================
+        // ==================== 📱 微信启动与高级双向关闭系统 ====================
         const appWeixin = document.getElementById('appWeixin');
         const weixinWindow = document.getElementById('weixinWindow');
         const homeIndicator = document.querySelector('.home-indicator');
 
-        // 桌面点击微信图标时
         if (appWeixin && weixinWindow) {
             appWeixin.addEventListener('click', () => {
                 if (isEditing) return; 
-                
-                // 1. 锁死桌面的翻页手势
-                document.body.classList.add('app-active-lock');
-                // 2. 微信大盒子滑上屏幕
+                // 1. 添加打开标记（禁用滑块、变白状态栏）
+                document.body.classList.add('app-active-lock', 'weixin-open');
+                // 2. 微信窗口上滑
                 weixinWindow.style.transform = 'translateY(0%)';
-                
                 homeIndicator.style.zIndex = '110';
                 homeIndicator.style.display = 'block';
             });
         }
 
-        // 监听来自微信内部侧滑返回成功的消息通知
+        // 核心：处理来自微信内部跨文档发来的侧滑成功信号
         window.addEventListener('message', (e) => {
-            // 当检测到微信内部滑回桌面成功或者需要重置手势时
-            if (e.data === 'closeApp' || e.data?.type === 'closeApp') {
+            if (e.data === 'closeApp') {
                 closeWeixinToDesktop();
             }
         });
 
-        // 点击底部灰色 Home 横条退出微信
         if (homeIndicator) {
             homeIndicator.addEventListener('click', () => {
                 if (document.body.classList.contains('unlocked') && weixinWindow) {
@@ -1035,22 +925,10 @@
             });
         }
 
-        // 抽离统一关闭微信放开手势的函数
         function closeWeixinToDesktop() {
-            weixinWindow.style.transform = 'translateY(100%)'; // 微信滑回地下
-            document.body.classList.remove('app-active-lock'); // 解锁桌面翻页手势
-            setTimeout(() => {
-                homeIndicator.style.display = 'none';
-            }, 400);
-        }
-
-        // 自动注册 PWA 的 Service Worker 后台脚本
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('雪兔机 PWA 注册成功！'))
-                    .catch(err => console.log('雪兔机 PWA 注册失败:', err));
-            });
+            weixinWindow.style.transform = 'translateY(100%)'; 
+            document.body.classList.remove('app-active-lock', 'weixin-open'); 
+            setTimeout(() => { homeIndicator.style.display = 'none'; }, 400);
         }
     </script>
 </body>
