@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>iOS Combined - 苹方SC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "苹方", "PingFang SC Regular", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            height: 100%;
+            overflow: hidden;
+            background-color: #FFD1E0; /* 基础背景色 */
+            position: relative;
+        }
+
+        /* ==================== 1. 共用状态栏 (置于最顶层) ==================== */
+        .status-bar {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            padding: 12px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #333;
+            font-size: 14px;
+            font-weight: 590;          
+            z-index: 100; 
+            pointer-events: none; 
+        }
+
+        .status-left .status-time {
+            display: none; 
+        }
+        
+        .unlocked .status-left .status-carrier {
+            display: none;
+        }
+        .unlocked .status-left .status-time {
+            display: inline;
+        }
+
+        .status-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .battery-container {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .battery-icon {
+            width: 25px;
+            height: 12px;
+            border: 1px solid #333;
+            border-radius: 3px;
+            position: relative;
+            padding: 1px;
+        }
+
+        .battery-level {
+            height: 100%;
+            background-color: #333;
+            border-radius: 1px;
+            transition: width 0.3s ease;
+        }
+
+        .battery-tip {
+            width: 2px;
+            height: 4px;
+            background-color: #333;
+            border-radius: 0 1px 1px 0;
+        }
+
+        /* ==================== 编辑模式顶部控制栏 ==================== */
+        .edit-mode-header {
+            position: absolute;
+            top: 40px;
+            left: 0;
+            width: 100%;
+            padding: 0 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .shaking-mode .edit-mode-header {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .edit-btn-add {
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+        }
+        .edit-btn-done {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 5px 14px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        /* ==================== 2. 锁屏容器层 ==================== */
+        .lock-screen-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #FFD1E0; 
+            z-index: 50;
+            will-change: transform;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); 
+            display: block;
+        }
+
+        .lock-screen-info {
+            position: absolute;
+            top: 10%;
+            width: 100%;
+            text-align: center;
+            color: #333;
+        }
+
+        #date {
+            font-size: 20px;
+            font-weight: 460;          
+            letter-spacing: 0.2px;
+            margin-bottom: 5px;
+        }
+
+        #time {
+            font-size: 85px;
+            font-family: "PingFang SC", "苹方", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+            font-weight: 620;           
+            letter-spacing: 2px;        
+            line-height: 1;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .bottom-actions {
+            position: absolute;
+            bottom: 50px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 45px;
+        }
+
+        .action-button {
+            width: 53px !important;
+            height: 53px !important;
+            background: rgba(95, 95, 95, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(255, 255, 255, 0.1);
+            transition: all 0.1s ease;
+            background-image: none !important;
+        }
+
+        .torch-icon-custom {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: transparent;
+            background-image: url('https://i.postimg.cc/YCzGbTpZ/IMG-20260108-164557-Coco-AI-20260108-164624-1.png') !important;
+            background-size: 24px !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12), inset 0 0 1px 0.5px rgba(255, 255, 255, 0.15);
+            display: block;
+        }
+
+        .camera-icon-custom {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: transparent;
+            background-image: url('https://i.postimg.cc/gJQnxWDK/IMG-20260108-164605-Coco-AI-20260108-164624-2.png') !important;
+            background-size: 38px !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
+            box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12), inset 0 0 1px 0.5px rgba(255, 255, 255, 0.15);
+            display: block;
+        }
+
+        .bottom-actions .action-button { padding: 0; overflow: visible; }
+        .bottom-actions .action-button .fa-camera,
+        .bottom-actions .action-button i,
+        .bottom-actions .action-button svg { display: none; }
+        .action-button > :not(.torch-icon-custom):not(.camera-icon-custom) { display: none; }
+
+
+        /* ==================== 3. 多页面滑块支撑（整体往上提） ==================== */
+        .screen-slider-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 130px); 
+            display: flex;
+            transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+            will-change: transform;
+            z-index: 10;
+        }
+
+        /* 每一页的大容器：从原先的 padding-top: 85px 调整为 54px，让6行整体往上移动 */
+        .page-container {
+            min-width: 100%;
+            width: 100%;
+            height: 100%;
+            padding: 54px 22px 10px 22px; 
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(6, 1fr); 
+            gap: 10px 18px; /* 略微收紧纵向间距，使其完美偏上游离 */
+            justify-items: center;
+            align-items: center;
+            transform: scale(0.93);
+            opacity: 0.8;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
+            touch-action: none;
+        }
+
+        .unlocked .page-container {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        /* 静态网格槽位：永远静止死守在原地 */
+        .grid-slot {
+            width: 65px;
+            height: 75px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            border-radius: 12px;
+        }
+
+        /* 半透明小底框：死死固定在格子最底层，伴随大框架完美上移 */
+        .shaking-mode .grid-slot::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 52px; 
+            height: 52px;
+            background: rgba(255, 255, 255, 0.22);
+            border-radius: 12px;
+            z-index: 1; 
+            pointer-events: none;
+        }
+
+        /* 图标主体 */
+        .app-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            position: relative;
+            z-index: 5; 
+            cursor: grab;
+            touch-action: none;
+        }
+
+        .app-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background-color: #fff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            color: #fff;
+            margin-bottom: 4px;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        .app-item:active .app-icon {
+            transform: scale(0.92);
+        }
+
+        .app-name {
+            font-size: 11px;
+            color: #333;
+            font-weight: 460;
+            text-align: center;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dock .app-name {
+            display: none !important;
+        }
+
+        /* 图标定制颜色 */
+        .icon-messages { background: linear-gradient(135deg, #44d86a, #26af47); }
+        .icon-phone { background: linear-gradient(135deg, #44d86a, #26af47); }
+        .icon-safari { background: linear-gradient(135deg, #5fc9f8, #0c96e1); }
+        .icon-music { background: linear-gradient(135deg, #fa5568, #ea1e34); }
+        .icon-photos { background: radial-gradient(circle, #fff, #eee); color: #333; }
+        .icon-camera { background: linear-gradient(135deg, #9ca0a6, #5c6168); }
+        .icon-settings { background: linear-gradient(135deg, #9ca0a6, #5c6168); }
+        .icon-appstore { background: linear-gradient(135deg, #34aadc, #007aff); }
+.icon-weixin { 
+    background-image: url('https://i.imgs.ovh/2026/05/21/357cefc6f096df75ec1383fff7b29a71.jpg'); 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    background-color: transparent; 
+}
+        .icon-clock { background: #000; color: #fff; }
+        .icon-weather { background: linear-gradient(135deg, #5ac8fb, #1d62f0); }
+        .icon-notes { background: linear-gradient(135deg, #f7d739, #f0c300); }
+
+        /* ==================== 4. 底部 固定 Dock 栏 ==================== */
+        .dock {
+            position: absolute;
+            bottom: 24px;
+            left: 14px;
+            right: 14px;
+            height: 84px;
+            background: rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 27px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            justify-items: center;
+            align-items: center;
+            padding: 0 8px;
+            z-index: 20; 
+            transform: scale(0.93);
+            opacity: 0.8;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
+        }
+
+        .unlocked .dock {
+            transform: scale(1);
+        }
+
+        .dock .grid-slot {
+            height: 52px; 
+            justify-content: center; 
+        }
+        .dock .grid-slot::before {
+            top: auto; 
+        }
+        .dock .app-icon { 
+            margin-bottom: 0; 
+        }
+
+        /* ==================== 5. 分页指示器 ==================== */
+        .page-dots-indicator {
+            position: absolute;
+            bottom: 120px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            z-index: 30;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .unlocked .page-dots-indicator {
+            opacity: 1;
+        }
+        .page-dot {
+            width: 7px;
+            height: 7px;
+            background: rgba(51, 51, 51, 0.2);
+            border-radius: 50%;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .page-dot.active {
+            background: rgba(51, 51, 51, 0.8);
+            transform: scale(1.15);
+        }
+
+        /* 底部操作指示条 */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 135px;
+            height: 5px;
+            background: #555;
+            border-radius: 10px;
+            z-index: 110; 
+        }
+        .unlocked .home-indicator, .shaking-mode .home-indicator {
+            display: none;
+        }
+
+        /* 晃动动画 */
+        .shaking .app-icon {
+            animation: iOSShake 0.28s infinite ease-in-out;
+        }
+
+        @keyframes iOSShake {
+            0% { transform: rotate(-1.5deg); }
+            50% { transform: rotate(1.5deg) scale(1.02); }
+            100% { transform: rotate(-1.5deg); }
+        }
+
+        /* 修复隐形的关键：幽灵元素完全透明，但拖拽出的实体强行可见 */
+        .sortable-ghost {
+            opacity: 0 !important; 
+        }   
+        .sortable-drag {
+            opacity: 0.95 !important;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important;
+            z-index: 999999 !important; /* 强制拉到屏幕绝对最顶层 */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="status-bar">
+        <div class="status-left">
+            <span class="status-carrier">中国移动</span>
+            <span class="status-time" id="statusBarTime">10:27</span>
+        </div>
+        <div class="status-right">
+            <i class="fas fa-signal"></i>
+            <i class="fas fa-wifi"></i>
+            <div class="battery-container">
+                <div class="battery-icon">
+                    <div id="battery-level" class="battery-level" style="width: 0%;"></div>
+                </div>
+                <div class="battery-tip"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="edit-mode-header">
+        <div class="edit-btn-add" id="btnPlus"><i class="fas fa-plus"></i></div>
+        <div class="edit-btn-done" id="btnDone">完成</div>
+    </div>
+
+    <div class="lock-screen-container" id="lockScreen">
+        <div class="lock-screen-info">
+            <div id="date">9月13日 星期五</div>
+            <div id="time">10:27</div>
+        </div>
+
+        <div class="bottom-actions">
+            <div class="action-button">
+                <div class="torch-icon-custom"></div>
+            </div>
+            <div class="action-button">
+                <div class="camera-icon-custom"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen-slider-wrapper" id="sliderWrapper">
+        
+        <div class="page-container" data-page-index="0">
+            <div class="grid-slot"><div class="app-item"><div class="app-icon icon-weixin"></div><div class="app-name">微信</div></div></div>
+            <div class="grid-slot"><div class="app-item"><div class="app-icon icon-photos"><i class="fas fa-images" style="color: #ff9500;"></i></div><div class="app-name">照片</div></div></div>
+            <div class="grid-slot"><div class="app-item"><div class="app-icon icon-camera"><i class="fas fa-camera"></i></div><div class="app-name">相机</div></div></div>
+            <div class="grid-slot"><div class="app-item"><div class="app-icon icon-weather"><i class="fas fa-cloud-sun"></i></div><div class="app-name">天气</div></div></div>
+            <div class="grid-slot"><div class="app-item"><div class="app-icon icon-clock"><i class="far fa-clock"></i></div><div class="app-name">时钟</div></div></div>
+            <div class="grid-slot"><div class="app-item"><div class="app-icon icon-notes"><i class="fas fa-sticky-note"></i></div><div class="app-name">备忘录</div></div></div>
+            <div class="grid-slot"><div class="app-item"><div class="app-icon icon-settings"><i class="fas fa-cog"></i></div><div class="app-name">设置</div></div></div>
+            <div class="grid-slot"><div class="app-item"><div class="app-icon icon-appstore"><i class="fab fa-apple"></i></div><div class="app-name">App Store</div></div></div>
+            <div class="grid-slot"><div class="app-item"><div class="app-icon" style="background: linear-gradient(135deg, #ff9500, #ff5e3a);"><i class="fas fa-envelope"></i></div><div class="app-name">邮件</div></div></div>
+            <div class="grid-slot"><div class="app-item"><div class="app-icon" style="background: linear-gradient(135deg, #1d62f0, #003366);"><i class="fas fa-folder"></i></div><div class="app-name">文件</div></div></div>
+            <div class="grid-slot"><div class="app-item"><div class="app-icon" style="background: linear-gradient(135deg, #5ac8fb, #1d62f0);"><i class="fas fa-map-marker-alt"></i></div><div class="app-name">地图</div></div></div>
+            <div class="grid-slot"><div class="app-item"><div class="app-icon" style="background: linear-gradient(135deg, #f7d739, #f0c300);"><i class="fas fa-lightbulb"></i></div><div class="app-name">家庭</div></div></div>
+            <div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div>
+            <div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div>
+            <div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div>
+        </div>
+
+    </div>
+
+    <div class="page-dots-indicator" id="dotsIndicator">
+        <div class="page-dot active"></div>
+    </div>
+
+    <div class="dock" id="dock-grid">
+        <div class="grid-slot"><div class="app-item"><div class="app-icon icon-phone"><i class="fas fa-phone"></i></div><div class="app-name">电话</div></div></div>
+        <div class="grid-slot"><div class="app-item"><div class="app-icon icon-safari"><i class="fas fa-compass"></i></div><div class="app-name">Safari</div></div></div>
+        <div class="grid-slot"><div class="app-item"><div class="app-icon icon-messages"><i class="fas fa-comment"></i></div><div class="app-name">信息</div></div></div>
+        <div class="grid-slot"><div class="app-item"><div class="app-icon icon-music"><i class="fas fa-music"></i></div><div class="app-name">音乐</div></div></div>
+    </div>
+
+    <div class="home-indicator"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+
+    <script>
+        // ========== 完好保留：原有高精度日历与时钟换算逻辑 ==========
+        const GAN = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
+        const ZHI = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+        const LUNAR_MONTHS = ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
+        const LUNAR_DAYS = ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
+                            "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
+                            "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"];
+        
+        function getGanZhiYear(date) {
+            const year = date.getFullYear();
+            const ganIndex = (year - 4) % 10;
+            const zhiIndex = (year - 4) % 12;
+            return GAN[(ganIndex + 10) % 10] + ZHI[(zhiIndex + 12) % 12];
+        }
+        
+        function getLunarDate(date) {
+            const formatter = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const parts = formatter.formatToParts(date);
+            let lunarYear = "", lunarMonth = "", lunarDay = "";
+            for (const part of parts) {
+                if (part.type === 'year') lunarYear = part.value;
+                if (part.type === 'month') lunarMonth = part.value;
+                if (part.type === 'day') lunarDay = part.value;
+            }
+            if (!isNaN(parseInt(lunarDay))) {
+                const dayNum = parseInt(lunarDay);
+                if (dayNum >= 1 && dayNum <= 30) lunarDay = LUNAR_DAYS[dayNum - 1];
+            }
+            if (!isNaN(parseInt(lunarMonth))) {
+                const monthNum = parseInt(lunarMonth);
+                if (monthNum >= 1 && monthNum <= 12) lunarMonth = LUNAR_MONTHS[monthNum - 1];
+            }
+            return { lunarYear, lunarMonth, lunarDay };
+        }
+        
+        function formatFullDate(date) {
+            const gregorianOptions = { month: 'long', day: 'numeric', weekday: 'long' };
+            const gregorianStr = date.toLocaleDateString('zh-CN', gregorianOptions);
+            const ganzhiYear = getGanZhiYear(date);
+            const lunar = getLunarDate(date);
+            let lunarStr = "";
+            if (lunar.lunarYear && lunar.lunarYear !== "Invalid") {
+                let cleanYear = lunar.lunarYear.replace(/年$/, "");
+                lunarStr = `${cleanYear}${lunar.lunarMonth}${lunar.lunarDay}`;
+            } else {
+                lunarStr = `${ganzhiYear}年${lunar.lunarMonth}${lunar.lunarDay}`;
+            }
+            return `${gregorianStr} · ${lunarStr}`;
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const timeString = `${hours}:${minutes}`;
+            
+            document.getElementById('time').textContent = timeString;
+            document.getElementById('statusBarTime').textContent = timeString;
+            document.getElementById('date').textContent = formatFullDate(now);
+        }
+
+        // ========== 完好保留：原有电池电量逻辑 ==========
+        async function updateBattery() {
+            try {
+                const battery = await navigator.getBattery();
+                const refreshBatteryUI = () => {
+                    const level = Math.round(battery.level * 100);
+                    document.getElementById('battery-level').style.width = level + '%';
+                    if (battery.charging) {
+                        document.getElementById('battery-level').style.backgroundColor = '#4cd964';
+                    } else if (level <= 20) {
+                        document.getElementById('battery-level').style.backgroundColor = '#ff3b30';
+                    } else {
+                        document.getElementById('battery-level').style.backgroundColor = '#333';
+                    }
+                };
+                refreshBatteryUI();
+                battery.addEventListener('levelchange', refreshBatteryUI);
+                battery.addEventListener('chargingchange', refreshBatteryUI);
+            } catch (e) {
+                document.getElementById('battery-level').style.width = '100%';
+            }
+        }
+
+        setInterval(updateTime, 1000);
+        updateTime();
+        updateBattery();
+
+        // ========== 完好保留：丝滑滑动解锁逻辑 ==========
+        const lockScreen = document.getElementById('lockScreen');
+        let startY = 0;
+        let currentY = 0;
+        let isDragging = false;
+
+        window.addEventListener('touchstart', (e) => {
+            if (document.body.classList.contains('unlocked')) return;
+            startY = e.touches[0].clientY;
+            isDragging = true;
+            lockScreen.style.transition = 'none'; 
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            currentY = e.touches[0].clientY;
+            let diffY = currentY - startY;
+            if (diffY < 0) {
+                lockScreen.style.transform = `translateY(${diffY}px)`;
+            } else {
+                lockScreen.style.transform = `translateY(0px)`;
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            let diffY = currentY - startY;
+            const unlockThreshold = -120; 
+            lockScreen.style.transition = 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            if (diffY < unlockThreshold) {
+                lockScreen.style.transform = 'translateY(-100%)';
+                document.body.classList.add('unlocked'); 
+                setTimeout(() => { lockScreen.style.display = 'none'; }, 500);
+            } else {
+                lockScreen.style.transform = 'translateY(0px)';
+            }
+            startY = 0;
+            currentY = 0;
+        });
+
+        // 桌面端鼠标模拟解锁
+        window.addEventListener('mousedown', (e) => {
+            if (document.body.classList.contains('unlocked')) return;
+            startY = e.clientY;
+            isDragging = true;
+            lockScreen.style.transition = 'none';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            currentY = e.clientY;
+            let diffY = currentY - startY;
+            if (diffY < 0) lockScreen.style.transform = `translateY(${diffY}px)`;
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            let diffY = currentY - startY;
+            lockScreen.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
+            if (diffY < -100) {
+                lockScreen.style.transform = 'translateY(-100%)';
+                document.body.classList.add('unlocked');
+                setTimeout(() => { lockScreen.style.display = 'none'; }, 500);
+            } else {
+                lockScreen.style.transform = 'translateY(0px)';
+            }
+        });
+
+
+        // ==================== 📱 无限动态追加页面控制系统 ====================
+        let currentPage = 0;
+        let totalPages = 1; 
+        let baseStartX = 0;
+        let baseStartY = 0;
+        let isPageMoving = false;
+        let edgeTimer = null; 
+        const sliderWrapper = document.getElementById('sliderWrapper');
+        const dotsIndicator = document.getElementById('dotsIndicator');
+
+        function updateSliderPosition() {
+            sliderWrapper.style.transform = `translateX(-${currentPage * 100}%)`;
+            
+            dotsIndicator.innerHTML = '';
+            for (let i = 0; i < totalPages; i++) {
+                const dot = document.createElement('div');
+                dot.className = `page-dot ${i === currentPage ? 'active' : ''}`;
+                dotsIndicator.appendChild(dot);
+            }
+        }
+
+        // 动态创建并注册全新的 24 个静态格子（上移后的间距也保持完全一致）
+        function createNewPage() {
+            totalPages++;
+            const newPage = document.createElement('div');
+            newPage.className = 'page-container';
+            newPage.setAttribute('data-page-index', totalPages - 1);
+            
+            for (let i = 0; i < 24; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'grid-slot';
+                newPage.appendChild(slot);
+            }
+            sliderWrapper.appendChild(newPage);
+            
+            newPage.querySelectorAll('.grid-slot').forEach(slot => {
+                bindSlotSortable(slot);
+            });
+
+            updateSliderPosition();
+        }
+
+        function checkAndCleanEmptyPages() {
+            if (totalPages <= 1) return;
+            const pages = document.querySelectorAll('.page-container');
+            
+            for (let i = pages.length - 1; i > 0; i--) {
+                const page = pages[i];
+                if (page.querySelectorAll('.app-item').length === 0) {
+                    page.remove();
+                    totalPages--;
+                    if (currentPage >= totalPages) {
+                        currentPage = totalPages - 1;
+                    }
+                }
+            }
+            
+            document.querySelectorAll('.page-container').forEach((page, idx) => {
+                page.setAttribute('data-page-index', idx);
+            });
+
+            updateSliderPosition();
+        }
+
+        // ==================== 📱 全局边缘追踪判定器 ====================
+        function checkEdgePointer(clientX) {
+            if (!isEditing || !document.querySelector('.sortable-drag')) {
+                clearEdgeTimer();
+                return;
+            }
+
+            const edgeMargin = 40; 
+            const screenWidth = window.innerWidth;
+
+            if (clientX > screenWidth - edgeMargin && currentPage === totalPages - 1) {
+                if (!edgeTimer) {
+                    edgeTimer = setTimeout(() => {
+                        createNewPage(); 
+                        currentPage++;
+                        updateSliderPosition();
+                        clearEdgeTimer();
+                    }, 700); 
+                }
+            }
+            else if (clientX > screenWidth - edgeMargin && currentPage < totalPages - 1) {
+                if (!edgeTimer) {
+                    edgeTimer = setTimeout(() => {
+                        currentPage++;
+                        updateSliderPosition();
+                        clearEdgeTimer();
+                    }, 700);
+                }
+            }
+            else if (clientX < edgeMargin && currentPage > 0) {
+                if (!edgeTimer) {
+                    edgeTimer = setTimeout(() => {
+                        currentPage--;
+                        updateSliderPosition();
+                        clearEdgeTimer();
+                    }, 700);
+                }
+            } else {
+                clearEdgeTimer();
+            }
+        }
+
+        function clearEdgeTimer() {
+            if (edgeTimer) {
+                clearTimeout(edgeTimer);
+                edgeTimer = null;
+            }
+        }
+
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches && e.touches[0]) {
+                checkEdgePointer(e.touches[0].clientX);
+            }
+        }, { passive: true });
+
+        window.addEventListener('dragover', (e) => {
+            checkEdgePointer(e.clientX);
+        });
+
+        window.addEventListener('touchend', clearEdgeTimer);
+        window.addEventListener('mouseup', clearEdgeTimer);
+
+
+        // ==================== 📱 Sortable 跨越页槽位绑定（彻底修复隐形Bug） ====================
+        let isEditing = false; 
+        let longPressTimer;
+        let preventClickFlag = false; 
+
+        let startTouchX = 0;
+        let startTouchY = 0;
+        const MOVE_THRESHOLD = 10; 
+
+        const sortableInstances = [];
+
+        function bindSlotSortable(slot) {
+            const sInstance = Sortable.create(slot, {
+                group: 'ios-icons',
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                disabled: !isEditing, 
+                
+                // 【核心修复】：拖拽时强制将图标挂载到 document.body 顶层，完美解决切页时隐形的恶性Bug
+                fallbackOnBody: true,
+                swapThreshold: 0.65,
+                
+                onAdd: function (evt) {
+                    if (evt.to.children.length > 1) {
+                        const existingApp = evt.to.firstElementChild === evt.item ? evt.to.lastElementChild : evt.to.firstElementChild;
+                        evt.from.appendChild(existingApp);
+                    }
+                    checkAndCleanEmptyPages();
+                },
+                onEnd: function () {
+                    clearEdgeTimer();
+                    checkAndCleanEmptyPages();
+                }
+            });
+            sortableInstances.push(sInstance);
+        }
+
+        document.querySelectorAll('.grid-slot').forEach(slot => {
+            bindSlotSortable(slot);
+        });
+
+        function startEditingMode() {
+            if (isEditing) return;
+            isEditing = true;
+            document.body.classList.add('shaking-mode');
+            
+            document.querySelectorAll('.app-item').forEach(app => {
+                app.classList.add('shaking');
+            });
+
+            sortableInstances.forEach(inst => inst.option('disabled', false));
+        }
+
+        function stopEditingMode() {
+            if (!isEditing) return;
+            isEditing = false;
+            document.body.classList.remove('shaking-mode');
+            
+            document.querySelectorAll('.app-item').forEach(app => {
+                app.classList.remove('shaking');
+            });
+
+            sortableInstances.forEach(inst => inst.option('disabled', true));
+            clearEdgeTimer();
+            checkAndCleanEmptyPages(); 
+        }
+
+        function handleStart(e) {
+            if (!document.body.classList.contains('unlocked')) return;
+            
+            const touch = e.touches ? e.touches[0] : e;
+            baseStartX = touch.clientX;
+            baseStartY = touch.clientY;
+            startTouchX = touch.clientX;
+            startTouchY = touch.clientY;
+            isPageMoving = true;
+
+            if (e.target.closest('.app-item') && !isEditing) {
+                longPressTimer = setTimeout(() => {
+                    preventClickFlag = true; 
+                    startEditingMode();
+                    if (navigator.vibrate) navigator.vibrate(50); 
+                }, 700); 
+            }
+        }
+
+        function handleMove(e) {
+            const touch = e.touches ? e.touches[0] : e;
+            const diffX = touch.clientX - baseStartX;
+            const diffY = touch.clientY - baseStartY;
+
+            if (longPressTimer) {
+                if (Math.abs(touch.clientX - startTouchX) > MOVE_THRESHOLD || Math.abs(touch.clientY - startTouchY) > MOVE_THRESHOLD) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
+            }
+
+            if (isPageMoving && !document.querySelector('.sortable-drag')) {
+                if (Math.abs(diffX) > 40 && Math.abs(diffY) < 30) {
+                    isPageMoving = false; 
+                    if (diffX < 0 && currentPage < totalPages - 1) {
+                        currentPage++;
+                    } else if (diffX > 0 && currentPage > 0) {
+                        currentPage--;
+                    }
+                    updateSliderPosition();
+                }
+            }
+        }
+
+        function handleCancel() {
+            isPageMoving = false;
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        }
+
+        window.addEventListener('touchstart', handleStart, { passive: true });
+        window.addEventListener('touchmove', handleMove, { passive: true });
+        window.addEventListener('touchend', handleCancel, { passive: true });
+
+        window.addEventListener('mousedown', handleStart);
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleCancel);
+
+        document.getElementById('btnDone').addEventListener('click', () => {
+            stopEditingMode();
+        });
+
+        window.addEventListener('click', (e) => {
+            if (preventClickFlag) {
+                preventClickFlag = false;
+                return;
+            }
+            if (isEditing && !e.target.closest('.app-item') && !e.target.closest('.edit-mode-header')) {
+                stopEditingMode();
+            }
+        }, true);
+    </script>
+</body>
+</html>
