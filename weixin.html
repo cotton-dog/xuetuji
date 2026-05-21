@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>微信启动页</title>
+    <style>
+        /* 基础样式重置，确保全屏适配 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            background-color: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        /* 主容器，模拟手机屏幕比例 */
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            background: radial-gradient(circle at 50% 50%, #001a3a 0%, #000000 70%);
+        }
+
+        /* 右上角语言按钮 */
+        .lang-btn {
+            position: absolute;
+            top: 40px;
+            right: 24px;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 500;
+            opacity: 0.9;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* 中央主图区域（地球与人） */
+        .main-visual {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -55%);
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 核心背景图：使用你提供的还原链接 */
+        .bg-image {
+            width: 92%;
+            height: 92%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* 底部地平线弧线：完美遮挡并制造剪影效果 */
+        .horizon {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 160%;
+            height: 160px;
+            background-color: #000000;
+            border-top-left-radius: 50% 100%;
+            border-top-right-radius: 50% 100%;
+            z-index: 2;
+        }
+
+        /* 底部按钮栏容器 */
+        .bottom-bar {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            width: 100%;
+            padding: 0 24px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            z-index: 5;
+        }
+
+        /* 通用按钮样式 */
+        .btn {
+            flex: 1;
+            height: 48px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.1s ease;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        /* 登录按钮（微信绿） */
+        .btn-login {
+            background-color: #07c160;
+            color: #ffffff;
+        }
+
+        /* 注册按钮（纯白） */
+        .btn-register {
+            background-color: #ffffff;
+            color: #191919;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="lang-btn">语言</div>
+
+        <div class="main-visual">
+            <img class="bg-image" src="https://i.imgs.ovh/2026/05/21/57e6b7c2239da21d46d9436512499458.jpg" alt="WeChat Backdrop">
+        </div>
+
+        <div class="horizon"></div>
+
+        <div class="bottom-bar">
+            <button class="btn btn-login">登 录</button>
+            <button class="btn btn-register">注 册</button>
+        </div>
+    </div>
+
+</body>
+</html>
