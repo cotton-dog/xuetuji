@@ -465,6 +465,7 @@
 <body>
 
     <div class="status-bar">
+
         <div class="status-left">
             <span class="status-carrier">中国移动</span>
             <span class="status-time" id="statusBarTime">10:27</span>
@@ -480,6 +481,18 @@
             </div>
         </div>
     </div>
+    <iframe id="weixinWindow" src="./weixin.html" style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        border: none;
+        z-index: 40; /* 高于桌面层（10），但低于锁屏层（50）和共用状态栏（100） */
+        transform: translateY(100%); /* 默认藏在手机屏幕的最下方 */
+        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+        will-change: transform;
+    "></iframe>
 
     <div class="edit-mode-header">
         <div class="edit-btn-add" id="btnPlus"><i class="fas fa-plus"></i></div>
@@ -505,14 +518,13 @@
     <div class="screen-slider-wrapper" id="sliderWrapper">
         
         <div class="page-container" data-page-index="0">
-           <div class="grid-slot">
-    <a href="weixin.html" style="text-decoration: none; display: block; width: 100%;" data-native>
-        <div class="app-item">
-            <div class="app-icon icon-weixin"></div>
-            <div class="app-name">微信</div>
-        </div>
-    </a>
-</div>
+                       <div class="grid-slot">
+                <div class="app-item" id="appWeixin">
+                    <div class="app-icon icon-weixin"></div>
+                    <div class="app-name">微信</div>
+                </div>
+            </div>
+
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-photos"><i class="fas fa-images" style="color: #ff9500;"></i></div><div class="app-name">照片</div></div></div>
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-camera"><i class="fas fa-camera"></i></div><div class="app-name">相机</div></div></div>
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-weather"><i class="fas fa-cloud-sun"></i></div><div class="app-name">天气</div></div></div>
@@ -978,12 +990,40 @@
                 stopEditingMode();
             }
         }, true);
-// 拦截微信图标的点击，防止在抖动编辑模式下误跳转
-document.querySelector('a[href="weixin.html"]').addEventListener('click', function(e) {
-    if (isEditing) { 
-        e.preventDefault(); // 如果正在编辑抖动，阻止跳转
-    }
-});
+        // ==================== 📱 微信组件点击打开与 Home 条返回桌面逻辑 ====================
+        const appWeixin = document.getElementById('appWeixin');
+        const weixinWindow = document.getElementById('weixinWindow');
+        const homeIndicator = document.querySelector('.home-indicator');
+
+        // 当在桌面点击微信图标时
+        if (appWeixin && weixinWindow) {
+            appWeixin.addEventListener('click', () => {
+                if (isEditing) return; // 如果正在长按抖动删除/移动图标，不触发打开
+                
+                // 微信大盒子从底部丝滑地滑上屏幕
+                weixinWindow.style.transform = 'translateY(0%)';
+                
+                // 强制将底部的 iOS 灰色小横条捞到最顶层（z-index: 110），并强行显示，用于随时退出
+                homeIndicator.style.zIndex = '110';
+                homeIndicator.style.display = 'block';
+            });
+        }
+
+        // 当在应用内点击底部小灰色 Home 横条时，微信退出，返回桌面
+        if (homeIndicator) {
+            homeIndicator.addEventListener('click', () => {
+                // 只有在屏幕已经解锁进入桌面了，点击横条才是退出应用
+                if (document.body.classList.contains('unlocked') && weixinWindow) {
+                    weixinWindow.style.transform = 'translateY(100%)'; // 微信滑回地下
+                    
+                    // 恢复原本的 Home 横条在桌面上的隐藏状态（因为桌面不需要它显示）
+                    setTimeout(() => {
+                        homeIndicator.style.display = 'none';
+                    }, 400);
+                }
+            });
+        }
+
 // 自动注册 PWA 的 Service Worker 后台脚本
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
