@@ -18,7 +18,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "PingFang SC", "苹方", "PingFang SC Regular", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-family: \"PingFang SC\", \"苹方\", \"PingFang SC Regular\", -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
@@ -44,7 +44,7 @@
             font-weight: 590;          
             z-index: 100; 
             pointer-events: none; 
-            transition: color 0.3s ease; /* 颜色切换时增加平滑渐变动画 */
+            transition: color 0.3s ease;
         }
 
         /* 状态栏变成白色的样式类 */
@@ -78,7 +78,7 @@
         .battery-icon {
             width: 25px;
             height: 12px;
-            border: 1px solid currentColor; /* 使用 currentColor 保证边框和电池头颜色跟文字同步变色 */
+            border: 1px solid currentColor;
             border-radius: 3px;
             position: relative;
             padding: 1px;
@@ -86,7 +86,7 @@
 
         .battery-level {
             height: 100%;
-            background-color: currentColor; /* 电量条颜色和文字保持一致 */
+            background-color: currentColor;
             border-radius: 1px;
             transition: width 0.3s ease, background-color 0.3s ease;
         }
@@ -166,7 +166,7 @@
 
         #time {
             font-size: 85px;
-            font-family: "PingFang SC", "苹方", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+            font-family: \"PingFang SC\", \"苹方\", -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Helvetica Neue\", sans-serif;
             font-weight: 620;           
             letter-spacing: 2px;        
             line-height: 1;
@@ -359,38 +359,48 @@
         .icon-weather { background: linear-gradient(135deg, #5ac8fb, #1d62f0); }
         .icon-notes { background: linear-gradient(135deg, #f7d739, #f0c300); }
 
-        /* ==================== 4. 底部 固定 Dock 栏 ==================== */
+        /* ==================== 4. 🚀 改进后的智能伸缩常驻 Dock 栏 ==================== */
         .dock {
             position: absolute;
             bottom: 24px;
-            left: 14px;
-            right: 14px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.93); /* 保持居中定位与缩放效果 */
             height: 84px;
+            width: fit-content;      /* 关键点：宽度不再写死，由内部图标数量决定 */
+            min-width: 84px;         /* 保留一个最小宽度，防止完全掏空时底框缩成原点 */
             background: rgba(255, 255, 255, 0.28);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border-radius: 27px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            justify-items: center;
+            display: flex;           /* 改用 Flex 布局，让格子横向排开 */
+            justify-content: center;
             align-items: center;
-            padding: 0 8px;
+            padding: 0 12px;
+            gap: 10px;               /* 图标格子之间的间距 */
             z-index: 20; 
-            transform: scale(0.93);
             opacity: 0.8;
-            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .unlocked .dock {
-            transform: scale(1);
+            transform: translateX(-50%) scale(1); /* 解锁后保持完美的水平居中 */
         }
 
         .dock .grid-slot {
             height: 52px; 
+            width: 65px;
+            display: flex;
             justify-content: center; 
+            align-items: center;
         }
+        
+        /* 当 Dock 栏中的格子完全为空（没有图标）时，直接把这个格子从渲染中隐藏，让底框自动吸附合拢 */
+        .dock .grid-slot:not(:has(.app-item)) {
+            display: none !important;
+        }
+
         .dock .grid-slot::before {
             top: auto; 
         }
@@ -543,7 +553,7 @@
         const LUNAR_MONTHS = ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
         const LUNAR_DAYS = ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
                             "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
-                            "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"];
+                            "廿一", "廿2", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"];
         
         function getGanZhiYear(date) {
             const year = date.getFullYear();
@@ -935,31 +945,21 @@
                 document.body.classList.add('app-active-lock');
                 weixinWindow.style.transform = 'translateY(0%)';
                 
-                // 【核心逻辑】：微信是深色（全黑）背景，滑上来的瞬间立刻让状态栏变白（Light Content）
+                // 微信是深色背景，滑上来时把主页状态栏文字变为白色
                 mainStatusBar.classList.add('light-content');
             });
         }
 
-        // 接收来自子应用的返回通知
+        // 接收来自微信（wechat.html）右边缘侧滑返回成功的消息通知
         window.addEventListener('message', (e) => {
-            if (e.data === 'closeApp' || e.data?.type === 'closeApp') {
-                closeActiveApp();
+            if (e.data === 'closeWechat' || e.data === 'closeApp') {
+                weixinWindow.style.transform = 'translateY(100%)'; // 微信向下退场
+                document.body.classList.remove('app-active-lock'); // 解锁桌面
+                mainStatusBar.classList.remove('light-content'); // 状态栏恢复黑字
             }
         });
 
-        function closeActiveApp() {
-            weixinWindow.style.transform = 'translateY(100%)';
-            document.body.classList.remove('app-active-lock'); 
-            
-            // 【核心逻辑】：应用滑下去了，状态栏瞬间变回优雅的黑色字
-            mainStatusBar.classList.remove('light-content');
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js').catch(err => console.log(err));
-            });
-        }
+        // 🚀 【已彻底清除缓存脚本】：彻底移除了 Service Worker 注册代码，保证每次修改在 GitHub 刷新后直接生效！
     </script>
 </body>
 </html>
