@@ -17,7 +17,7 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Helvetica Neue\", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
             background-color: #000;
         }
 
@@ -35,18 +35,29 @@
             justify-content: flex-end;
             align-items: center;
             /* 严格控制整体底部抬高距离，让按钮高度贴近原图 */
-            padding-bottom: 95px; 
-            /* 【精细修复】：顶部增加 44px 留白，完美显露桌面状态栏，绝不撞车和挤压 */
-            padding-top: 44px;
+            padding-bottom: calc(32px + env(safe-area-inset-bottom));
         }
 
-        /* ==================== 【已修复】：移除原本冲突的状态栏 ==================== */
+        /* 右上角语言按钮 - 精准缩小并下移，绝对不和桌面的状态栏打架 */
+        .lang-btn {
+            position: absolute;
+            top: calc(46px + env(safe-area-inset-top)); /* 往下挪，完美避开最顶部状态栏 */
+            right: 24px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px; /* 听你的话，让这个字小一些，不占空间 */
+            font-weight: bold;
+            cursor: pointer;
+            letter-spacing: 1px;
+            z-index: 10;
+        }
 
-        /* 底部双按钮并排外框 */
-        .btn-group {
+        /* 底部按钮外层：让它们各执一端，死贴两侧 */
+        .button-group {
+            width: 100%;
+            /* 缩减两侧边距，让按钮像原图一样极度贴边 */
+            padding: 0 20px; 
             display: flex;
-            /* 左右按钮之间的精确间隙 */
-            gap: 32px; 
+            justify-content: space-between;
         }
 
         /* 按钮精确调校 */
@@ -84,96 +95,144 @@
             color: #191919;
         }
 
-        /* ==================== 【已修复】：干掉原本冲突的底部系统黑线 ==================== */
+        /* 底部系统黑线 */
+        .home-indicator {
+            position: absolute;
+            bottom: 8px;
+            width: 134px;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.25);
+            border-radius: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        /* ==================== 📱 仿手机右侧边缘向左滑返回标签样式 ==================== */
+        .edge-return-tag {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%) translateX(100%);
+            width: 16px;
+            height: 56px;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-top-left-radius: 12px;
+            border-bottom-left-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 11px;
+            transition: transform 0.1s ease;
+            pointer-events: none;
+            z-index: 9999;
+            box-shadow: -1px 2px 8px rgba(0,0,0,0.2);
+        }
+        .edge-return-tag::before {
+            content: "‹";
+            font-size: 18px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="btn-group">
+        <div class="lang-btn">语言</div>
+
+        <div class="button-group">
             <button class="btn btn-login">登录</button>
             <button class="btn btn-register">注册</button>
         </div>
+
+        <div class="home-indicator"></div>
     </div>
 
+    <div class="edge-return-tag" id="returnTag"></div>
+
     <script>
-        const container = document.querySelector('.container');
-        
+        // ====================  从右向左滑动触发边缘返回手势系统 ====================
+        const returnTag = document.getElementById('returnTag');
         let startX = 0;
         let startY = 0;
-        let isMoving = false;
-        let swipeDirection = null; 
+        let isRightEdgeSwipe = false;
+        const edgeWidth = 35; // 判定滑动起点必须在右侧边缘多少像素内
 
-        function handleStart(e) {
-            const touch = e.touches ? e.touches[0] : e;
-            startX = touch.clientX;
-            startY = touch.clientY;
-            isMoving = true;
-            swipeDirection = null;
-            container.style.transition = 'none'; 
-        }
-
-        function handleMove(e) {
-            if (!isMoving) return;
-            const touch = e.touches ? e.touches[0] : e;
-            let deltaX = touch.clientX - startX;
-            let deltaY = touch.clientY - startY;
-
-            if (!swipeDirection) {
-                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 8) {
-                    swipeDirection = deltaX > 0 ? 'left-to-right' : 'right-to-left';
-                } else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) {
-                    isMoving = false; 
-                }
+        window.addEventListener('touchstart', (e) => {
+            const screenWidth = window.innerWidth;
+            const clientX = e.touches[0].clientX;
+            const clientY = e.touches[0].clientY;
+            
+            // 只有当手指从屏幕最右侧边缘往左拉的时候，才激活手势
+            if (clientX >= screenWidth - edgeWidth) {
+                startX = clientX;
+                startY = clientY;
+                isRightEdgeSwipe = true;
             }
+        }, { passive: true });
 
-            if (swipeDirection === 'left-to-right' && deltaX > 0) {
-                container.style.transform = `translateX(${deltaX}px) scale(${1 - deltaX/3000})`;
-                container.style.opacity = `${1 - deltaX/1000}`;
-            } else if (swipeDirection === 'right-to-left' && deltaX < 0) {
-                container.style.transform = `translateX(${deltaX}px) scale(${1 - Math.abs(deltaX)/3000})`;
-                container.style.opacity = `${1 - Math.abs(deltaX)/1000}`;
+        window.addEventListener('touchmove', (e) => {
+            if (!isRightEdgeSwipe) return;
+            
+            const clientX = e.touches[0].clientX;
+            const clientY = e.touches[0].clientY;
+            let deltaX = startX - clientX; // 往左滑动，deltaX 变为正数
+            
+            // 如果拉出了距离，让右侧小控制标签伸出来
+            if (deltaX > 5 && deltaX < 120) {
+                // 计算伸出的比例效果
+                let pullDistance = Math.min(deltaX * 0.4, 28);
+                returnTag.style.transform = `translateY(-50%) translateX(${16 - pullDistance}px)`;
             }
-        }
+        }, { passive: true });
 
-        function handleEnd(e) {
-            if (!isMoving) return;
-            isMoving = false;
-
-            const touch = e.changedTouches ? e.changedTouches[0] : e;
-            let deltaX = touch.clientX - startX;
-            const triggerDistance = window.innerWidth * 0.35; 
-
-            container.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease';
-
-            // 侧滑成功时，安全地通知外部桌面关闭，绝不刷新加载
-            if (swipeDirection === 'left-to-right' && deltaX > triggerDistance) {
-                container.style.transform = 'translateX(100%)';
-                container.style.opacity = '0';
-                setTimeout(() => {
-                    window.parent.postMessage('closeApp', '*');
-                    setTimeout(() => { container.style.transform = 'translateX(0)'; container.style.opacity = '1'; }, 100);
-                }, 300);
-            } else if (swipeDirection === 'right-to-left' && Math.abs(deltaX) > triggerDistance) {
-                container.style.transform = 'translateX(-100%)';
-                container.style.opacity = '0';
-                setTimeout(() => {
-                    window.parent.postMessage('closeApp', '*');
-                    setTimeout(() => { container.style.transform = 'translateX(0)'; container.style.opacity = '1'; }, 100);
-                }, 300);
-            } else {
-                container.style.transform = 'translateX(0px) scale(1)';
-                container.style.opacity = '1';
+        window.addEventListener('touchend', (e) => {
+            if (!isRightEdgeSwipe) return;
+            isRightEdgeSwipe = false;
+            
+            const clientX = e.changedTouches[0].clientX;
+            let deltaX = startX - clientX;
+            
+            // 缩回小标签
+            returnTag.style.transform = 'translateY(-50%) translateX(100%)';
+            
+            // 只要向左拉动超过了 45px，直接向父桌面发送安全退出通知！
+            if (deltaX > 45) {
+                window.parent.postMessage('closeApp', '*');
             }
-        }
+        });
 
-        window.addEventListener('touchstart', handleStart, { passive: true });
-        window.addEventListener('touchmove', handleMove, { passive: true });
-        window.addEventListener('touchend', handleEnd);
+        // 桌面端鼠标模拟从右向左侧滑返回
+        window.addEventListener('mousedown', (e) => {
+            const screenWidth = window.innerWidth;
+            if (e.clientX >= screenWidth - edgeWidth) {
+                startX = e.clientX;
+                startY = e.clientY;
+                isRightEdgeSwipe = true;
+            }
+        });
 
-        window.addEventListener('mousedown', handleStart);
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('mousemove', (e) => {
+            if (!isRightEdgeSwipe) return;
+            let deltaX = startX - e.clientX;
+            if (deltaX > 5 && deltaX < 120) {
+                let pullDistance = Math.min(deltaX * 0.4, 28);
+                returnTag.style.transform = `translateY(-50%) translateX(${16 - pullDistance}px)`;
+            }
+        });
+
+        window.addEventListener('mouseup', (e) => {
+            if (!isRightEdgeSwipe) return;
+            isRightEdgeSwipe = false;
+            let deltaX = startX - e.clientX;
+            returnTag.style.transform = 'translateY(-50%) translateX(100%)';
+            if (deltaX > 45) {
+                window.parent.postMessage('closeApp', '*');
+            }
+        });
     </script>
 </body>
 </html>
