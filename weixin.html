@@ -20,321 +20,418 @@
             height: 100%;
             overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-            background-color: #111111; /* 修改底层色，彻底掐死黑杠 */
+            background-color: #000;
         }
 
-        /* 核心修复：微信本身不再生成状态栏，而是让出空间（Placeholder），使外壳的状态栏能露出来 */
-        .status-bar-placeholder {
-            width: 100%;
-            height: 44px; /* 标准 iOS 状态栏占位高度 */
-            background-color: #111111; 
+        /* ==================== 【已修复】：状态栏彻底隐藏，改由桌面提供 ==================== */
+        .status-bar {
+            display: none !important; /* 彻底移除，防挤压撞车 */
         }
 
-        /* ==================== 2. 全局 App 弹性底框 ==================== */
+        /* 微信最外层容器：由于桌面状态栏是透明覆盖上来的，我们必须把微信顶部往下挤 44px 留出空间 */
         .app-container {
             width: 100%;
             height: 100%;
-            background-color: #111111;
-            color: #ffffff;
+            background-color: #111;
             display: flex;
             flex-direction: column;
             position: relative;
-            transform-origin: center center;
-            will-change: transform, opacity;
+            transform: translateX(0px);
+            opacity: 1;
+            padding-top: 44px; /* 【重要核心修改】：给状态栏留出完美生存空间，字绝不会挤在一起 */
         }
 
-        /* ==================== 3. 微信主导航栏 ==================== */
-        .nav-bar {
-            height: 44px;
+        /* ==================== 2. 微信头部导航栏 ==================== */
+        .app-header {
+            height: 50px;
+            background-color: #111;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 0 16px;
-            background-color: #111111;
-            border-bottom: 0.5px solid #222222;
+            border-bottom: 0.5px solid #222;
         }
 
-        .nav-left {
+        .header-left {
+            font-size: 22px;
+            font-weight: 600;
+            color: #dfdfdf;
+        }
+
+        .header-right {
             display: flex;
+            gap: 18px;
+            font-size: 18px;
+            color: #dfdfdf;
+        }
+
+        /* ==================== 3. 搜索栏区域 ==================== */
+        .search-container {
+            padding: 8px 12px;
+            background-color: #111;
+        }
+
+        .search-box {
+            width: 100%;
+            height: 36px;
+            background-color: #222;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
             align-items: center;
-            font-size: 16px;
-            color: #ffffff;
+            gap: 6px;
+            color: #777;
+            font-size: 15px;
+        }
+
+        /* ==================== 4. 消息列表滚动区域 ==================== */
+        .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            background-color: #111;
+            /* 丝滑滚动体验 */
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .chat-item {
+            display: flex;
+            padding: 12px 16px;
+            gap: 12px;
+            border-bottom: 0.5px solid #1a1a1a;
             cursor: pointer;
         }
 
-        .nav-left i {
-            font-size: 20px;
-            margin-right: 6px;
+        .chat-item:active {
+            background-color: #1a1a1a;
         }
 
-        .nav-title {
-            font-size: 17px;
-            font-weight: 600;
-        }
-
-        .nav-right i {
-            font-size: 18px;
-            color: #ffffff;
-        }
-
-        /* ==================== 4. 聊天内容流动区域 ==================== */
-        .chat-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            background-color: #191919;
-            -webkit-overflow-scrolling: touch; 
-        }
-
-        /* 时间标签 */
-        .chat-time {
-            align-self: center;
-            background-color: rgba(255, 255, 255, 0.08);
-            color: #888888;
-            font-size: 12px;
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-
-        /* 消息基础骨架 */
-        .message-row {
-            display: flex;
-            align-items: flex-start;
-            max-width: 85%;
-        }
-
-        /* 对方的消息（左边） */
-        .msg-left {
-            align-self: flex-start;
-        }
-
-        /* 我的消息（右边） */
-        .msg-right {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-
-        /* 头像 */
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 4px;
-            background-size: cover;
-            background-position: center;
+        .avatar-wrapper {
+            position: relative;
+            width: 48px;
+            height: 48px;
             flex-shrink: 0;
         }
 
-        .msg-left .avatar {
-            background-image: url('https://img.cdn1.vip/i/69fda8bde0be8f_1778231485.jpg');
-            margin-right: 10px;
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 6px;
+            object-fit: cover;
+            background-color: #333;
         }
 
-        .msg-right .avatar {
-            background-image: url('https://img.cdn1.vip/i/69fda8be2c02df_1778231486.jpg');
-            margin-left: 10px;
+        .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #fa5151;
+            color: white;
+            font-size: 11px;
+            font-weight: 500;
+            padding: 1px 5px;
+            border-radius: 10px;
+            min-width: 16px;
+            text-align: center;
+            border: 1px solid #111;
         }
 
-        /* 气泡 */
-        .bubble {
-            padding: 10px 12px;
-            border-radius: 4px;
-            font-size: 15px;
-            line-height: 1.4;
-            word-break: break-all;
+        .badge-dot {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 10px;
+            height: 10px;
+            background-color: #fa5151;
+            border-radius: 50%;
+            border: 1px solid #111;
+        }
+
+        .chat-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            min-width: 0; /* 允许文本截断 */
+        }
+
+        .chat-row-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-name {
+            font-size: 16px;
+            font-weight: 500;
+            color: #dfdfdf;
+        }
+
+        .chat-time {
+            font-size: 12px;
+            color: #555;
+        }
+
+        .chat-row-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-msg {
+            font-size: 14px;
+            color: #777;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 85%;
+        }
+
+        .chat-mute {
+            font-size: 12px;
+            color: #333;
+        }
+
+        /* ==================== 5. 底部 Tab 导航栏 ==================== */
+        .tab-bar {
+            height: 54px;
+            background-color: #191919;
+            border-top: 0.5px solid #222;
+            display: flex;
+            padding-bottom: 4px; /* 略微提，留出iPhone安全区视感 */
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+            color: #999;
+            cursor: pointer;
             position: relative;
         }
 
-        .msg-left .bubble {
-            background-color: #2c2c2e;
-            color: #ffffff;
+        .tab-item.active {
+            color: #07c160; /* 微信经典绿 */
         }
 
-        .msg-right .bubble {
-            background-color: #07c160;
-            color: #ffffff;
+        .tab-item i {
+            font-size: 20px;
         }
 
-        /* ==================== 5. 底部聊天工具栏 ==================== */
-        .input-panel {
-            height: 56px;
-            background-color: #111111;
-            border-top: 0.5px solid #222222;
-            display: flex;
-            align-items: center;
-            padding: 0 12px;
-            gap: 12px;
-            padding-bottom: env(safe-area-inset-bottom); /* 保护小黑条区域 */
+        .tab-item span {
+            font-size: 10px;
         }
 
-        .input-panel i {
-            font-size: 24px;
-            color: #cccccc;
+        .tab-item .badge {
+            top: 2px;
+            left: 52%;
+        }
+        .tab-item .badge-dot {
+            top: 4px;
+            left: 54%;
         }
 
-        .input-box {
-            flex: 1;
-            height: 38px;
-            background-color: #2c2c2e;
-            border-radius: 6px;
-            border: none;
-            padding: 0 10px;
-            color: #ffffff;
-            font-size: 15px;
-        }
-
-        .input-box:focus {
-            outline: none;
+        /* ==================== 【已修复】：微信内底部多余的黑条彻底抹除 ==================== */
+        .home-indicator {
+            display: none !important; /* 彻底干掉黑条冲突 */
         }
     </style>
 </head>
 <body>
 
-    <div class="status-bar-placeholder"></div>
-
     <div class="app-container" id="appContainer">
         
-        <div class="nav-bar">
-            <div class="nav-left" id="navBackBtn">
-                <i class="fas fa-chevron-left"></i>
-                <span>雪兔</span>
-            </div>
-            <div class="nav-title">宝贝</div>
-            <div class="nav-right">
-                <i class="fas fa-ellipsis-h"></i>
+        <div class="app-header">
+            <div class="header-left">微信</div>
+            <div class="header-right">
+                <i class="fas fa-search"></i>
+                <i class="fas fa-plus-circle"></i>
             </div>
         </div>
 
-        <div class="chat-content">
-            <div class="chat-time">10:25</div>
+        <div class="search-container">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <span>搜索</span>
+            </div>
+        </div>
+
+        <div class="chat-list">
             
-            <div class="message-row msg-left">
-                <div class="avatar"></div>
-                <div class="bubble">你在干嘛呀？手机弄好了嘛？</div>
+            <div class="chat-item">
+                <div class="avatar-wrapper">
+                    <img class="avatar" src="https://i.imgs.ovh/2026/05/22/e13fe7bb2a4a3bc6c0cc2e88a38a7bd0.jpg" alt="头像">
+                    <div class="badge">1</div>
+                </div>
+                <div class="chat-details">
+                    <div class="chat-row-top">
+                        <span class="chat-name">何煜</span>
+                        <span class="chat-time">10:25</span>
+                    </div>
+                    <div class="chat-row-bottom">
+                        <span class="chat-msg">听话。</span>
+                        <span class="chat-mute"></span>
+                    </div>
+                </div>
             </div>
 
-            <div class="message-row msg-right">
-                <div class="avatar"></div>
-                <div class="bubble">正在调试最后的手势呢，有点头大 😭</div>
+            <div class="chat-item">
+                <div class="avatar-wrapper">
+                    <img class="avatar" src="https://i.imgs.ovh/2026/05/22/a933ff228b3e813f87c95696d744bfa2.jpg" alt="头像">
+                </div>
+                <div class="chat-details">
+                    <div class="chat-row-top">
+                        <span class="chat-name">田栎阳</span>
+                        <span class="chat-time">09:14</span>
+                    </div>
+                    <div class="chat-row-bottom">
+                        <span class="chat-msg">[图片]</span>
+                        <span class="chat-mute"></span>
+                    </div>
+                </div>
             </div>
 
-            <div class="message-row msg-left">
-                <div class="avatar"></div>
-                <div class="bubble">加油加油！弄好了一起去吃好吃的！</div>
+            <div class="chat-item">
+                <div class="avatar-wrapper">
+                    <img class="avatar" src="https://i.imgs.ovh/2026/05/22/33827ec3a1d95ee02bd8b948c2c1fa0e.jpg" alt="头像">
+                    <div class="badge-dot"></div>
+                </div>
+                <div class="chat-details">
+                    <div class="chat-row-top">
+                        <span class="chat-name">订阅号消息</span>
+                        <span class="chat-time">昨天</span>
+                    </div>
+                    <div class="chat-row-bottom">
+                        <span class="chat-msg">一条未读资讯推送...</span>
+                        <span class="chat-mute"></span>
+                    </div>
+                </div>
             </div>
+
+            <div class="chat-item">
+                <div class="avatar-wrapper">
+                    <img class="avatar" src="https://i.imgs.ovh/2026/05/22/75df0709b4d375369ec2643a6fb98fc3.jpg" alt="头像">
+                </div>
+                <div class="chat-details">
+                    <div class="chat-row-top">
+                        <span class="chat-name">微信团队</span>
+                        <span class="chat-time">前天</span>
+                    </div>
+                    <div class="chat-row-bottom">
+                        <span class="chat-msg">欢迎使用安全绿色的微信沟通环境。</span>
+                        <span class="chat-mute"><i class="fas fa-volume-mute"></i></span>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <div class="input-panel">
-            <i class="far fa-comment-dots"></i>
-            <input type="text" class="input-box" placeholder="发送消息..." readonly>
-            <i class="far fa-smile"></i>
-            <i class="fas fa-plus-circle"></i>
+        <div class="tab-bar">
+            <div class="tab-item active">
+                <i class="fas fa-comment-alt"></i>
+                <span>微信</span>
+                <div class="badge">1</div>
+            </div>
+            <div class="tab-item">
+                <i class="far fa-address-book"></i>
+                <span>通讯录</span>
+            </div>
+            <div class="tab-item">
+                <i class="far fa-compass"></i>
+                <span>发现</span>
+                <div class="badge-dot"></div>
+            </div>
+            <div class="tab-item">
+                <i class="far fa-user"></i>
+                <span>我</span>
+            </div>
         </div>
 
     </div>
 
     <script>
-        // ==================== 📱 高仿 iOS 侧滑无缝返回核心交互 ====================
+        const appContainer = document.getElementById('appContainer');
+        
         let startX = 0;
         let startY = 0;
-        let currentX = 0;
-        let currentY = 0;
-        let isDragging = false;
-        let swipeDirection = ''; 
-
-        const appContainer = document.getElementById('appContainer');
-        const triggerDistance = window.innerWidth * 0.35; 
+        let isMoving = false;
+        let swipeDirection = null; 
 
         function handleStart(e) {
             const touch = e.touches ? e.touches[0] : e;
             startX = touch.clientX;
             startY = touch.clientY;
-            isDragging = true;
-            swipeDirection = '';
+            isMoving = true;
+            swipeDirection = null;
             appContainer.style.transition = 'none'; 
         }
 
         function handleMove(e) {
-            if (!isDragging) return;
+            if (!isMoving) return;
             const touch = e.touches ? e.touches[0] : e;
-            currentX = touch.clientX;
-            currentY = touch.clientY;
+            let deltaX = touch.clientX - startX;
+            let deltaY = touch.clientY - startY;
 
-            let deltaX = currentX - startX;
-            let deltaY = currentY - startY;
-
-            if (swipeDirection === '') {
-                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 10) {
+            if (!swipeDirection) {
+                if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 8) {
                     swipeDirection = deltaX > 0 ? 'left-to-right' : 'right-to-left';
-                } else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
-                    isDragging = false; 
+                } else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) {
+                    isMoving = false; // 纵向滚动交给列表，不拦截
                 }
             }
 
-            // 侧滑拉动时的动态弹性缩放视差动效
             if (swipeDirection === 'left-to-right' && deltaX > 0) {
-                let moveFactor = deltaX;
-                let scaleFactor = 1 - (deltaX / window.innerWidth) * 0.08;
-                let opacityFactor = 1 - (deltaX / window.innerWidth) * 0.3;
-                appContainer.style.transform = `translateX(${moveFactor}px) scale(${scaleFactor})`;
-                appContainer.style.opacity = opacityFactor;
+                appContainer.style.transform = `translateX(${deltaX}px) scale(${1 - deltaX/3000})`;
+                appContainer.style.opacity = `${1 - deltaX/1000}`;
             } else if (swipeDirection === 'right-to-left' && deltaX < 0) {
-                let moveFactor = deltaX;
-                let scaleFactor = 1 - (Math.abs(deltaX) / window.innerWidth) * 0.08;
-                let opacityFactor = 1 - (Math.abs(deltaX) / window.innerWidth) * 0.3;
-                appContainer.style.transform = `translateX(${moveFactor}px) scale(${scaleFactor})`;
-                appContainer.style.opacity = opacityFactor;
+                appContainer.style.transform = `translateX(${deltaX}px) scale(${1 - Math.abs(deltaX)/3000})`;
+                appContainer.style.opacity = `${1 - Math.abs(deltaX)/1000}`;
             }
         }
 
-        function handleEnd() {
-            if (!isDragging) return;
-            isDragging = false;
-            let deltaX = currentX - startX;
+        function handleEnd(e) {
+            if (!isMoving) return;
+            isMoving = false;
+
+            const touch = e.changedTouches ? e.changedTouches[0] : e;
+            let deltaX = touch.clientX - startX;
+            const triggerDistance = window.innerWidth * 0.35; 
 
             appContainer.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease';
 
+            // 【核心安全修复】：决不使用会导致页面重刷套娃的 window.location.href！
+            // 改为利用 HTML5 的 postMessage 向父外壳发送一条优雅的离场通知
             if (swipeDirection === 'left-to-right' && deltaX > triggerDistance) {
                 appContainer.style.transform = 'translateX(100%)';
                 appContainer.style.opacity = '0';
                 setTimeout(() => {
-                    // 【核心修复】：不再调用 URL 刷新网页，而是发跨文档信号让父级 index.html 把自己滑下去
                     window.parent.postMessage('closeApp', '*');
-                    setTimeout(() => { appContainer.style.transform = 'translateX(0px) scale(1)'; appContainer.style.opacity = '1'; }, 200);
+                    setTimeout(() => { appContainer.style.transform = 'translateX(0)'; appContainer.style.opacity = '1'; }, 100);
                 }, 300);
             } else if (swipeDirection === 'right-to-left' && Math.abs(deltaX) > triggerDistance) {
                 appContainer.style.transform = 'translateX(-100%)';
                 appContainer.style.opacity = '0';
                 setTimeout(() => {
                     window.parent.postMessage('closeApp', '*');
-                    setTimeout(() => { appContainer.style.transform = 'translateX(0px) scale(1)'; appContainer.style.opacity = '1'; }, 200);
+                    setTimeout(() => { appContainer.style.transform = 'translateX(0)'; appContainer.style.opacity = '1'; }, 100);
                 }, 300);
             } else {
-                // 没拉到位，弹回
+                // 手势未达到阈值，无缝弹回
                 appContainer.style.transform = 'translateX(0px) scale(1)';
                 appContainer.style.opacity = '1';
             }
         }
 
-        // 绑定触摸和鼠标事件
         window.addEventListener('touchstart', handleStart, { passive: true });
         window.addEventListener('touchmove', handleMove, { passive: true });
         window.addEventListener('touchend', handleEnd);
+
         window.addEventListener('mousedown', handleStart);
         window.addEventListener('mousemove', handleMove);
         window.addEventListener('mouseup', handleEnd);
-
-        // 点击左上角返回按钮
-        document.getElementById('navBackBtn').addEventListener('click', () => {
-            appContainer.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease';
-            appContainer.style.transform = 'translateY(100%)';
-            setTimeout(() => {
-                window.parent.postMessage('closeApp', '*');
-                setTimeout(() => { appContainer.style.transform = 'translateX(0px) scale(1)'; appContainer.style.opacity = '1'; }, 100);
-            }, 300);
-        });
     </script>
 </body>
 </html>
