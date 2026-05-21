@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>微信</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>微信 WeChat</title>
     <style>
         /* 基础样式重置 */
         * {
@@ -12,348 +11,93 @@
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
-            user-select: none; 
         }
 
         html, body {
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Helvetica Neue\", sans-serif;
             background-color: #000;
         }
 
-        /* ==================== 【已修复】：状态栏彻底隐藏，改由桌面提供 ==================== */
-        .status-bar {
-            display: none !important; /* 彻底移除，防挤压撞车 */
-        }
-
-        /* 微信最外层容器：由于桌面状态栏是透明覆盖上来的，我们必须把微信顶部往下挤 44px 留出空间 */
-        .app-container {
+        /* 全屏背景图容器 */
+        .container {
+            position: relative;
             width: 100%;
             height: 100%;
-            background-color: #111;
+            background-image: url('https://i.imgs.ovh/2026/05/21/57e6b7c2239da21d46d9436512499458.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             display: flex;
             flex-direction: column;
-            position: relative;
-            transform: translateX(0px);
-            opacity: 1;
-            padding-top: 44px; /* 【重要核心修改】：给状态栏留出完美生存空间，字绝不会挤在一起 */
-        }
-
-        /* ==================== 2. 微信头部导航栏 ==================== */
-        .app-header {
-            height: 50px;
-            background-color: #111;
-            display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
-            padding: 0 16px;
-            border-bottom: 0.5px solid #222;
+            /* 严格控制整体底部抬高距离，让按钮高度贴近原图 */
+            padding-bottom: 95px; 
+            /* 【精细修复】：顶部增加 44px 留白，完美显露桌面状态栏，绝不撞车和挤压 */
+            padding-top: 44px;
         }
 
-        .header-left {
-            font-size: 22px;
-            font-weight: 600;
-            color: #dfdfdf;
-        }
+        /* ==================== 【已修复】：移除原本冲突的状态栏 ==================== */
 
-        .header-right {
+        /* 底部双按钮并排外框 */
+        .btn-group {
             display: flex;
-            gap: 18px;
-            font-size: 18px;
-            color: #dfdfdf;
+            /* 左右按钮之间的精确间隙 */
+            gap: 32px; 
         }
 
-        /* ==================== 3. 搜索栏区域 ==================== */
-        .search-container {
-            padding: 8px 12px;
-            background-color: #111;
-        }
-
-        .search-box {
-            width: 100%;
-            height: 36px;
-            background-color: #222;
-            border-radius: 6px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 6px;
-            color: #777;
+        /* 按钮精确调校 */
+        .btn {
+            /* 彻底砍掉宽度！固定成原图那种精巧的小短块 */
+            width: 120px; 
+            height: 48px; 
+            border: none;
+            /* 极小的微圆角 */
+            border-radius: 6px; 
             font-size: 15px;
-        }
-
-        /* ==================== 4. 消息列表滚动区域 ==================== */
-        .chat-list {
-            flex: 1;
-            overflow-y: auto;
-            background-color: #111;
-            /* 丝滑滚动体验 */
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .chat-item {
-            display: flex;
-            padding: 12px 16px;
-            gap: 12px;
-            border-bottom: 0.5px solid #1a1a1a;
-            cursor: pointer;
-        }
-
-        .chat-item:active {
-            background-color: #1a1a1a;
-        }
-
-        .avatar-wrapper {
-            position: relative;
-            width: 48px;
-            height: 48px;
-            flex-shrink: 0;
-        }
-
-        .avatar {
-            width: 100%;
-            height: 100%;
-            border-radius: 6px;
-            object-fit: cover;
-            background-color: #333;
-        }
-
-        .badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background-color: #fa5151;
-            color: white;
-            font-size: 11px;
             font-weight: 500;
-            padding: 1px 5px;
-            border-radius: 10px;
-            min-width: 16px;
-            text-align: center;
-            border: 1px solid #111;
-        }
-
-        .badge-dot {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            width: 10px;
-            height: 10px;
-            background-color: #fa5151;
-            border-radius: 50%;
-            border: 1px solid #111;
-        }
-
-        .chat-details {
-            flex: 1;
+            letter-spacing: 2px;
+            text-indent: 2px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
             justify-content: center;
-            gap: 4px;
-            min-width: 0; /* 允许文本截断 */
-        }
-
-        .chat-row-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chat-name {
-            font-size: 16px;
-            font-weight: 500;
-            color: #dfdfdf;
-        }
-
-        .chat-time {
-            font-size: 12px;
-            color: #555;
-        }
-
-        .chat-row-bottom {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chat-msg {
-            font-size: 14px;
-            color: #777;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 85%;
-        }
-
-        .chat-mute {
-            font-size: 12px;
-            color: #333;
-        }
-
-        /* ==================== 5. 底部 Tab 导航栏 ==================== */
-        .tab-bar {
-            height: 54px;
-            background-color: #191919;
-            border-top: 0.5px solid #222;
-            display: flex;
-            padding-bottom: 4px; /* 略微提，留出iPhone安全区视感 */
-        }
-
-        .tab-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 3px;
-            color: #999;
             cursor: pointer;
-            position: relative;
+            transition: opacity 0.1s ease;
         }
 
-        .tab-item.active {
-            color: #07c160; /* 微信经典绿 */
+        .btn:active {
+            opacity: 0.8;
         }
 
-        .tab-item i {
-            font-size: 20px;
+        /* 微信绿 */
+        .btn-login {
+            background-color: #07C160;
+            color: #FFFFFF;
         }
 
-        .tab-item span {
-            font-size: 10px;
+        /* 纯白 */
+        .btn-register {
+            background-color: #FFFFFF;
+            color: #191919;
         }
 
-        .tab-item .badge {
-            top: 2px;
-            left: 52%;
-        }
-        .tab-item .badge-dot {
-            top: 4px;
-            left: 54%;
-        }
-
-        /* ==================== 【已修复】：微信内底部多余的黑条彻底抹除 ==================== */
-        .home-indicator {
-            display: none !important; /* 彻底干掉黑条冲突 */
-        }
+        /* ==================== 【已修复】：干掉原本冲突的底部系统黑线 ==================== */
     </style>
 </head>
 <body>
 
-    <div class="app-container" id="appContainer">
-        
-        <div class="app-header">
-            <div class="header-left">微信</div>
-            <div class="header-right">
-                <i class="fas fa-search"></i>
-                <i class="fas fa-plus-circle"></i>
-            </div>
+    <div class="container">
+        <div class="btn-group">
+            <button class="btn btn-login">登录</button>
+            <button class="btn btn-register">注册</button>
         </div>
-
-        <div class="search-container">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <span>搜索</span>
-            </div>
-        </div>
-
-        <div class="chat-list">
-            
-            <div class="chat-item">
-                <div class="avatar-wrapper">
-                    <img class="avatar" src="https://i.imgs.ovh/2026/05/22/e13fe7bb2a4a3bc6c0cc2e88a38a7bd0.jpg" alt="头像">
-                    <div class="badge">1</div>
-                </div>
-                <div class="chat-details">
-                    <div class="chat-row-top">
-                        <span class="chat-name">何煜</span>
-                        <span class="chat-time">10:25</span>
-                    </div>
-                    <div class="chat-row-bottom">
-                        <span class="chat-msg">听话。</span>
-                        <span class="chat-mute"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="chat-item">
-                <div class="avatar-wrapper">
-                    <img class="avatar" src="https://i.imgs.ovh/2026/05/22/a933ff228b3e813f87c95696d744bfa2.jpg" alt="头像">
-                </div>
-                <div class="chat-details">
-                    <div class="chat-row-top">
-                        <span class="chat-name">田栎阳</span>
-                        <span class="chat-time">09:14</span>
-                    </div>
-                    <div class="chat-row-bottom">
-                        <span class="chat-msg">[图片]</span>
-                        <span class="chat-mute"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="chat-item">
-                <div class="avatar-wrapper">
-                    <img class="avatar" src="https://i.imgs.ovh/2026/05/22/33827ec3a1d95ee02bd8b948c2c1fa0e.jpg" alt="头像">
-                    <div class="badge-dot"></div>
-                </div>
-                <div class="chat-details">
-                    <div class="chat-row-top">
-                        <span class="chat-name">订阅号消息</span>
-                        <span class="chat-time">昨天</span>
-                    </div>
-                    <div class="chat-row-bottom">
-                        <span class="chat-msg">一条未读资讯推送...</span>
-                        <span class="chat-mute"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="chat-item">
-                <div class="avatar-wrapper">
-                    <img class="avatar" src="https://i.imgs.ovh/2026/05/22/75df0709b4d375369ec2643a6fb98fc3.jpg" alt="头像">
-                </div>
-                <div class="chat-details">
-                    <div class="chat-row-top">
-                        <span class="chat-name">微信团队</span>
-                        <span class="chat-time">前天</span>
-                    </div>
-                    <div class="chat-row-bottom">
-                        <span class="chat-msg">欢迎使用安全绿色的微信沟通环境。</span>
-                        <span class="chat-mute"><i class="fas fa-volume-mute"></i></span>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="tab-bar">
-            <div class="tab-item active">
-                <i class="fas fa-comment-alt"></i>
-                <span>微信</span>
-                <div class="badge">1</div>
-            </div>
-            <div class="tab-item">
-                <i class="far fa-address-book"></i>
-                <span>通讯录</span>
-            </div>
-            <div class="tab-item">
-                <i class="far fa-compass"></i>
-                <span>发现</span>
-                <div class="badge-dot"></div>
-            </div>
-            <div class="tab-item">
-                <i class="far fa-user"></i>
-                <span>我</span>
-            </div>
-        </div>
-
     </div>
 
     <script>
-        const appContainer = document.getElementById('appContainer');
+        const container = document.querySelector('.container');
         
         let startX = 0;
         let startY = 0;
@@ -366,7 +110,7 @@
             startY = touch.clientY;
             isMoving = true;
             swipeDirection = null;
-            appContainer.style.transition = 'none'; 
+            container.style.transition = 'none'; 
         }
 
         function handleMove(e) {
@@ -379,16 +123,16 @@
                 if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 8) {
                     swipeDirection = deltaX > 0 ? 'left-to-right' : 'right-to-left';
                 } else if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 8) {
-                    isMoving = false; // 纵向滚动交给列表，不拦截
+                    isMoving = false; 
                 }
             }
 
             if (swipeDirection === 'left-to-right' && deltaX > 0) {
-                appContainer.style.transform = `translateX(${deltaX}px) scale(${1 - deltaX/3000})`;
-                appContainer.style.opacity = `${1 - deltaX/1000}`;
+                container.style.transform = `translateX(${deltaX}px) scale(${1 - deltaX/3000})`;
+                container.style.opacity = `${1 - deltaX/1000}`;
             } else if (swipeDirection === 'right-to-left' && deltaX < 0) {
-                appContainer.style.transform = `translateX(${deltaX}px) scale(${1 - Math.abs(deltaX)/3000})`;
-                appContainer.style.opacity = `${1 - Math.abs(deltaX)/1000}`;
+                container.style.transform = `translateX(${deltaX}px) scale(${1 - Math.abs(deltaX)/3000})`;
+                container.style.opacity = `${1 - Math.abs(deltaX)/1000}`;
             }
         }
 
@@ -400,28 +144,26 @@
             let deltaX = touch.clientX - startX;
             const triggerDistance = window.innerWidth * 0.35; 
 
-            appContainer.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease';
+            container.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease';
 
-            // 【核心安全修复】：决不使用会导致页面重刷套娃的 window.location.href！
-            // 改为利用 HTML5 的 postMessage 向父外壳发送一条优雅的离场通知
+            // 侧滑成功时，安全地通知外部桌面关闭，绝不刷新加载
             if (swipeDirection === 'left-to-right' && deltaX > triggerDistance) {
-                appContainer.style.transform = 'translateX(100%)';
-                appContainer.style.opacity = '0';
+                container.style.transform = 'translateX(100%)';
+                container.style.opacity = '0';
                 setTimeout(() => {
                     window.parent.postMessage('closeApp', '*');
-                    setTimeout(() => { appContainer.style.transform = 'translateX(0)'; appContainer.style.opacity = '1'; }, 100);
+                    setTimeout(() => { container.style.transform = 'translateX(0)'; container.style.opacity = '1'; }, 100);
                 }, 300);
             } else if (swipeDirection === 'right-to-left' && Math.abs(deltaX) > triggerDistance) {
-                appContainer.style.transform = 'translateX(-100%)';
-                appContainer.style.opacity = '0';
+                container.style.transform = 'translateX(-100%)';
+                container.style.opacity = '0';
                 setTimeout(() => {
                     window.parent.postMessage('closeApp', '*');
-                    setTimeout(() => { appContainer.style.transform = 'translateX(0)'; appContainer.style.opacity = '1'; }, 100);
+                    setTimeout(() => { container.style.transform = 'translateX(0)'; container.style.opacity = '1'; }, 100);
                 }, 300);
             } else {
-                // 手势未达到阈值，无缝弹回
-                appContainer.style.transform = 'translateX(0px) scale(1)';
-                appContainer.style.opacity = '1';
+                container.style.transform = 'translateX(0px) scale(1)';
+                container.style.opacity = '1';
             }
         }
 
