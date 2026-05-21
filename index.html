@@ -239,7 +239,7 @@
             z-index: 10;
         }
 
-        /* 每一页的大容器：从原先的 padding-top: 85px 调整为 54px，让6行整体往上移动 */
+        /* 每一页的大容器 */
         .page-container {
             min-width: 100%;
             width: 100%;
@@ -248,7 +248,7 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             grid-template-rows: repeat(6, 1fr); 
-            gap: 10px 18px; /* 略微收紧纵向间距，使其完美偏上游离 */
+            gap: 10px 18px; 
             justify-items: center;
             align-items: center;
             transform: scale(0.93);
@@ -262,7 +262,7 @@
             opacity: 1;
         }
 
-        /* 静态网格槽位：永远静止死守在原地 */
+        /* 静态网格槽位 */
         .grid-slot {
             width: 65px;
             height: 75px;
@@ -274,7 +274,7 @@
             border-radius: 12px;
         }
 
-        /* 半透明小底框：死死固定在格子最底层，伴随大框架完美上移 */
+        /* 半透明小底框 */
         .shaking-mode .grid-slot::before {
             content: "";
             position: absolute;
@@ -344,13 +344,13 @@
         .icon-camera { background: linear-gradient(135deg, #9ca0a6, #5c6168); }
         .icon-settings { background: linear-gradient(135deg, #9ca0a6, #5c6168); }
         .icon-appstore { background: linear-gradient(135deg, #34aadc, #007aff); }
-.icon-weixin { 
-    background-image: url('https://i.imgs.ovh/2026/05/21/357cefc6f096df75ec1383fff7b29a71.jpg'); 
-    background-size: cover; 
-    background-position: center; 
-    background-repeat: no-repeat; 
-    background-color: transparent; 
-}
+        .icon-weixin { 
+            background-image: url('https://i.imgs.ovh/2026/05/21/357cefc6f096df75ec1383fff7b29a71.jpg'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            background-color: transparent; 
+        }
         .icon-clock { background: #000; color: #fff; }
         .icon-weather { background: linear-gradient(135deg, #5ac8fb, #1d62f0); }
         .icon-notes { background: linear-gradient(135deg, #f7d739, #f0c300); }
@@ -451,21 +451,25 @@
             100% { transform: rotate(-1.5deg); }
         }
 
-        /* 修复隐形的关键：幽灵元素完全透明，但拖拽出的实体强行可见 */
+        /* 排序占位图 */
         .sortable-ghost {
             opacity: 0 !important; 
         }   
         .sortable-drag {
             opacity: 0.95 !important;
             box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important;
-            z-index: 999999 !important; /* 强制拉到屏幕绝对最顶层 */
+            z-index: 999999 !important; 
+        }
+
+        /* 【重要修复】：当打开微信时，给 body 加上此类名，彻底掐断桌面的滑动切页响应 */
+        .app-active-lock {
+            touch-action: none !important;
         }
     </style>
 </head>
 <body>
 
     <div class="status-bar">
-
         <div class="status-left">
             <span class="status-carrier">中国移动</span>
             <span class="status-time" id="statusBarTime">10:27</span>
@@ -481,6 +485,7 @@
             </div>
         </div>
     </div>
+    
     <iframe id="weixinWindow" src="./weixin.html" style="
         position: absolute;
         top: 0;
@@ -488,8 +493,8 @@
         width: 100%;
         height: 100%;
         border: none;
-        z-index: 40; /* 高于桌面层（10），但低于锁屏层（50）和共用状态栏（100） */
-        transform: translateY(100%); /* 默认藏在手机屏幕的最下方 */
+        z-index: 40; 
+        transform: translateY(100%); 
         transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         will-change: transform;
     "></iframe>
@@ -518,7 +523,7 @@
     <div class="screen-slider-wrapper" id="sliderWrapper">
         
         <div class="page-container" data-page-index="0">
-                       <div class="grid-slot">
+            <div class="grid-slot">
                 <div class="app-item" id="appWeixin">
                     <div class="app-icon icon-weixin"></div>
                     <div class="app-name">微信</div>
@@ -559,11 +564,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 
     <script>
-        // ========== 完好保留：原有高精度日历与时钟换算逻辑 ==========
+        // ========== 完好保留：日历与时钟逻辑 ==========
         const GAN = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
         const ZHI = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
         const LUNAR_MONTHS = ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
-        const LUNAR_DAYS = ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
+        const LUNAR_DAYS = ["初一", "初二", "初三", "初外", "初五", "初六", "初七", "初八", "初九", "初十",
                             "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
                             "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"];
         
@@ -624,7 +629,7 @@
             document.getElementById('date').textContent = formatFullDate(now);
         }
 
-        // ========== 完好保留：原有电池电量逻辑 ==========
+        // ========== 完好保留：电池电量逻辑 ==========
         async function updateBattery() {
             try {
                 const battery = await navigator.getBattery();
@@ -743,7 +748,6 @@
             }
         }
 
-        // 动态创建并注册全新的 24 个静态格子（上移后的间距也保持完全一致）
         function createNewPage() {
             totalPages++;
             const newPage = document.createElement('div');
@@ -849,7 +853,7 @@
         window.addEventListener('mouseup', clearEdgeTimer);
 
 
-        // ==================== 📱 Sortable 跨越页槽位绑定（彻底修复隐形Bug） ====================
+        // ==================== 📱 Sortable 跨越页槽位绑定 ====================
         let isEditing = false; 
         let longPressTimer;
         let preventClickFlag = false; 
@@ -867,8 +871,6 @@
                 ghostClass: 'sortable-ghost',
                 dragClass: 'sortable-drag',
                 disabled: !isEditing, 
-                
-                // 【核心修复】：拖拽时强制将图标挂载到 document.body 顶层，完美解决切页时隐形的恶性Bug
                 fallbackOnBody: true,
                 swapThreshold: 0.65,
                 
@@ -919,6 +921,8 @@
 
         function handleStart(e) {
             if (!document.body.classList.contains('unlocked')) return;
+            // 【核心修复】：如果当前用户正在微信应用里玩，立刻拦截并禁止执行桌面的翻页或编辑长按判断！
+            if (document.body.classList.contains('app-active-lock')) return;
             
             const touch = e.touches ? e.touches[0] : e;
             baseStartX = touch.clientX;
@@ -937,6 +941,9 @@
         }
 
         function handleMove(e) {
+            // 【核心修复】：应用打开状态下直接屏蔽桌面滑块
+            if (document.body.classList.contains('app-active-lock')) return;
+
             const touch = e.touches ? e.touches[0] : e;
             const diffX = touch.clientX - baseStartX;
             const diffY = touch.clientY - baseStartY;
@@ -990,48 +997,61 @@
                 stopEditingMode();
             }
         }, true);
-        // ==================== 📱 微信组件点击打开与 Home 条返回桌面逻辑 ====================
+
+        // ==================== 📱 微信组件点击打开与双向返回联动监听逻辑 ====================
         const appWeixin = document.getElementById('appWeixin');
         const weixinWindow = document.getElementById('weixinWindow');
         const homeIndicator = document.querySelector('.home-indicator');
 
-        // 当在桌面点击微信图标时
+        // 桌面点击微信图标时
         if (appWeixin && weixinWindow) {
             appWeixin.addEventListener('click', () => {
-                if (isEditing) return; // 如果正在长按抖动删除/移动图标，不触发打开
+                if (isEditing) return; 
                 
-                // 微信大盒子从底部丝滑地滑上屏幕
+                // 1. 锁死桌面的翻页手势
+                document.body.classList.add('app-active-lock');
+                // 2. 微信大盒子滑上屏幕
                 weixinWindow.style.transform = 'translateY(0%)';
                 
-                // 强制将底部的 iOS 灰色小横条捞到最顶层（z-index: 110），并强行显示，用于随时退出
                 homeIndicator.style.zIndex = '110';
                 homeIndicator.style.display = 'block';
             });
         }
 
-        // 当在应用内点击底部小灰色 Home 横条时，微信退出，返回桌面
+        // 监听来自微信内部侧滑返回成功的消息通知
+        window.addEventListener('message', (e) => {
+            // 当检测到微信内部滑回桌面成功或者需要重置手势时
+            if (e.data === 'closeApp' || e.data?.type === 'closeApp') {
+                closeWeixinToDesktop();
+            }
+        });
+
+        // 点击底部灰色 Home 横条退出微信
         if (homeIndicator) {
             homeIndicator.addEventListener('click', () => {
-                // 只有在屏幕已经解锁进入桌面了，点击横条才是退出应用
                 if (document.body.classList.contains('unlocked') && weixinWindow) {
-                    weixinWindow.style.transform = 'translateY(100%)'; // 微信滑回地下
-                    
-                    // 恢复原本的 Home 横条在桌面上的隐藏状态（因为桌面不需要它显示）
-                    setTimeout(() => {
-                        homeIndicator.style.display = 'none';
-                    }, 400);
+                    closeWeixinToDesktop();
                 }
             });
         }
 
-// 自动注册 PWA 的 Service Worker 后台脚本
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('雪兔机 PWA 注册成功！作用域:', reg.scope))
-            .catch(err => console.log('雪兔机 PWA 注册失败:', err));
-    });
-}
+        // 抽离统一关闭微信放开手势的函数
+        function closeWeixinToDesktop() {
+            weixinWindow.style.transform = 'translateY(100%)'; // 微信滑回地下
+            document.body.classList.remove('app-active-lock'); // 解锁桌面翻页手势
+            setTimeout(() => {
+                homeIndicator.style.display = 'none';
+            }, 400);
+        }
+
+        // 自动注册 PWA 的 Service Worker 后台脚本
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('雪兔机 PWA 注册成功！'))
+                    .catch(err => console.log('雪兔机 PWA 注册失败:', err));
+            });
+        }
     </script>
 </body>
 </html>
