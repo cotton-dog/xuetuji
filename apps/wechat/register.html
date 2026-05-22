@@ -504,6 +504,39 @@
 </div>
 
 <script>
+    // ================= 读取语言并自动翻译注册页面 =================
+    const registerLangDict = {
+        "跟随系统": { title: "用手机号注册", nickname: "昵称", nickPlaceholder: "请填写昵称", country: "国家/地区", phone: "手机号", phonePlaceholder: "请填写手机号码", password: "密码", passPlaceholder: "请设置密码", submit: "同意并继续", agreeText: '我已阅读并同意 <a href="#">《软件许可及服务协议》</a><br>本页面收集的信息仅用于注册账号' },
+        "English": { title: "Sign up via Mobile", nickname: "Name", nickPlaceholder: "Enter your name", country: "Region", phone: "Phone", phonePlaceholder: "Enter mobile number", password: "Password", passPlaceholder: "Set password", submit: "Accept and Continue", agreeText: 'I have read and agree to <a href="#">Software License and Service Agreement</a><br>The info collected is only for registration.' }
+        // 你可以照着上面的格式，把其他国家的翻译也补进来
+    };
+
+    // 从 localStorage 读取首页存入的语言，如果没有就默认用中文
+    const savedLang = localStorage.getItem('wechat_selected_lang') || "跟随系统";
+
+    function applyPageLanguage(lang) {
+        const textObj = registerLangDict[lang];
+        if (!textObj) return; 
+
+        // 替换界面上的所有文字
+        document.querySelector('.title').innerText = textObj.title;
+        document.querySelector('#nickname').previousElementSibling.innerText = textObj.nickname;
+        document.querySelector('#open-picker-btn .form-label').innerText = textObj.country;
+        document.querySelector('#phone').previousElementSibling.innerText = textObj.phone;
+        document.querySelector('#password').previousElementSibling.innerText = textObj.password;
+        
+        document.getElementById('nickname').placeholder = textObj.nickPlaceholder;
+        document.getElementById('phone').placeholder = textObj.phonePlaceholder;
+        document.getElementById('password').placeholder = textObj.passPlaceholder;
+        
+        document.querySelector('.agreement span').innerHTML = textObj.agreeText;
+        document.getElementById('submit-btn').innerText = textObj.submit;
+    }
+
+    // 页面一加载，立刻执行翻译
+    applyPageLanguage(savedLang);
+    // =========================================================
+
     // ---------- 搜索UI状态 ----------
     const normalHeader = document.getElementById('normal-header');
     const fakePlaceholder = document.getElementById('fake-placeholder');
@@ -775,7 +808,12 @@ const phoneValidationRules = {
         format: (v) => v.replace(/(.{4})/g, '$1 ').trim(),
         isValid: (v) => v.length >= 6 
     }
-};
+};// ================= 新增：点击左上角 ✕ 号返回微信主页 =================
+document.querySelector('.close-btn').addEventListener('click', function() {
+    // 因为它们在同一个文件夹下，直接写文件名就能丝滑返回
+    window.location.href = 'wechat.html';
+});
+
 </script>
 </body>
 </html>
