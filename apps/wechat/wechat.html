@@ -108,46 +108,21 @@
             <button class="btn btn-register">注册</button>
         </div>
     </div>
+     <script>
+        // 1. 获取注册按钮
+        const btnRegister = document.querySelector('.btn-register');
 
-    <script>
-        let edgeStartX = 0;
-        let edgeStartY = 0;
-        let isRightEdgeSwiping = false;
-
-        window.addEventListener('touchstart', (e) => {
-            const touch = e.touches[0];
-            const screenWidth = window.innerWidth;
+        // 2. 绑定点击跳转事件
+        btnRegister.addEventListener('click', () => {
+            // 注意：如果你以后把“多语言选择”的功能加回了这个页面，
+            // 记得在这里加上这句代码把语言存起来：
+            // localStorage.setItem('wechat_selected_lang', currentSavedLang);
             
-            if (touch.clientX > screenWidth - 40) {
-                edgeStartX = touch.clientX;
-                edgeStartY = touch.clientY;
-                isRightEdgeSwiping = true;
-            }
-        }, { passive: true });
-
-        window.addEventListener('touchmove', (e) => {
-            if (!isRightEdgeSwiping) return;
-            
-            const touch = e.touches[0];
-            const deltaX = touch.clientX - edgeStartX;
-            const deltaY = touch.clientY - edgeStartY;
-
-            if (Math.abs(deltaY) > Math.abs(deltaX)) {
-                isRightEdgeSwiping = false;
-            }
-        }, { passive: true });
-
-        window.addEventListener('touchend', (e) => {
-            if (!isRightEdgeSwiping) return;
-            isRightEdgeSwiping = false;
-
-            const touch = e.changedTouches[0];
-            const deltaX = touch.clientX - edgeStartX;
-
-            if (deltaX < -60) {
-                window.parent.postMessage('closeWechat', '*');
-            }
+            // 直接跳转到同文件夹下的注册页面
+            window.location.href = 'register.html';
         });
+        
+        // (注：之前那一大段边缘滑动返回代码已经被彻底清除了)
     </script>
 </body>
 </html>
