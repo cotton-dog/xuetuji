@@ -31,7 +31,7 @@
             position: relative;
         }
 
-        /* ==================== 1. 共用状态栏 (置于最顶层) ==================== */
+        /* ==================== 1. 共用状态栏 ==================== */
         .status-bar {
             position: absolute;
             top: 0;
@@ -48,7 +48,6 @@
             transition: color 0.3s ease;
         }
 
-        /* 状态栏变成白色的样式类 */
         .status-bar.light-content {
             color: #FFFFFF !important;
         }
@@ -102,7 +101,7 @@
         /* ==================== 编辑模式顶部控制栏 ==================== */
         .edit-mode-header {
             position: absolute;
-            top: 40px;
+            top: 30px;
             left: 0;
             width: 100%;
             padding: 0 25px;
@@ -119,7 +118,7 @@
             pointer-events: auto;
         }
         .edit-btn-add {
-            font-size: 24px;
+            font-size: 15px;
             color: #333;
             cursor: pointer;
         }
@@ -127,9 +126,9 @@
             background: rgba(255, 255, 255, 0.6);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            padding: 5px 14px;
+            padding: 3px 12px;
             border-radius: 15px;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
             color: #333;
             cursor: pointer;
@@ -171,8 +170,6 @@
             font-weight: 620;           
             letter-spacing: 2px;        
             line-height: 1;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
         .bottom-actions {
@@ -185,8 +182,8 @@
         }
 
         .action-button {
-            width: 53px !important;
-            height: 53px !important;
+            width: 53px;
+            height: 53px;
             background: rgba(95, 95, 95, 0.7);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
@@ -194,44 +191,22 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), inset 0 0.5px 0 rgba(255, 255, 255, 0.1);
-            transition: all 0.1s ease;
-            background-image: none !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
         }
 
         .torch-icon-custom {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background-color: transparent;
-            background-image: url('https://i.postimg.cc/YCzGbTpZ/IMG-20260108-164557-Coco-AI-20260108-164624-1.png') !important;
-            background-size: 24px !important;
-            background-position: center !important;
-            background-repeat: no-repeat !important;
-            box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12), inset 0 0 1px 0.5px rgba(255, 255, 255, 0.15);
-            display: block;
+            background: transparent url('https://i.postimg.cc/YCzGbTpZ/IMG-20260108-164557-Coco-AI-20260108-164624-1.png') no-repeat center / 24px;
         }
 
         .camera-icon-custom {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            background-color: transparent;
-            background-image: url('https://i.postimg.cc/gJQnxWDK/IMG-20260108-164605-Coco-AI-20260108-164624-2.png') !important;
-            background-size: 38px !important;
-            background-position: center !important;
-            background-repeat: no-repeat !important;
-            box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12), inset 0 0 1px 0.5px rgba(255, 255, 255, 0.15);
-            display: block;
+            background: transparent url('https://i.postimg.cc/gJQnxWDK/IMG-20260108-164605-Coco-AI-20260108-164624-2.png') no-repeat center / 38px;
         }
-
-        .bottom-actions .action-button { padding: 0; overflow: visible; }
-        .bottom-actions .action-button .fa-camera,
-        .bottom-actions .action-button i,
-        .bottom-actions .action-button svg { display: none; }
-        .action-button > :not(.torch-icon-custom):not(.camera-icon-custom) { display: none; }
-
 
         /* ==================== 3. 多页面滑块支撑 ==================== */
         .screen-slider-wrapper {
@@ -268,7 +243,7 @@
             opacity: 1;
         }
 
-        /* 静态网格槽位 */
+        /* 网格槽位 */
         .grid-slot {
             width: 65px;
             height: 75px;
@@ -302,8 +277,52 @@
             width: 100%;
             position: relative;
             z-index: 5; 
-            cursor: grab;
             touch-action: none;
+        }
+
+        /* 原生摇晃动画 */
+        @keyframes iosShakeEffect {
+            0% { transform: rotate(-2.2deg); }
+            100% { transform: rotate(2.2deg); }
+        }
+
+        body.shaking-mode .app-item {
+            animation: iosShakeEffect 0.13s ease-in-out infinite alternate !important;
+        }
+        body.shaking-mode .grid-slot:nth-child(2n) .app-item {
+            animation-duration: 0.15s !important;
+            animation-delay: -0.04s !important;
+        }
+        body.shaking-mode .grid-slot:nth-child(3n) .app-item {
+            animation-duration: 0.12s !important;
+            animation-delay: -0.07s !important;
+        }
+
+        /* 被拖拽时，本体完全在原位隐形，绝不产生分身滞留 */
+        .app-item.is-dragging-origin {
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* 🌟 手指尖上的纯净漂浮层（去底框、去名字、完全跟手） */
+        .app-drag-floating-ghost {
+            position: fixed !important;
+            z-index: 999999 !important;
+            pointer-events: none !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            animation: none !important; /* 拖拽时指尖图标静止不摇晃 */
+            transform: scale(1.15); /* 拖起时略微放大，模拟iOS浮起质感 */
+            transition: transform 0.1s ease;
+            will-change: top, left;
+        }
+        .app-drag-floating-ghost .app-name {
+            display: none !important; /* 彻底剔除名字 */
+        }
+        .app-drag-floating-ghost .app-icon {
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3) !important; /* 增强浮空阴影 */
+            margin-bottom: 0 !important;
         }
 
         .app-icon {
@@ -318,11 +337,6 @@
             font-size: 26px;
             color: #fff;
             margin-bottom: 4px;
-            transition: transform 0.1s ease, box-shadow 0.1s ease;
-        }
-
-        .app-item:active .app-icon {
-            transform: scale(0.92);
         }
 
         .app-name {
@@ -374,7 +388,6 @@
             -webkit-backdrop-filter: blur(25px);
             border-radius: 27px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            
             display: flex;           
             justify-content: center;
             align-items: center;
@@ -382,7 +395,7 @@
             gap: 10px;               
             z-index: 20; 
             opacity: 0.8;
-            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease, width 0.3s ease, visibility 0.3s;
         }
 
         .unlocked .dock {
@@ -395,23 +408,30 @@
             display: flex;
             justify-content: center; 
             align-items: center;
+            transition: width 0.25s cubic-bezier(0.25, 1, 0.5, 1);
         }
         
         .dock .grid-slot:not(:has(.app-item)) {
-            display: none !important;
+            width: 0px !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: hidden;
         }
 
-        .dock .grid-slot::before {
-            top: auto; 
-        }
-        .dock .app-icon { 
-            margin-bottom: 0; 
+        .dock.dock-completely-empty {
+            opacity: 0 !important;
+            transform: translateX(-50%) scale(0.8) !important;
+            pointer-events: none !important;
+            visibility: hidden;
         }
 
-        /* ==================== 5. 精细化分页指示器 (自适应真机质感) ==================== */
+        .dock .grid-slot::before { top: auto; }
+        .dock .app-icon { margin-bottom: 0; }
+
+        /* ==================== 5. 分页指示器 ==================== */
         .page-dots-indicator {
             position: absolute;
-            bottom: 122px; /* 微微上移，留出更完美的呼吸感空隙 */
+            bottom: 122px; 
             left: 0;
             width: 100%;
             display: flex;
@@ -423,73 +443,49 @@
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        .unlocked .page-dots-indicator {
-            opacity: 1;
-        }
-        
-        /* 核心反转色系：因为当前是浅色壁纸(#FFD1E0)，指示器自动映射为优雅的黑灰反转调 */
+        .unlocked .page-dots-indicator { opacity: 1; }
         .page-dot {
             width: 6.5px;
             height: 6.5px;
-            background: rgba(0, 0, 0, 0.16); /* 浅色背景下用轻量半透黑 */
+            background: rgba(0, 0, 0, 0.16); 
             border-radius: 50%;
             transition: background 0.25s ease, transform 0.25s ease;
         }
         .page-dot.active {
-            background: rgba(0, 0, 0, 0.65); /* 当前页变成实体黑灰 */
+            background: rgba(0, 0, 0, 0.65); 
             transform: scale(1.1);
         }
 
-        /* 深度适配：如果以后更换深色壁纸，切换成这一组白色反转调 */
-        .dark-wallpaper .page-dot {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        .dark-wallpaper .page-dot.active {
-            background: rgba(255, 255, 255, 0.9);
-        }
-
-        /* ==================== 📱 6. 极致还原的全面屏底部 Home 指示条 ==================== */
+        /* ==================== 6. 全面屏底部 Home 指示条 ==================== */
         .system-home-bar-container {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 22px; /* 降低容器高度，让横条自然下移 */
+            height: 22px; 
             display: flex;
             justify-content: center;
-            align-items: flex-end; /* 靠底部对齐 */
-            padding-bottom: 8px;   /* 极其精准的 8px 底部留白，完全贴合 iOS 真实比例 */
+            align-items: flex-end; 
+            padding-bottom: 8px;   
             z-index: 60; 
-            pointer-events: auto;
         }
-
-        /* 当打开微信时，横条图层提升 */
-        .app-active-lock .system-home-bar-container {
-            z-index: 110; 
-            cursor: pointer;
-        }
-
+        .app-active-lock .system-home-bar-container { z-index: 110; cursor: pointer; }
         .system-home-bar {
-            width: 134px; /* 微微缩窄，更显精致 */
-            height: 4.5px; /* 从 5px 变细到 4.5px，去掉臃肿感 */
-            background-color: rgba(0, 0, 0, 0.22); /* 变淡！从深灰重色改为优雅舒适的半透明微黑 */
+            width: 134px; 
+            height: 4.5px; 
+            background-color: rgba(0, 0, 0, 0.22); 
             border-radius: 10px;
-            transition: background-color 0.3s ease;
         }
-
-        /* 微信打开后变成优雅的半透明极简白杠，完美契合微信深色背景 */
-        .app-active-lock .system-home-bar {
-            background-color: rgba(255, 255, 255, 0.75);
-        }
-
-        .sortable-ghost { opacity: 0 !important; }   
-        .sortable-drag {
-            opacity: 0.95 !important;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important;
-            z-index: 999999 !important;
-        }
-
+        .app-active-lock .system-home-bar { background-color: rgba(255, 255, 255, 0.75); }
         .app-active-lock { touch-action: none !important; }
+        /* 当处于编辑摇晃模式时，强制让空的常驻栏现出半透明的原型，并恢复手指触碰 */
+body.shaking-mode .dock.dock-completely-empty {
+    opacity: 0.4 !important; 
+    transform: translateX(-50%) scale(0.93) !important; 
+    pointer-events: auto !important; 
+    visibility: visible !important; 
+}
+
     </style>
 </head>
 <body>
@@ -581,16 +577,14 @@
         <div class="grid-slot"><div class="app-item"><div class="app-icon icon-music"><i class="fas fa-music"></i></div><div class="app-name">音乐</div></div></div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-
     <script>
-        // 日历与时钟逻辑
+        // 日历与时钟核心逻辑
         const GAN = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"];
         const ZHI = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
         const LUNAR_MONTHS = ["正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
         const LUNAR_DAYS = ["初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八", "初九", "初十",
                             "十一", "十二", "十三", "十四", "十五", "十六", "十七", "十八", "十九", "二十",
-                            "廿一", "廿2", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"];
+                            "廿一", "廿二", "廿三", "廿四", "廿五", "廿六", "廿七", "廿八", "廿九", "三十"];
         
         function getGanZhiYear(date) {
             const year = date.getFullYear();
@@ -658,7 +652,7 @@
         updateTime();
         updateBattery();
 
-        // 解锁核心事件
+        // 锁屏滑动解锁
         const lockScreen = document.getElementById('lockScreen');
         let lockStartY = 0, lockCurrentY = 0, isLockDragging = false;
 
@@ -690,7 +684,7 @@
             }
         });
 
-        // 桌面滑动与图标系统
+        // 页面控制
         let currentPage = 0, totalPages = 1, baseStartX = 0, baseStartY = 0, isPageMoving = false, edgeTimer = null;
         const sliderWrapper = document.getElementById('sliderWrapper');
         const dotsIndicator = document.getElementById('dotsIndicator');
@@ -716,7 +710,6 @@
                 newPage.appendChild(slot);
             }
             sliderWrapper.appendChild(newPage);
-            newPage.querySelectorAll('.grid-slot').forEach(slot => bindSlotSortable(slot));
             updateSliderPosition();
         }
 
@@ -734,94 +727,252 @@
             updateSliderPosition();
         }
 
-        function checkEdgePointer(clientX) {
-            if (!isEditing || !document.querySelector('.sortable-drag')) { clearEdgeTimer(); return; }
-            const edgeMargin = 40, screenWidth = window.innerWidth;
-            if (clientX > screenWidth - edgeMargin && currentPage === totalPages - 1) {
-                if (!edgeTimer) edgeTimer = setTimeout(() => { createNewPage(); currentPage++; updateSliderPosition(); clearEdgeTimer(); }, 700);
-            } else if (clientX > screenWidth - edgeMargin && currentPage < totalPages - 1) {
-                if (!edgeTimer) edgeTimer = setTimeout(() => { currentPage++; updateSliderPosition(); clearEdgeTimer(); }, 700);
-            } else if (clientX < edgeMargin && currentPage > 0) {
-                if (!edgeTimer) edgeTimer = setTimeout(() => { currentPage--; updateSliderPosition(); clearEdgeTimer(); }, 700);
-            } else { clearEdgeTimer(); }
+        function handleDockStateUpdate() {
+            const dockElement = document.getElementById('dock-grid');
+            if (!dockElement) return;
+            const appCount = dockElement.querySelectorAll('.app-item').length;
+            if (appCount === 0) {
+                dockElement.classList.add('dock-completely-empty');
+            } else {
+                dockElement.classList.remove('dock-completely-empty');
+            }
         }
 
-        function clearEdgeTimer() { if (edgeTimer) { clearTimeout(edgeTimer); edgeTimer = null; } }
+        // ==================== 📱 纯手写原生高丝滑指尖物理拖拽引擎 ====================
+        let isEditing = false;
+        let longPressTimer = null;
+        let preventClickFlag = false;
+        let startTouchX = 0, startTouchY = 0;
+        const MOVE_THRESHOLD = 8;
 
-        window.addEventListener('touchmove', (e) => { if (e.touches && e.touches[0]) checkEdgePointer(e.touches[0].clientX); }, { passive: true });
-        window.addEventListener('dragover', (e) => checkEdgePointer(e.clientX));
-        window.addEventListener('touchend', clearEdgeTimer);
-        window.addEventListener('mouseup', clearEdgeTimer);
-
-        let isEditing = false, longPressTimer, preventClickFlag = false, startTouchX = 0, startTouchY = 0;
-        const MOVE_THRESHOLD = 10, sortableInstances = [];
-
-        function bindSlotSortable(slot) {
-            const sInstance = Sortable.create(slot, {
-                group: 'ios-icons', animation: 150, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag', disabled: !isEditing, fallbackOnBody: true, swapThreshold: 0.65,
-                onAdd: function (evt) {
-                    if (evt.to.children.length > 1) {
-                        const existingApp = evt.to.firstElementChild === evt.item ? evt.to.lastElementChild : evt.to.firstElementChild;
-                        evt.from.appendChild(existingApp);
-                    }
-                    checkAndCleanEmptyPages();
-                },
-                onEnd: function () { clearEdgeTimer(); checkAndCleanEmptyPages(); }
-            });
-            sortableInstances.push(sInstance);
-        }
-
-        document.querySelectorAll('.grid-slot').forEach(slot => bindSlotSortable(slot));
+        // 拖拽核心状态变量
+        let draggedElement = null;       // 正在被拖动的原App节点
+        let floatingGhost = null;         // 指尖移动的克隆纯净图标层
+        let currentHoveredSlot = null;    // 当前手指下方的网格槽位
+        let ghostOffsetX = 0;             // 指尖校准偏移
+        let ghostOffsetY = 0;
 
         function startEditingMode() {
             if (isEditing) return;
             isEditing = true;
             document.body.classList.add('shaking-mode');
-            document.querySelectorAll('.app-item').forEach(app => app.classList.add('shaking'));
-            sortableInstances.forEach(inst => inst.option('disabled', false));
         }
 
         function stopEditingMode() {
             if (!isEditing) return;
             isEditing = false;
             document.body.classList.remove('shaking-mode');
-            document.querySelectorAll('.app-item').forEach(app => app.classList.remove('shaking'));
-            sortableInstances.forEach(inst => inst.option('disabled', true));
-            clearEdgeTimer(); checkAndCleanEmptyPages(); 
+            if (edgeTimer) { clearTimeout(edgeTimer); edgeTimer = null; }
+            checkAndCleanEmptyPages();
+            handleDockStateUpdate();
         }
 
-        function handleStart(e) {
-            if (!document.body.classList.contains('unlocked') || document.body.classList.contains('app-active-lock')) return; 
-            const touch = e.touches ? e.touches[0] : e;
-            baseStartX = touch.clientX; baseStartY = touch.clientY;
-            startTouchX = touch.clientX; startTouchY = touch.clientY;
+        // 全局 Touch 监听：统一接管系统交互
+        window.addEventListener('touchstart', (e) => {
+            if (!document.body.classList.contains('unlocked') || document.body.classList.contains('app-active-lock')) return;
+            
+            const touch = e.touches[0];
+            startTouchX = touch.clientX;
+            startTouchY = touch.clientY;
+            baseStartX = touch.clientX;
+            baseStartY = touch.clientY;
             isPageMoving = true;
 
-            if (e.target.closest('.app-item') && !isEditing) {
-                longPressTimer = setTimeout(() => { preventClickFlag = true; startEditingMode(); if (navigator.vibrate) navigator.vibrate(50); }, 700); 
-            }
-        }
+            const targetApp = e.target.closest('.app-item');
 
-        function handleMove(e) {
-            if (document.body.classList.contains('app-active-lock')) return; 
-            const touch = e.touches ? e.touches[0] : e;
-            const diffX = touch.clientX - baseStartX, diffY = touch.clientY - baseStartY;
-            if (longPressTimer && (Math.abs(touch.clientX - startTouchX) > MOVE_THRESHOLD || Math.abs(touch.clientY - startTouchY) > MOVE_THRESHOLD)) {
-                clearTimeout(longPressTimer); longPressTimer = null;
+            // 1. 未进入编辑模式时，长按进行唤醒
+            if (targetApp && !isEditing) {
+                longPressTimer = setTimeout(() => {
+                    preventClickFlag = true;
+                    startEditingMode();
+                    if (navigator.vibrate) navigator.vibrate(55);
+                    initiateDragEngine(targetApp, touch);
+                }, 650);
+            } 
+            // 2. 已在编辑模式下，点击直接抓取图标
+            else if (targetApp && isEditing) {
+                preventClickFlag = true;
+                initiateDragEngine(targetApp, touch);
             }
-            if (isPageMoving && !document.querySelector('.sortable-drag') && Math.abs(diffX) > 40 && Math.abs(diffY) < 30) {
-                isPageMoving = false; 
-                if (diffX < 0 && currentPage < totalPages - 1) currentPage++;
-                else if (diffX > 0 && currentPage > 0) currentPage--;
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            const diffX = touch.clientX - startTouchX;
+            const diffY = touch.clientY - startTouchY;
+
+            // 如果有长按计时器，且移动距离过大，则取消长按判定
+            if (longPressTimer && (Math.abs(diffX) > MOVE_THRESHOLD || Math.abs(diffY) > MOVE_THRESHOLD)) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+
+            // A. 执行高丝滑指尖跟踪引擎逻辑
+            if (floatingGhost && draggedElement) {
+                e.preventDefault(); // 阻止页面原生回弹
+                
+                // 像素级高帧率直接跟踪指尖坐标
+                const leftPos = touch.clientX - ghostOffsetX;
+                const topPos = touch.clientY - ghostOffsetY;
+                
+                // 采用 requestAnimationFrame 保证动画不掉帧
+                requestAnimationFrame(() => {
+                    if (floatingGhost) {
+                        floatingGhost.style.left = leftPos + 'px';
+                        floatingGhost.style.top = topPos + 'px';
+                    }
+                });
+
+                // 检测手指当前撞击的下方网格槽位
+                detectHoveredSlot(touch.clientX, touch.clientY);
+                // 边缘翻页盘点
+                checkEdgePointer(touch.clientX);
+                return;
+            }
+
+            // B. 正常的桌面翻页滑动切换
+            if (isPageMoving && !isEditing && Math.abs(touch.clientX - baseStartX) > 40 && Math.abs(touch.clientY - baseStartY) < 30) {
+                isPageMoving = false;
+                if (touch.clientX - baseStartX < 0 && currentPage < totalPages - 1) currentPage++;
+                else if (touch.clientX - baseStartX > 0 && currentPage > 0) currentPage--;
                 updateSliderPosition();
             }
+        }, { passive: false });
+
+        window.addEventListener('touchend', (e) => {
+            isPageMoving = false;
+            if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+            if (edgeTimer) { clearTimeout(edgeTimer); edgeTimer = null; }
+
+            // 终止物理拖拽引擎并安全落地
+            terminateDragEngine();
+        }, { passive: true });
+
+        // 初始化拖动引擎：生成纯净图标，剔除小框与文字
+        function initiateDragEngine(appEl, touch) {
+            draggedElement = appEl;
+            
+            // 获取点击的真实尺寸，计算指尖中心点偏移量
+            const rect = appEl.getBoundingClientRect();
+            ghostOffsetX = touch.clientX - rect.left;
+            ghostOffsetY = touch.clientY - rect.top;
+
+            // 克隆一个干净影子用来追踪，内部不塞任何底框和字
+            floatingGhost = document.createElement('div');
+            floatingGhost.className = 'app-drag-floating-ghost';
+            
+            // 只克隆里面的 icon，把名字彻底抛弃
+            const originalIcon = appEl.querySelector('.app-icon').cloneNode(true);
+            floatingGhost.appendChild(originalIcon);
+
+            // 赋予初始浮动定位坐标
+            floatingGhost.style.left = rect.left + 'px';
+            floatingGhost.style.top = rect.top + 'px';
+            floatingGhost.style.width = rect.width + 'px';
+            floatingGhost.style.height = rect.height + 'px';
+
+            document.body.appendChild(floatingGhost);
+
+            // 原本格子里的图标本体彻底隐形，绝不留在原地产生分身
+            draggedElement.classList.add('is-dragging-origin');
         }
 
-        function handleCancel() { isPageMoving = false; if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } }
+           // 碰撞槽位实时检测（高灵敏度检测）
+        function detectHoveredSlot(clientX, clientY) {
+            // 暂时隐藏浮动层，避免 elementFromPoint 一直戳在浮动层上
+            floatingGhost.style.display = 'none';
+            const elementUnderFinger = document.elementFromPoint(clientX, clientY);
+            floatingGhost.style.display = 'flex';
 
-        window.addEventListener('touchstart', handleStart, { passive: true });
-        window.addEventListener('touchmove', handleMove, { passive: true });
-        window.addEventListener('touchend', handleCancel, { passive: true });
+            if (!elementUnderFinger) return;
+            
+            let targetSlot = elementUnderFinger.closest('.grid-slot');
+            const hoveredDock = elementUnderFinger.closest('.dock');
+
+            // 1. 判断当前被拖拽的图标，此时此刻是否已经身处 Dock 内
+            const isOriginDock = draggedElement.parentNode ? !!draggedElement.parentNode.closest('.dock') : false;
+
+            // 🌟 2. 专属 Dock 常驻栏的“磁吸与限制”逻辑
+            if (hoveredDock) {
+                // 找出 Dock 里当前是空着的槽位
+                const emptyDockSlots = Array.from(hoveredDock.querySelectorAll('.grid-slot')).filter(s => s.children.length === 0);
+                
+                if (!isOriginDock) {
+                    // 【情况 A：从外面想进 Dock】
+                    if (emptyDockSlots.length > 0) {
+                        // 只要有空位，不管手指具体碰到谁，强制吸附到空位！绝对不挤人、不乱换！
+                        targetSlot = emptyDockSlots[0];
+                    } else {
+                        // Dock 已经有 4 个满了，严禁进入！保持在原位无视操作
+                        return;
+                    }
+                }
+                // 【情况 B：从 Dock 内部到 Dock 内部】
+                // 如果 isOriginDock 为 true，说明在常驻栏内部拖拽，直接放行，允许他们互相交换位置！
+            } else if (!targetSlot) {
+                // 既不在网格槽内，也不在 Dock 背景上，无视
+                return;
+            }
+
+            // 3. 基础的交换与填入逻辑（完全保留你原有的丝滑大挪移）
+            if (targetSlot && targetSlot !== currentHoveredSlot) {
+                currentHoveredSlot = targetSlot;
+                
+                // 双向平稳进出逻辑：两个直接在底层完成交换
+                if (targetSlot.children.length > 0 && targetSlot.firstElementChild !== draggedElement) {
+                    const originalParent = draggedElement.parentNode;
+                    const displacedApp = targetSlot.firstElementChild;
+
+                    // 乾坤大挪移互换格槽
+                    targetSlot.appendChild(draggedElement);
+                    if (originalParent) {
+                        originalParent.appendChild(displacedApp);
+                    }
+                    handleDockStateUpdate();
+                } 
+                // 如果是绝对空槽位，直接塞入
+                else if (targetSlot.children.length === 0) {
+                    targetSlot.appendChild(draggedElement);
+                    handleDockStateUpdate();
+                }
+            }
+        }
+
+        // 终止拖动引擎：完美落地
+        function terminateDragEngine() {
+            if (!draggedElement) return;
+
+            // 移除浮动图层
+            if (floatingGhost) {
+                floatingGhost.remove();
+                floatingGhost = null;
+            }
+
+            // 复原原本格子里的图标本体可见性，由于在底层已经移到了新槽位，它会瞬间在落点展现
+            draggedElement.classList.remove('is-dragging-origin');
+            
+            draggedElement = null;
+            currentHoveredSlot = null;
+
+            // 重新整理Dock底座状态和多余空页
+            handleDockStateUpdate();
+            checkAndCleanEmptyPages();
+        }
+
+        // 边缘翻页逻辑
+        function checkEdgePointer(clientX) {
+            const edgeMargin = 40, screenWidth = window.innerWidth;
+            if (clientX > screenWidth - edgeMargin && currentPage === totalPages - 1) {
+                if (!edgeTimer) edgeTimer = setTimeout(() => { createNewPage(); currentPage++; updateSliderPosition(); if(floatingGhost) detectHoveredSlot(clientX, startTouchY); }, 700);
+            } else if (clientX > screenWidth - edgeMargin && currentPage < totalPages - 1) {
+                if (!edgeTimer) edgeTimer = setTimeout(() => { currentPage++; updateSliderPosition(); if(floatingGhost) detectHoveredSlot(clientX, startTouchY); }, 700);
+            } else if (clientX < edgeMargin && currentPage > 0) {
+                if (!edgeTimer) edgeTimer = setTimeout(() => { currentPage--; updateSliderPosition(); if(floatingGhost) detectHoveredSlot(clientX, startTouchY); }, 700);
+            } else {
+                if (edgeTimer) { clearTimeout(edgeTimer); edgeTimer = null; }
+            }
+        }
+
         document.getElementById('btnDone').addEventListener('click', () => stopEditingMode());
 
         window.addEventListener('click', (e) => {
@@ -829,7 +980,7 @@
             if (isEditing && !e.target.closest('.app-item') && !e.target.closest('.edit-mode-header')) stopEditingMode();
         }, true);
         
-        // ==================== 📱 全局独立控制中心（含方案一实现） ====================
+        // ==================== 全局独立控制中心 ====================
         const mainStatusBar = document.getElementById('mainStatusBar');
         const appWeixin = document.getElementById('appWeixin');
         const weixinWindow = document.getElementById('weixinWindow');
@@ -840,30 +991,30 @@
                 if (isEditing) return;
                 document.body.classList.add('app-active-lock');
                 weixinWindow.style.transform = 'translateY(0%)';
-                mainStatusBar.classList.add('light-content'); // 状态栏字变白
+                mainStatusBar.classList.add('light-content'); 
             });
         }
 
-        // 当处于应用锁定状态时，直接点击底部系统横条即可瞬间退出微信回到桌面
         systemHomeBarZone.addEventListener('click', () => {
             if (document.body.classList.contains('app-active-lock')) {
                 closeWechatApplication();
             }
         });
 
-        // 统一收归关闭逻辑
         function closeWechatApplication() {
             weixinWindow.style.transform = 'translateY(100%)'; 
             document.body.classList.remove('app-active-lock'); 
             mainStatusBar.classList.remove('light-content'); 
         }
 
-        // 兼容外部消息通道
         window.addEventListener('message', (e) => {
             if (e.data === 'closeWechat' || e.data === 'closeApp') {
                 closeWechatApplication();
             }
         });
+
+        // 初始化
+        handleDockStateUpdate();
     </script>
 </body>
 </html>
