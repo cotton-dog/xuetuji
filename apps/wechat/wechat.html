@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>微信 WeChat</title>
     <style>
-        /* 基础样式重置 */
+        /* ================= 基础样式重置 (保留原样) ================= */
         * {
             margin: 0;
             padding: 0;
@@ -21,7 +21,7 @@
             background-color: #000;
         }
 
-        /* 全屏背景图容器 */
+        /* 全屏背景图容器 (保留原样) */
         .container {
             position: relative;
             width: 100%;
@@ -34,19 +34,16 @@
             flex-direction: column;
             justify-content: flex-end;
             align-items: center;
-            /* 严格控制整体底部抬高距离 */
             padding-bottom: calc(32px + env(safe-area-inset-bottom));
-            
-            /* 强制全屏覆盖，不留一丝缝隙，彻底解决白色横线问题 */
             margin-top: 0;
             border: none;
             overflow: hidden;
         }
 
-        /* 右上角语言按钮 - 优化了置顶距离，防止与主系统状态栏重叠 */
+        /* 右上角语言按钮 (保留原样) */
         .lang-btn {
             position: absolute;
-            top: calc(52px + env(safe-area-inset-top)); /* 增加基础高度，完美避开状态栏 */
+            top: calc(52px + env(safe-area-inset-top)); 
             right: 24px;
             color: rgba(255, 255, 255, 0.9);
             font-size: 15px;
@@ -56,7 +53,7 @@
             z-index: 10;
         }
 
-        /* 底部按钮外层 */
+        /* 底部按钮外层 (保留原样) */
         .button-group {
             width: 100%;
             padding: 0 20px; 
@@ -64,7 +61,7 @@
             justify-content: space-between;
         }
 
-        /* 按钮精确调校 */
+        /* 按钮精确调校 (保留原样) */
         .btn {
             width: 120px; 
             height: 48px; 
@@ -85,44 +82,275 @@
             opacity: 0.8;
         }
 
-        /* 微信绿 */
         .btn-login {
             background-color: #07C160;
             color: #FFFFFF;
         }
 
-        /* 纯白 */
         .btn-register {
             background-color: #FFFFFF;
             color: #191919;
+        }
+
+        /* ================= 新增：多语言选择页面样式 ================= */
+        .lang-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            font-family: "HanziPen SC", "Wawati SC", "Comic Sans MS", cursive, sans-serif;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .lang-page.show {
+            transform: translateX(0);
+        }
+
+        .lang-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: calc(56px + env(safe-area-inset-top));
+            padding-top: env(safe-area-inset-top);
+            background-color: #ededed;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+
+        .back-icon {
+            width: 24px;
+            height: 24px;
+            fill: #191919;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        .lang-title {
+            flex: 1;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #191919;
+        }
+
+        .lang-save-btn {
+            font-size: 14px;
+            padding: 6px 12px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .lang-save-btn.disabled {
+            background-color: #e2e2e2;
+            color: #b2b2b2;
+            pointer-events: none;
+        }
+
+        .lang-save-btn.active {
+            background-color: #07C160;
+            color: #ffffff;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .lang-list-container {
+            flex: 1;
+            overflow-y: auto;
+            background-color: #ffffff;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .lang-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 20px;
+            border-bottom: 0.5px solid #f0f0f0;
+            font-size: 17px;
+            color: #191919;
+            cursor: pointer;
+            margin-left: 10px;
+            padding-left: 10px;
+        }
+
+        .lang-item:last-child {
+            border-bottom: none;
+        }
+
+        .lang-item:active {
+            background-color: #f9f9f9;
+        }
+
+        .check-icon {
+            width: 22px;
+            height: 22px;
+            fill: #07C160;
+            display: none;
+        }
+
+        .lang-item.selected .check-icon {
+            display: block;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="lang-btn">语言</div>
+        <div class="lang-btn" id="open-lang-btn">语言</div>
 
         <div class="button-group">
-            <button class="btn btn-login">登录</button>
-            <button class="btn btn-register">注册</button>
+            <button class="btn btn-login" id="btn-login">登录</button>
+            <button class="btn btn-register" id="btn-register">注册</button>
         </div>
     </div>
-     <script>
-        // 1. 获取注册按钮
-        const btnRegister = document.querySelector('.btn-register');
 
-        // 2. 绑定点击跳转事件
+    <div class="lang-page" id="lang-page">
+        <div class="lang-header">
+            <svg class="back-icon" id="close-lang-btn" viewBox="0 0 24 24">
+                <path d="M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z" />
+            </svg>
+            <div class="lang-title" id="lang-title">多语言</div>
+            <div class="lang-save-btn disabled" id="lang-save-btn">保存</div>
+        </div>
+        
+        <div class="lang-list-container" id="lang-list-container"></div>
+    </div>
+
+        <script>
+        // ================= 多语言页面交互与翻译字典 =================
+        const languages = [
+            "跟随系统", "简体中文", "繁體中文 (台灣)", "繁體中文 (香港)", "English",
+            "Bahasa Indonesia", "Bahasa Melayu", "Español", "한국어", "Italiano",
+            "日本語", "Português", "Русский", "ภาษาไทย", "Tiếng Việt", "العربية",
+            "Türkçe", "Deutsch", "Français"
+        ];
+
+        const langDict = {
+            "跟随系统": { langBtn: "语言", login: "登录", register: "注册", header: "多语言" },
+            "简体中文": { langBtn: "语言", login: "登录", register: "注册", header: "多语言" },
+            "繁體中文 (台灣)": { langBtn: "語言", login: "登錄", register: "註冊", header: "多語言" },
+            "繁體中文 (香港)": { langBtn: "語言", login: "登錄", register: "註冊", header: "多語言" },
+            "English": { langBtn: "Language", login: "Log In", register: "Sign Up", header: "Language" },
+            "Bahasa Indonesia": { langBtn: "Bahasa", login: "Masuk", register: "Daftar", header: "Bahasa" },
+            "Bahasa Melayu": { langBtn: "Bahasa", login: "Log Masuk", register: "Daftar", header: "Bahasa" },
+            "Español": { langBtn: "Idioma", login: "Iniciar sesión", register: "Registrarse", header: "Idioma" },
+            "한국어": { langBtn: "언어", login: "로그인", register: "등록", header: "언어" },
+            "Italiano": { langBtn: "Lingua", login: "Accedi", register: "Registrati", header: "Lingua" },
+            "日本語": { langBtn: "言語", login: "ログイン", register: "登録", header: "言語" },
+            "Português": { langBtn: "Idioma", login: "Entrar", register: "Cadastrar-se", header: "Idioma" },
+            "Русский": { langBtn: "Язык", login: "Войти", register: "Регистрация", header: "Язык" },
+            "ภาษาไทย": { langBtn: "ภาษา", login: "เข้าสู่ระบบ", register: "ลงทะเบียน", header: "ภาษา" },
+            "Tiếng Việt": { langBtn: "Ngôn ngữ", login: "Đăng nhập", register: "Đăng ký", header: "Ngôn ngữ" },
+            "العربية": { langBtn: "اللغة", login: "تسجيل الدخول", register: "التسجيل", header: "اللغة" },
+            "Türkçe": { langBtn: "Dil", login: "Giriş Yap", register: "Kayıt Ol", header: "Dil" },
+            "Deutsch": { langBtn: "Sprache", login: "Anmelden", register: "Registrieren", header: "Sprache" },
+            "Français": { langBtn: "Langue", login: "Connexion", register: "S'inscrire", header: "Langue" }
+        };
+
+        const openLangBtn = document.getElementById('open-lang-btn');
+        const closeLangBtn = document.getElementById('close-lang-btn');
+        const langPage = document.getElementById('lang-page');
+        const langListContainer = document.getElementById('lang-list-container');
+        const langSaveBtn = document.getElementById('lang-save-btn');
+        const langTitle = document.getElementById('lang-title');
+        const btnLogin = document.getElementById('btn-login');
+        const btnRegister = document.getElementById('btn-register');
+
+        // ================= 新增 1：点击注册按钮跳转 =================
         btnRegister.addEventListener('click', () => {
-            // 注意：如果你以后把“多语言选择”的功能加回了这个页面，
-            // 记得在这里加上这句代码把语言存起来：
-            // localStorage.setItem('wechat_selected_lang', currentSavedLang);
-            
-            // 直接跳转到同文件夹下的注册页面
             window.location.href = 'register.html';
         });
-        
-        // (注：之前那一大段边缘滑动返回代码已经被彻底清除了)
+
+        // 从浏览器读取已保存的语言，如果没有保存过，默认跟随系统
+        let currentSavedLang = localStorage.getItem('wechat_selected_lang') || "跟随系统"; 
+        let tempSelectedLang = currentSavedLang; 
+
+        // 初始化时马上应用一次当前语言（防止从注册页退回来时变回中文）
+        function applyCurrentLanguage() {
+            const targetText = langDict[currentSavedLang];
+            if (targetText) {
+                openLangBtn.innerText = targetText.langBtn;
+                btnLogin.innerText = targetText.login;
+                btnRegister.innerText = targetText.register;
+                langTitle.innerText = targetText.header;
+            }
+        }
+        applyCurrentLanguage();
+
+        // 渲染语言列表
+        function renderLangList() {
+            langListContainer.innerHTML = ''; 
+            languages.forEach(lang => {
+                const div = document.createElement('div');
+                div.className = 'lang-item';
+                if (lang === tempSelectedLang) div.classList.add('selected');
+                div.dataset.lang = lang;
+                div.innerHTML = `
+                    <span>${lang}</span>
+                    <svg class="check-icon" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                `;
+                div.addEventListener('click', () => {
+                    tempSelectedLang = lang;
+                    updateListSelection();
+                    checkSaveButtonState();
+                });
+                langListContainer.appendChild(div);
+            });
+        }
+
+        function updateListSelection() {
+            const items = langListContainer.querySelectorAll('.lang-item');
+            items.forEach(item => {
+                if (item.dataset.lang === tempSelectedLang) item.classList.add('selected');
+                else item.classList.remove('selected');
+            });
+        }
+
+        function checkSaveButtonState() {
+            if (tempSelectedLang !== currentSavedLang) {
+                langSaveBtn.classList.remove('disabled');
+                langSaveBtn.classList.add('active');
+            } else {
+                langSaveBtn.classList.remove('active');
+                langSaveBtn.classList.add('disabled');
+            }
+        }
+
+        renderLangList();
+
+        openLangBtn.addEventListener('click', () => {
+            tempSelectedLang = currentSavedLang;
+            updateListSelection();
+            checkSaveButtonState();
+            langPage.classList.add('show');
+        });
+
+        closeLangBtn.addEventListener('click', () => {
+            langPage.classList.remove('show');
+        });
+
+        // ================= 新增 2：点击保存，把语言存下来 =================
+        langSaveBtn.addEventListener('click', () => {
+            if (langSaveBtn.classList.contains('active')) {
+                currentSavedLang = tempSelectedLang; 
+                
+                // 把选择的语言记在浏览器脑子里，让 register.html 也能读取
+                localStorage.setItem('wechat_selected_lang', currentSavedLang);
+                
+                // 刷新主页文案
+                applyCurrentLanguage();
+                langPage.classList.remove('show');
+            }
+        });
     </script>
+
 </body>
 </html>
