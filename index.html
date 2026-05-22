@@ -18,13 +18,14 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: \"PingFang SC\", \"苹方\", \"PingFang SC Regular\", -apple-system, BlinkMacSystemFont, \"SF Pro Text\", \"Helvetica Neue\", Helvetica, Arial, sans-serif;
+            font-family: "PingFang SC", "苹方", "PingFang SC Regular", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
         body, html {
             height: 100%;
+            width: 100%;
             overflow: hidden;
             background-color: #FFD1E0; /* 基础背景色 */
             position: relative;
@@ -166,7 +167,7 @@
 
         #time {
             font-size: 85px;
-            font-family: \"PingFang SC\", \"苹方\", -apple-system, BlinkMacSystemFont, \"SF Pro Display\", \"Helvetica Neue\", sans-serif;
+            font-family: "PingFang SC", "苹方", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
             font-weight: 620;           
             letter-spacing: 2px;        
             line-height: 1;
@@ -359,33 +360,33 @@
         .icon-weather { background: linear-gradient(135deg, #5ac8fb, #1d62f0); }
         .icon-notes { background: linear-gradient(135deg, #f7d739, #f0c300); }
 
-        /* ==================== 4. 🚀 改进后的智能伸缩常驻 Dock 栏 ==================== */
+        /* ==================== 4. 常驻 Dock 栏 ==================== */
         .dock {
             position: absolute;
             bottom: 24px;
             left: 50%;
-            transform: translateX(-50%) scale(0.93); /* 保持居中定位与缩放效果 */
+            transform: translateX(-50%) scale(0.93); 
             height: 84px;
-            width: fit-content;      /* 关键点：宽度不再写死，由内部图标数量决定 */
-            min-width: 84px;         /* 保留一个最小宽度，防止完全掏空时底框缩成原点 */
+            width: fit-content;      
+            min-width: 84px;         
             background: rgba(255, 255, 255, 0.28);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border-radius: 27px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             
-            display: flex;           /* 改用 Flex 布局，让格子横向排开 */
+            display: flex;           
             justify-content: center;
             align-items: center;
             padding: 0 12px;
-            gap: 10px;               /* 图标格子之间的间距 */
+            gap: 10px;               
             z-index: 20; 
             opacity: 0.8;
             transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.5s ease, width 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .unlocked .dock {
-            transform: translateX(-50%) scale(1); /* 解锁后保持完美的水平居中 */
+            transform: translateX(-50%) scale(1); 
         }
 
         .dock .grid-slot {
@@ -396,7 +397,6 @@
             align-items: center;
         }
         
-        /* 当 Dock 栏中的格子完全为空（没有图标）时，直接把这个格子从渲染中隐藏，让底框自动吸附合拢 */
         .dock .grid-slot:not(:has(.app-item)) {
             display: none !important;
         }
@@ -408,16 +408,16 @@
             margin-bottom: 0; 
         }
 
-        /* ==================== 5. 分页指示器 ==================== */
+        /* ==================== 5. 精细化分页指示器 (自适应真机质感) ==================== */
         .page-dots-indicator {
             position: absolute;
-            bottom: 120px;
+            bottom: 122px; /* 微微上移，留出更完美的呼吸感空隙 */
             left: 0;
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
             z-index: 30;
             pointer-events: none;
             opacity: 0;
@@ -426,30 +426,70 @@
         .unlocked .page-dots-indicator {
             opacity: 1;
         }
+        
+        /* 核心反转色系：因为当前是浅色壁纸(#FFD1E0)，指示器自动映射为优雅的黑灰反转调 */
         .page-dot {
-            width: 7px;
-            height: 7px;
-            background: rgba(51, 51, 51, 0.2);
+            width: 6.5px;
+            height: 6.5px;
+            background: rgba(0, 0, 0, 0.16); /* 浅色背景下用轻量半透黑 */
             border-radius: 50%;
-            transition: background 0.2s ease, transform 0.2s ease;
+            transition: background 0.25s ease, transform 0.25s ease;
         }
         .page-dot.active {
-            background: rgba(51, 51, 51, 0.8);
-            transform: scale(1.15);
+            background: rgba(0, 0, 0, 0.65); /* 当前页变成实体黑灰 */
+            transform: scale(1.1);
         }
 
-        .sortable-ghost {
-            opacity: 0 !important; 
-        }   
+        /* 深度适配：如果以后更换深色壁纸，切换成这一组白色反转调 */
+        .dark-wallpaper .page-dot {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .dark-wallpaper .page-dot.active {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        /* ==================== 📱 6. 极致还原的全面屏底部 Home 指示条 ==================== */
+        .system-home-bar-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 22px; /* 降低容器高度，让横条自然下移 */
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* 靠底部对齐 */
+            padding-bottom: 8px;   /* 极其精准的 8px 底部留白，完全贴合 iOS 真实比例 */
+            z-index: 60; 
+            pointer-events: auto;
+        }
+
+        /* 当打开微信时，横条图层提升 */
+        .app-active-lock .system-home-bar-container {
+            z-index: 110; 
+            cursor: pointer;
+        }
+
+        .system-home-bar {
+            width: 134px; /* 微微缩窄，更显精致 */
+            height: 4.5px; /* 从 5px 变细到 4.5px，去掉臃肿感 */
+            background-color: rgba(0, 0, 0, 0.22); /* 变淡！从深灰重色改为优雅舒适的半透明微黑 */
+            border-radius: 10px;
+            transition: background-color 0.3s ease;
+        }
+
+        /* 微信打开后变成优雅的半透明极简白杠，完美契合微信深色背景 */
+        .app-active-lock .system-home-bar {
+            background-color: rgba(255, 255, 255, 0.75);
+        }
+
+        .sortable-ghost { opacity: 0 !important; }   
         .sortable-drag {
             opacity: 0.95 !important;
             box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important;
             z-index: 999999 !important;
         }
 
-        .app-active-lock {
-            touch-action: none !important;
-        }
+        .app-active-lock { touch-action: none !important; }
     </style>
 </head>
 <body>
@@ -484,6 +524,10 @@
         will-change: transform;
     "></iframe>
 
+    <div class="system-home-bar-container" id="systemHomeBarZone">
+        <div class="system-home-bar"></div>
+    </div>
+
     <div class="edit-mode-header">
         <div class="edit-btn-add" id="btnPlus"><i class="fas fa-plus"></i></div>
         <div class="edit-btn-done" id="btnDone">完成</div>
@@ -496,17 +540,12 @@
         </div>
 
         <div class="bottom-actions">
-            <div class="action-button">
-                <div class="torch-icon-custom"></div>
-            </div>
-            <div class="action-button">
-                <div class="camera-icon-custom"></div>
-            </div>
+            <div class="action-button"><div class="torch-icon-custom"></div></div>
+            <div class="action-button"><div class="camera-icon-custom"></div></div>
         </div>
     </div>
 
     <div class="screen-slider-wrapper" id="sliderWrapper">
-        
         <div class="page-container" data-page-index="0">
             <div class="grid-slot">
                 <div class="app-item" id="appWeixin">
@@ -514,7 +553,6 @@
                     <div class="app-name">微信</div>
                 </div>
             </div>
-
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-photos"><i class="fas fa-images" style="color: #ff9500;"></i></div><div class="app-name">照片</div></div></div>
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-camera"><i class="fas fa-camera"></i></div><div class="app-name">相机</div></div></div>
             <div class="grid-slot"><div class="app-item"><div class="app-icon icon-weather"><i class="fas fa-cloud-sun"></i></div><div class="app-name">天气</div></div></div>
@@ -530,7 +568,6 @@
             <div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div>
             <div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div><div class="grid-slot"></div>
         </div>
-
     </div>
 
     <div class="page-dots-indicator" id="dotsIndicator">
@@ -557,17 +594,11 @@
         
         function getGanZhiYear(date) {
             const year = date.getFullYear();
-            const ganIndex = (year - 4) % 10;
-            const zhiIndex = (year - 4) % 12;
-            return GAN[(ganIndex + 10) % 10] + ZHI[(zhiIndex + 12) % 12];
+            return GAN[((year - 4) % 10 + 10) % 10] + ZHI[((year - 4) % 12 + 12) % 12];
         }
         
         function getLunarDate(date) {
-            const formatter = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+            const formatter = new Intl.DateTimeFormat('zh-CN-u-ca-chinese', { year: 'numeric', month: 'long', day: 'numeric' });
             const parts = formatter.formatToParts(date);
             let lunarYear = "", lunarMonth = "", lunarDay = "";
             for (const part of parts) {
@@ -591,13 +622,7 @@
             const gregorianStr = date.toLocaleDateString('zh-CN', gregorianOptions);
             const ganzhiYear = getGanZhiYear(date);
             const lunar = getLunarDate(date);
-            let lunarStr = "";
-            if (lunar.lunarYear && lunar.lunarYear !== "Invalid") {
-                let cleanYear = lunar.lunarYear.replace(/年$/, "");
-                lunarStr = `${cleanYear}${lunar.lunarMonth}${lunar.lunarDay}`;
-            } else {
-                lunarStr = `${ganzhiYear}年${lunar.lunarMonth}${lunar.lunarDay}`;
-            }
+            let lunarStr = (lunar.lunarYear && lunar.lunarYear !== "Invalid") ? `${lunar.lunarYear.replace(/年$/, "")}${lunar.lunarMonth}${lunar.lunarDay}` : `${ganzhiYear}年${lunar.lunarMonth}${lunar.lunarDay}`;
             return `${gregorianStr} · ${lunarStr}`;
         }
 
@@ -606,7 +631,6 @@
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             const timeString = `${hours}:${minutes}`;
-            
             document.getElementById('time').textContent = timeString;
             document.getElementById('statusBarTime').textContent = timeString;
             document.getElementById('date').textContent = formatFullDate(now);
@@ -618,13 +642,9 @@
                 const refreshBatteryUI = () => {
                     const level = Math.round(battery.level * 100);
                     document.getElementById('battery-level').style.width = level + '%';
-                    if (battery.charging) {
-                        document.getElementById('battery-level').style.backgroundColor = '#4cd964';
-                    } else if (level <= 20) {
-                        document.getElementById('battery-level').style.backgroundColor = '#ff3b30';
-                    } else {
-                        document.getElementById('battery-level').style.backgroundColor = 'currentColor';
-                    }
+                    if (battery.charging) document.getElementById('battery-level').style.backgroundColor = '#4cd964';
+                    else if (level <= 20) document.getElementById('battery-level').style.backgroundColor = '#ff3b30';
+                    else document.getElementById('battery-level').style.backgroundColor = 'currentColor';
                 };
                 refreshBatteryUI();
                 battery.addEventListener('levelchange', refreshBatteryUI);
@@ -638,83 +658,40 @@
         updateTime();
         updateBattery();
 
-        // 解锁逻辑
+        // 解锁核心事件
         const lockScreen = document.getElementById('lockScreen');
-        let startY = 0;
-        let currentY = 0;
-        let isDragging = false;
+        let lockStartY = 0, lockCurrentY = 0, isLockDragging = false;
 
         window.addEventListener('touchstart', (e) => {
             if (document.body.classList.contains('unlocked')) return;
-            startY = e.touches[0].clientY;
-            isDragging = true;
+            lockStartY = e.touches[0].clientY;
+            isLockDragging = true;
             lockScreen.style.transition = 'none'; 
         }, { passive: true });
 
         window.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            currentY = e.touches[0].clientY;
-            let diffY = currentY - startY;
-            if (diffY < 0) {
-                lockScreen.style.transform = `translateY(${diffY}px)`;
-            } else {
-                lockScreen.style.transform = `translateY(0px)`;
-            }
+            if (!isLockDragging) return;
+            lockCurrentY = e.touches[0].clientY;
+            let diffY = lockCurrentY - lockStartY;
+            lockScreen.style.transform = diffY < 0 ? `translateY(${diffY}px)` : `translateY(0px)`;
         }, { passive: true });
 
-        window.addEventListener('touchend', (e) => {
-            if (!isDragging) return;
-            isDragging = false;
-            let diffY = currentY - startY;
-            const unlockThreshold = -120; 
+        window.addEventListener('touchend', () => {
+            if (!isLockDragging) return;
+            isLockDragging = false;
+            let diffY = lockCurrentY - lockStartY;
             lockScreen.style.transition = 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
-            if (diffY < unlockThreshold) {
+            if (diffY < -120) {
                 lockScreen.style.transform = 'translateY(-100%)';
                 document.body.classList.add('unlocked'); 
                 setTimeout(() => { lockScreen.style.display = 'none'; }, 500);
             } else {
                 lockScreen.style.transform = 'translateY(0px)';
             }
-            startY = 0;
-            currentY = 0;
         });
 
-        // 鼠标模拟解锁
-        window.addEventListener('mousedown', (e) => {
-            if (document.body.classList.contains('unlocked')) return;
-            startY = e.clientY;
-            isDragging = true;
-            lockScreen.style.transition = 'none';
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            currentY = e.clientY;
-            let diffY = currentY - startY;
-            if (diffY < 0) lockScreen.style.transform = `translateY(${diffY}px)`;
-        });
-
-        window.addEventListener('mouseup', () => {
-            if (!isDragging) return;
-            isDragging = false;
-            let diffY = currentY - startY;
-            lockScreen.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)';
-            if (diffY < -100) {
-                lockScreen.style.transform = 'translateY(-100%)';
-                document.body.classList.add('unlocked');
-                setTimeout(() => { lockScreen.style.display = 'none'; }, 500);
-            } else {
-                lockScreen.style.transform = 'translateY(0px)';
-            }
-        });
-
-        // 动态追加页面控制系统
-        let currentPage = 0;
-        let totalPages = 1; 
-        let baseStartX = 0;
-        let baseStartY = 0;
-        let isPageMoving = false;
-        let edgeTimer = null; 
+        // 桌面滑动与图标系统
+        let currentPage = 0, totalPages = 1, baseStartX = 0, baseStartY = 0, isPageMoving = false, edgeTimer = null;
         const sliderWrapper = document.getElementById('sliderWrapper');
         const dotsIndicator = document.getElementById('dotsIndicator');
 
@@ -747,91 +724,41 @@
             if (totalPages <= 1) return;
             const pages = document.querySelectorAll('.page-container');
             for (let i = pages.length - 1; i > 0; i--) {
-                const page = pages[i];
-                if (page.querySelectorAll('.app-item').length === 0) {
-                    page.remove();
+                if (pages[i].querySelectorAll('.app-item').length === 0) {
+                    pages[i].remove();
                     totalPages--;
                     if (currentPage >= totalPages) currentPage = totalPages - 1;
                 }
             }
-            document.querySelectorAll('.page-container').forEach((page, idx) => {
-                page.setAttribute('data-page-index', idx);
-            });
+            document.querySelectorAll('.page-container').forEach((page, idx) => page.setAttribute('data-page-index', idx));
             updateSliderPosition();
         }
 
         function checkEdgePointer(clientX) {
-            if (!isEditing || !document.querySelector('.sortable-drag')) {
-                clearEdgeTimer();
-                return;
-            }
-            const edgeMargin = 40; 
-            const screenWidth = window.innerWidth;
+            if (!isEditing || !document.querySelector('.sortable-drag')) { clearEdgeTimer(); return; }
+            const edgeMargin = 40, screenWidth = window.innerWidth;
             if (clientX > screenWidth - edgeMargin && currentPage === totalPages - 1) {
-                if (!edgeTimer) {
-                    edgeTimer = setTimeout(() => {
-                        createNewPage(); 
-                        currentPage++;
-                        updateSliderPosition();
-                        clearEdgeTimer();
-                    }, 700); 
-                }
+                if (!edgeTimer) edgeTimer = setTimeout(() => { createNewPage(); currentPage++; updateSliderPosition(); clearEdgeTimer(); }, 700);
             } else if (clientX > screenWidth - edgeMargin && currentPage < totalPages - 1) {
-                if (!edgeTimer) {
-                    edgeTimer = setTimeout(() => {
-                        currentPage++;
-                        updateSliderPosition();
-                        clearEdgeTimer();
-                    }, 700);
-                }
+                if (!edgeTimer) edgeTimer = setTimeout(() => { currentPage++; updateSliderPosition(); clearEdgeTimer(); }, 700);
             } else if (clientX < edgeMargin && currentPage > 0) {
-                if (!edgeTimer) {
-                    edgeTimer = setTimeout(() => {
-                        currentPage--;
-                        updateSliderPosition();
-                        clearEdgeTimer();
-                    }, 700);
-                }
-            } else {
-                clearEdgeTimer();
-            }
+                if (!edgeTimer) edgeTimer = setTimeout(() => { currentPage--; updateSliderPosition(); clearEdgeTimer(); }, 700);
+            } else { clearEdgeTimer(); }
         }
 
-        function clearEdgeTimer() {
-            if (edgeTimer) {
-                clearTimeout(edgeTimer);
-                edgeTimer = null;
-            }
-        }
+        function clearEdgeTimer() { if (edgeTimer) { clearTimeout(edgeTimer); edgeTimer = null; } }
 
-        window.addEventListener('touchmove', (e) => {
-            if (e.touches && e.touches[0]) checkEdgePointer(e.touches[0].clientX);
-        }, { passive: true });
-
-        window.addEventListener('dragover', (e) => {
-            checkEdgePointer(e.clientX);
-        });
-
+        window.addEventListener('touchmove', (e) => { if (e.touches && e.touches[0]) checkEdgePointer(e.touches[0].clientX); }, { passive: true });
+        window.addEventListener('dragover', (e) => checkEdgePointer(e.clientX));
         window.addEventListener('touchend', clearEdgeTimer);
         window.addEventListener('mouseup', clearEdgeTimer);
 
-        let isEditing = false; 
-        let longPressTimer;
-        let preventClickFlag = false; 
-        let startTouchX = 0;
-        let startTouchY = 0;
-        const MOVE_THRESHOLD = 10; 
-        const sortableInstances = [];
+        let isEditing = false, longPressTimer, preventClickFlag = false, startTouchX = 0, startTouchY = 0;
+        const MOVE_THRESHOLD = 10, sortableInstances = [];
 
         function bindSlotSortable(slot) {
             const sInstance = Sortable.create(slot, {
-                group: 'ios-icons',
-                animation: 150,
-                ghostClass: 'sortable-ghost',
-                dragClass: 'sortable-drag',
-                disabled: !isEditing, 
-                fallbackOnBody: true,
-                swapThreshold: 0.65,
+                group: 'ios-icons', animation: 150, ghostClass: 'sortable-ghost', dragClass: 'sortable-drag', disabled: !isEditing, fallbackOnBody: true, swapThreshold: 0.65,
                 onAdd: function (evt) {
                     if (evt.to.children.length > 1) {
                         const existingApp = evt.to.firstElementChild === evt.item ? evt.to.lastElementChild : evt.to.firstElementChild;
@@ -839,10 +766,7 @@
                     }
                     checkAndCleanEmptyPages();
                 },
-                onEnd: function () {
-                    clearEdgeTimer();
-                    checkAndCleanEmptyPages();
-                }
+                onEnd: function () { clearEdgeTimer(); checkAndCleanEmptyPages(); }
             });
             sortableInstances.push(sInstance);
         }
@@ -863,69 +787,41 @@
             document.body.classList.remove('shaking-mode');
             document.querySelectorAll('.app-item').forEach(app => app.classList.remove('shaking'));
             sortableInstances.forEach(inst => inst.option('disabled', true));
-            clearEdgeTimer();
-            checkAndCleanEmptyPages(); 
+            clearEdgeTimer(); checkAndCleanEmptyPages(); 
         }
 
         function handleStart(e) {
-            if (!document.body.classList.contains('unlocked')) return;
-            if (document.body.classList.contains('app-active-lock')) return; 
-            
+            if (!document.body.classList.contains('unlocked') || document.body.classList.contains('app-active-lock')) return; 
             const touch = e.touches ? e.touches[0] : e;
-            baseStartX = touch.clientX;
-            baseStartY = touch.clientY;
-            startTouchX = touch.clientX;
-            startTouchY = touch.clientY;
+            baseStartX = touch.clientX; baseStartY = touch.clientY;
+            startTouchX = touch.clientX; startTouchY = touch.clientY;
             isPageMoving = true;
 
             if (e.target.closest('.app-item') && !isEditing) {
-                longPressTimer = setTimeout(() => {
-                    preventClickFlag = true; 
-                    startEditingMode();
-                    if (navigator.vibrate) navigator.vibrate(50); 
-                }, 700); 
+                longPressTimer = setTimeout(() => { preventClickFlag = true; startEditingMode(); if (navigator.vibrate) navigator.vibrate(50); }, 700); 
             }
         }
 
         function handleMove(e) {
             if (document.body.classList.contains('app-active-lock')) return; 
             const touch = e.touches ? e.touches[0] : e;
-            const diffX = touch.clientX - baseStartX;
-            const diffY = touch.clientY - baseStartY;
-
-            if (longPressTimer) {
-                if (Math.abs(touch.clientX - startTouchX) > MOVE_THRESHOLD || Math.abs(touch.clientY - startTouchY) > MOVE_THRESHOLD) {
-                    clearTimeout(longPressTimer);
-                    longPressTimer = null;
-                }
+            const diffX = touch.clientX - baseStartX, diffY = touch.clientY - baseStartY;
+            if (longPressTimer && (Math.abs(touch.clientX - startTouchX) > MOVE_THRESHOLD || Math.abs(touch.clientY - startTouchY) > MOVE_THRESHOLD)) {
+                clearTimeout(longPressTimer); longPressTimer = null;
             }
-
-            if (isPageMoving && !document.querySelector('.sortable-drag')) {
-                if (Math.abs(diffX) > 40 && Math.abs(diffY) < 30) {
-                    isPageMoving = false; 
-                    if (diffX < 0 && currentPage < totalPages - 1) currentPage++;
-                    else if (diffX > 0 && currentPage > 0) currentPage--;
-                    updateSliderPosition();
-                }
+            if (isPageMoving && !document.querySelector('.sortable-drag') && Math.abs(diffX) > 40 && Math.abs(diffY) < 30) {
+                isPageMoving = false; 
+                if (diffX < 0 && currentPage < totalPages - 1) currentPage++;
+                else if (diffX > 0 && currentPage > 0) currentPage--;
+                updateSliderPosition();
             }
         }
 
-        function handleCancel() {
-            isPageMoving = false;
-            if (longPressTimer) {
-                clearTimeout(longPressTimer);
-                longPressTimer = null;
-            }
-        }
+        function handleCancel() { isPageMoving = false; if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } }
 
         window.addEventListener('touchstart', handleStart, { passive: true });
         window.addEventListener('touchmove', handleMove, { passive: true });
         window.addEventListener('touchend', handleCancel, { passive: true });
-
-        window.addEventListener('mousedown', handleStart);
-        window.addEventListener('mousemove', handleMove);
-        window.addEventListener('mouseup', handleCancel);
-
         document.getElementById('btnDone').addEventListener('click', () => stopEditingMode());
 
         window.addEventListener('click', (e) => {
@@ -933,33 +829,41 @@
             if (isEditing && !e.target.closest('.app-item') && !e.target.closest('.edit-mode-header')) stopEditingMode();
         }, true);
         
-        // ==================== 📱 全局状态栏颜色动态控制中心 ====================
+        // ==================== 📱 全局独立控制中心（含方案一实现） ====================
         const mainStatusBar = document.getElementById('mainStatusBar');
         const appWeixin = document.getElementById('appWeixin');
         const weixinWindow = document.getElementById('weixinWindow');
+        const systemHomeBarZone = document.getElementById('systemHomeBarZone');
 
         if (appWeixin && weixinWindow) {
             appWeixin.addEventListener('click', () => {
                 if (isEditing) return;
-                
                 document.body.classList.add('app-active-lock');
                 weixinWindow.style.transform = 'translateY(0%)';
-                
-                // 微信是深色背景，滑上来时把主页状态栏文字变为白色
-                mainStatusBar.classList.add('light-content');
+                mainStatusBar.classList.add('light-content'); // 状态栏字变白
             });
         }
 
-        // 接收来自微信（wechat.html）右边缘侧滑返回成功的消息通知
-        window.addEventListener('message', (e) => {
-            if (e.data === 'closeWechat' || e.data === 'closeApp') {
-                weixinWindow.style.transform = 'translateY(100%)'; // 微信向下退场
-                document.body.classList.remove('app-active-lock'); // 解锁桌面
-                mainStatusBar.classList.remove('light-content'); // 状态栏恢复黑字
+        // 当处于应用锁定状态时，直接点击底部系统横条即可瞬间退出微信回到桌面
+        systemHomeBarZone.addEventListener('click', () => {
+            if (document.body.classList.contains('app-active-lock')) {
+                closeWechatApplication();
             }
         });
 
-        // 🚀 【已彻底清除缓存脚本】：彻底移除了 Service Worker 注册代码，保证每次修改在 GitHub 刷新后直接生效！
+        // 统一收归关闭逻辑
+        function closeWechatApplication() {
+            weixinWindow.style.transform = 'translateY(100%)'; 
+            document.body.classList.remove('app-active-lock'); 
+            mainStatusBar.classList.remove('light-content'); 
+        }
+
+        // 兼容外部消息通道
+        window.addEventListener('message', (e) => {
+            if (e.data === 'closeWechat' || e.data === 'closeApp') {
+                closeWechatApplication();
+            }
+        });
     </script>
 </body>
 </html>
