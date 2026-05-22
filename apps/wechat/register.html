@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>用手机号注册</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "HanziPen SC", "Wawati SC", "Comic Sans MS", cursive, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #333;
+        }
+
+        /* ========== 注册主页面样式 ========== */
+        .main-page {
+            width: 100%;
+            max-width: 400px;
+            min-height: 100vh;
+            padding: 20px 30px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .close-btn {
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            font-weight: 300;
+            margin-bottom: 30px;
+            margin-top: 10px;
+        }
+
+        .title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: normal;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+        }
+
+        .avatar-section {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .avatar-box {
+            width: 60px;
+            height: 60px;
+            background-color: #e0e0e0;
+            position: relative;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border-bottom-right-radius: 15px; 
+        }
+
+        .avatar-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .camera-icon {
+            width: 30px;
+            height: 30px;
+            fill: #ffffff;
+            position: absolute;
+        }
+
+        #avatar-input {
+            display: none;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 16px;
+            position: relative;
+        }
+
+        .form-label {
+            width: 90px;
+            color: #333;
+            flex-shrink: 0;
+        }
+
+        .form-control {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            background: transparent;
+            font-family: inherit;
+        }
+        
+        .form-control::placeholder {
+            color: #b2b2b2;
+        }
+
+        .readonly-select {
+            color: #888;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+        }
+
+        .highlight-input {
+            color: #333;
+        }
+
+        .footer-section {
+            margin-top: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .agreement {
+            display: flex;
+            align-items: flex-start;
+            font-size: 12px;
+            color: #b2b2b2;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            text-align: center;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .agreement a {
+            color: #5b6b92;
+            text-decoration: none;
+        }
+
+        .custom-checkbox {
+            display: none;
+        }
+
+        .checkbox-label {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1px solid #c0c0c0;
+            margin-right: 8px;
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .custom-checkbox:checked + .checkbox-label {
+            background-color: #07c160;
+            border-color: #07c160;
+        }
+
+        .custom-checkbox:checked + .checkbox-label::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 8px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            top: 2px;
+            left: 5px;
+            transform: rotate(45deg);
+        }
+
+        .submit-btn {
+            width: 100%;
+            max-width: 300px;
+            padding: 14px;
+            border-radius: 6px;
+            border: none;
+            font-size: 16px;
+            font-family: inherit;
+            font-weight: bold;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn.disabled {
+            background-color: #f2f2f2;
+            color: #c0c0c0;
+            pointer-events: none;
+        }
+
+        .submit-btn.active {
+            background-color: #07c160;
+            color: #ffffff;
+            pointer-events: auto;
+        }
+
+        /* ========== 国家/地区选择页 (弹层) ========== */
+        .country-picker-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: #ebebeb;
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .normal-header {
+            background-color: #f7f7f7;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .normal-close-btn {
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            position: absolute;
+            left: 15px;
+            font-weight: 300;
+        }
+
+        .normal-title {
+            font-size: 17px;
+            color: #333;
+        }
+
+        .search-area {
+            background-color: #ebebeb;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .search-box-wrapper {
+            flex: 1;
+            background-color: #ffffff;
+            border-radius: 6px;
+            height: 36px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fake-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #b2b2b2;
+            font-size: 15px;
+            cursor: text;
+        }
+
+        .real-input-wrapper {
+            width: 100%;
+            height: 100%;
+            display: none;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .search-icon-svg {
+            width: 16px;
+            height: 16px;
+            fill: #b2b2b2;
+            margin-right: 6px;
+            flex-shrink: 0;
+        }
+
+        .real-search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            background: transparent;
+            font-family: inherit;
+            caret-color: #07c160;
+            padding: 0;
+        }
+        
+        .real-search-input::placeholder {
+            color: #b2b2b2;
+        }
+
+        .cancel-search-btn {
+            font-size: 16px;
+            color: #5b6b92;
+            margin-left: 15px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .country-list {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            padding-right: 25px;
+            scroll-behavior: smooth;
+        }
+
+        .list-group-title {
+            padding: 4px 15px;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            margin-left: 15px;
+            padding-left: 0;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item:active {
+            background-color: #d9d9d9;
+        }
+
+        .item-code {
+            color: #888;
+        }
+
+        /* 字母导航条样式更新 */
+        .side-index {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 11px;
+            color: #555;
+            z-index: 101;
+        }
+
+        .side-index-item {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin: 1px 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* 绿色实心高亮状态 */
+        .side-index-item.active {
+            background-color: #07c160;
+            color: #ffffff;
+        }
+
+        .side-index-icon {
+            width: 10px;
+            height: 10px;
+            fill: #555;
+            margin-bottom: 2px;
+            cursor: pointer;
+        }
+
+        .no-result {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 15px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-page">
+    <div class="close-btn">✕</div>
+    <h1 class="title">用手机号注册</h1>
+
+    <div class="avatar-section">
+        <label for="avatar-input" class="avatar-box" id="avatar-box">
+            <svg class="camera-icon" id="camera-icon" viewBox="0 0 24 24">
+                <path d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z" />
+            </svg>
+            <img id="avatar-preview" src="" alt="头像">
+        </label>
+        <input type="file" id="avatar-input" accept="image/*">
+    </div>
+
+    <div class="form-group">
+        <div class="form-label">昵称</div>
+        <input type="text" class="form-control" id="nickname" placeholder="请填写昵称">
+    </div>
+
+    <div class="form-group" id="open-picker-btn">
+        <div class="form-label">国家/地区</div>
+        <div class="readonly-select" id="selected-country-text">中国大陆 (+86)</div>
+        <input type="hidden" id="country-code" value="+86">
+    </div>
+
+    <div class="form-group">
+        <div class="form-label">手机号</div>
+        <input type="tel" class="form-control highlight-input" id="phone" placeholder="请填写手机号码">
+    </div>
+
+    <div class="form-group">
+        <div class="form-label">密码</div>
+        <input type="password" class="form-control" id="password" placeholder="请设置密码">
+    </div>
+
+    <div class="footer-section">
+        <div class="agreement">
+            <input type="checkbox" id="agree-checkbox" class="custom-checkbox">
+            <label for="agree-checkbox" class="checkbox-label"></label>
+            <span>我已阅读并同意 <a href="#">《软件许可及服务协议》</a><br>本页面收集的信息仅用于注册账号</span>
+        </div>
+        <button id="submit-btn" class="submit-btn disabled">同意并继续</button>
+    </div>
+</div>
+
+<div class="country-picker-page" id="country-picker">
+    
+    <div class="normal-header" id="normal-header">
+        <div class="normal-close-btn" id="close-picker-btn">✕</div>
+        <div class="normal-title">选择国家和地区</div>
+    </div>
+
+    <div class="search-area">
+        <div class="search-box-wrapper">
+            <div class="fake-placeholder" id="fake-placeholder">
+                <svg class="search-icon-svg" viewBox="0 0 24 24">
+                    <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+                </svg>
+                <span>搜索</span>
+            </div>
+            
+            <div class="real-input-wrapper" id="real-input-wrapper">
+                <svg class="search-icon-svg" viewBox="0 0 24 24">
+                    <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+                </svg>
+                <input type="text" class="real-search-input" id="search-input" placeholder="搜索">
+            </div>
+        </div>
+        <div class="cancel-search-btn" id="cancel-search-btn">取消</div>
+    </div>
+
+    <div class="country-list" id="dynamic-country-list"></div>
+    <div class="no-result" id="no-result-tips">无结果</div>
+
+    <div class="side-index" id="side-index">
+        <svg class="side-index-icon" onclick="scrollToTop()" viewBox="0 0 24 24">
+            <path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" />
+        </svg>
+        <span class="side-index-item active" onclick="scrollToGroup('A')">A</span>
+        <span class="side-index-item" onclick="scrollToGroup('B')">B</span>
+        <span class="side-index-item" onclick="scrollToGroup('C')">C</span>
+        <span class="side-index-item" onclick="scrollToGroup('D')">D</span>
+        <span class="side-index-item" onclick="scrollToGroup('E')">E</span>
+        <span class="side-index-item" onclick="scrollToGroup('F')">F</span>
+        <span class="side-index-item" onclick="scrollToGroup('G')">G</span>
+        <span class="side-index-item" onclick="scrollToGroup('H')">H</span>
+        <span class="side-index-item" onclick="scrollToGroup('J')">J</span>
+        <span class="side-index-item" onclick="scrollToGroup('K')">K</span>
+        <span class="side-index-item" onclick="scrollToGroup('L')">L</span>
+        <span class="side-index-item" onclick="scrollToGroup('M')">M</span>
+        <span class="side-index-item" onclick="scrollToGroup('N')">N</span>
+        <span class="side-index-item" onclick="scrollToGroup('P')">P</span>
+        <span class="side-index-item" onclick="scrollToGroup('R')">R</span>
+        <span class="side-index-item" onclick="scrollToGroup('S')">S</span>
+        <span class="side-index-item" onclick="scrollToGroup('T')">T</span>
+        <span class="side-index-item" onclick="scrollToGroup('W')">W</span>
+        <span class="side-index-item" onclick="scrollToGroup('X')">X</span>
+        <span class="side-index-item" onclick="scrollToGroup('Y')">Y</span>
+        <span class="side-index-item" onclick="scrollToGroup('Z')">Z</span>
+    </div>
+</div>
+
+<script>
+    // ---------- 搜索UI状态 ----------
+    const normalHeader = document.getElementById('normal-header');
+    const fakePlaceholder = document.getElementById('fake-placeholder');
+    const realInputWrapper = document.getElementById('real-input-wrapper');
+    const searchInput = document.getElementById('search-input');
+    const cancelSearchBtn = document.getElementById('cancel-search-btn');
+    const countryListContainer = document.getElementById('dynamic-country-list');
+
+    fakePlaceholder.addEventListener('click', function() {
+        normalHeader.style.display = 'none'; 
+        fakePlaceholder.style.display = 'none'; 
+        realInputWrapper.style.display = 'flex'; 
+        cancelSearchBtn.style.display = 'block'; 
+        searchInput.focus(); 
+    });
+
+    cancelSearchBtn.addEventListener('click', function() {
+        normalHeader.style.display = 'flex'; 
+        fakePlaceholder.style.display = 'flex';
+        realInputWrapper.style.display = 'none';
+        cancelSearchBtn.style.display = 'none';
+        searchInput.value = '';
+        searchInput.blur();
+        renderCountryList(globalCountryData); 
+    });
+
+    // ---------- 数据源补充完整 (Z区域完全贴合截图) ----------
+    const globalCountryData = [
+        { letter: 'A', name: '阿尔巴尼亚', code: '+355' }, { letter: 'A', name: '阿尔及利亚', code: '+213' },{ letter: 'A', name: '阿富汗', code: '+93' },{ letter: 'A', name: '阿根廷', code: '+54' },{ letter: 'A', name: '爱尔兰', code: '+353' },{ letter: 'A', name: '埃及', code: '+20' },{ letter: 'A', name: '埃塞俄比亚', code: '+251' },{ letter: 'A', name: '爱沙尼亚', code: '+372' },{ letter: 'A', name: '阿拉伯联合酋长国', code: '+971' },{ letter: 'A', name: '阿鲁巴', code: '+297' },{ letter: 'A', name: '阿曼', code: '+968' },{ letter: 'A', name: '安道尔', code: '+376' },{ letter: 'A', name: '安哥拉', code: '+244' },{ letter: 'A', name: '安圭拉', code: '+1264' },{ letter: 'A', name: '安提瓜岛和巴布达', code: '+1268' },{ letter: 'A', name: '澳大利亚', code: '+61' },{ letter: 'A', name: '奥地利', code: '+43' },{ letter: 'A', name: '阿塞拜疆', code: '+994' },
+        { letter: 'B', name: '巴巴多斯岛', code: '+1246' }, { letter: 'B', name: '巴布亚新几内亚', code: '+675' },{ letter: 'B', name: '巴哈马', code: '+1242' },{ letter: 'B', name: '白俄罗斯', code: '+375' },{ letter: 'B', name: '百慕大', code: '+1441' },{ letter: 'B', name: '巴基斯坦', code: '+92' },{ letter: 'B', name: '巴拉圭', code: '+595' },{ letter: 'B', name: '巴勒斯坦领土', code: '+970' },{ letter: 'B', name: '巴林', code: '+973' },{ letter: 'B', name: '巴拿马', code: '+507' },{ letter: 'B', name: '保加利亚', code: '+359' },{ letter: 'B', name: '巴西', code: '+55' },{ letter: 'B', name: '北马里亚纳群岛', code: '+1670' },{ letter: 'B', name: '贝宁', code: '+229' },{ letter: 'B', name: '比利时', code: '+32' },{ letter: 'B', name: '冰岛', code: '+354' },{ letter: 'B', name: '博茨瓦纳', code: '+267' },{ letter: 'B', name: '波多黎各', code: '+1939' },{ letter: 'B', name: '波多黎各', code: '+1787' },{ letter: 'B', name: '波兰', code: '+48' },{ letter: 'B', name: '玻利维亚', code: '+591' },{ letter: 'B', name: '伯利兹', code: '+501' },{ letter: 'B', name: '波黑', code: '+387' },{ letter: 'B', name: '不丹', code: '+975' },{ letter: 'B', name: '布基纳法索', code: '+226' },{ letter: 'B', name: '布隆迪', code: '+257' },
+        { letter: 'C', name: '朝鲜', code: '+850' },{ letter: 'C', name: '赤道几内亚', code: '+240' },
+        { letter: 'D', name: '丹麦', code: '+45' }, { letter: 'D', name: '德国', code: '+49' },{ letter: 'D', name: '东帝汶', code: '+670' },{letter: 'D', name: '多哥', code: '+228' },{letter: 'D', name: '多米尼加共和国', code: '+1809' },{letter: 'D', name: '多米尼加共和国', code: '+1849' },{letter: 'D', name: '多米尼加共和国', code: '+1829' },{letter: 'D', name: '多米尼克', code: '+1767' },
+        { letter: 'E', name: '厄瓜多尔', code: '+593' },{ letter: 'E', name: '厄立特里亚', code: '+291' },{ letter: 'E', name: '俄罗斯', code: '+7' }, 
+        { letter: 'F', name: '法国', code: '+33' },{ letter: 'F', name: '法罗群岛', code: '+298' },{ letter: 'F', name: '梵蒂冈', code: '+379' },{ letter: 'F', name: '法属玻里尼西亚', code: '+689' },{ letter: 'F', name: '圣马丁', code: '+590' },{ letter: 'F', name: '法属圭亚那', code: '+594' },{ letter: 'F', name: '斐济', code: '+679' },{ letter: 'F', name: '菲律宾', code: '+63' },{ letter: 'F', name: '芬兰', code: '+358' },{ letter: 'F', name: '佛得角', code: '+238' },{ letter: 'F', name: '福克兰群岛', code: '+500' },
+        { letter: 'G', name: '冈比亚', code: '+220' }, { letter: 'G', name: '刚果(布)', code: '+242' },{ letter: 'G', name: '刚果(金)', code: '+243' },{ letter: 'G', name: '格陵兰', code: '+299' },{ letter: 'G', name: '格林纳达', code: '+1473' },{ letter: 'G', name: '乔治亚', code: '+995' },{ letter: 'G', name: '哥伦比亚', code: '+57' },{ letter: 'G', name: '格恩西岛', code: '+44' },{ letter: 'G', name: '哥斯达黎加', code: '+506' },{ letter: 'G', name: '瓜德罗普岛', code: '+590' },{ letter: 'G', name: '关岛', code: '+1671' },{ letter: 'G', name: '古巴', code: '+53' },{ letter: 'G', name: '圭亚那', code: '+592' },
+        { letter: 'H', name: '海地', code: '+509' }, { letter: 'H', name: '韩国', code: '+82' },{ letter: 'H', name: '哈萨克斯坦', code: '+7' },{ letter: 'H', name: '黑山共和国', code: '+382' },{ letter: 'H', name: '荷兰', code: '+31' },{ letter: 'H', name: '洪都拉斯', code: '+504' },
+        { letter: 'J', name: '加勒比荷兰', code: '+599' },{ letter: 'J', name: '加纳', code: '+233' },{ letter: 'J', name: '加拿大', code: '+1' },{ letter: 'J', name: '柬埔寨', code: '+855' },{ letter: 'J', name: '加蓬', code: '+241' },{ letter: 'J', name: '吉布提', code: '+253' },{ letter: 'J', name: '捷克共和国', code: '+420' },{ letter: 'J', name: '吉布吉斯斯坦', code: '+996' },{ letter: 'J', name: '基里巴斯', code: '+686' },{ letter: 'J', name: '津巴布韦', code: '+263' },{ letter: 'J', name: '几内亚', code: '+224' },{ letter: 'J', name: '几内亚比绍', code: '+245' },
+        { letter: 'K', name: '开曼群岛', code: '+1345' },{ letter: 'K', name: '喀麦隆', code: '+237' },{ letter: 'K', name: '卡塔尔', code: '+974' },{ letter: 'K', name: '科科斯群岛', code: '+61' },{ letter: 'K', name: '克罗地亚', code: '+385' },{ letter: 'K', name: '科摩罗', code: '+269' },{ letter: 'K', name: '肯尼亚', code: '+254' },{ letter: 'K', name: '科特迪瓦', code: '+225' },{ letter: 'K', name: '科威特', code: '+965' },{ letter: 'K', name: '库克群岛', code: '+682' },
+        { letter: 'L', name: '莱索托', code: '+266' },{ letter: 'L', name: '老挝', code: '+856' },{ letter: 'L', name: '拉脱维亚', code: '+371' }, { letter: 'L', name: '黎巴嫩', code: '+961' },{ letter: 'L', name: '利比里亚', code: '+231' },{ letter: 'L', name: '利比亚', code: '+218' },{ letter: 'L', name: '列支敦士登', code: '+423' },{ letter: 'L', name: '立陶宛', code: '+370' },{ letter: 'L', name: '罗马尼亚', code: '+40' },{ letter: 'L', name: '卢森堡', code: '+352' },{ letter: 'L', name: '卢旺达', code: '+250' },
+        { letter: 'M', name: '马达加斯加', code: '+261' },{ letter: 'M', name: '英国属地曼岛', code: '+44' }, { letter: 'M', name: '马尔代夫', code: '+960' },{ letter: 'M', name: '马耳他', code: '+356' },{ letter: 'M', name: '马来西亚', code: '+60' },{ letter: 'M', name: '马拉维', code: '+265' },{ letter: 'M', name: '马里', code: '+223' },{ letter: 'M', name: '毛里求斯', code: '+230' },{ letter: 'M', name: '毛里塔尼亚', code: '+222' },{ letter: 'M', name: '马其顿', code: '+389' },{ letter: 'M', name: '马绍尔群岛', code: '+692' },{ letter: 'M', name: '马提尼克群岛', code: '+596' },{ letter: 'M', name: '马约特', code: '+262' },{ letter: 'M', name: '美国', code: '+1' },{ letter: 'M', name: '美属萨摩亚', code: '+1684' },{ letter: 'M', name: '蒙古', code: '+976' },{ letter: 'M', name: '孟加拉', code: '+880' },{ letter: 'M', name: '蒙特色拉特岛', code: '+1664' },{ letter: 'M', name: '缅甸', code: '+95' },{ letter: 'M', name: '密克罗尼西亚', code: '+691' },{ letter: 'M', name: '秘鲁', code: '+51' },{ letter: 'M', name: '摩尔多瓦', code: '+373' },{ letter: 'M', name: '摩洛哥', code: '+212' },{ letter: 'M', name: '摩纳哥', code: '+377' },{ letter: 'M', name: '莫桑比克', code: '+258' },{ letter: 'M', name: '墨西哥', code: '+52' },
+        { letter: 'N', name: '纳米比亚', code: '+264' }, { letter: 'N', name: '南非', code: '+27' },{ letter: 'N', name: '南苏丹', code: '+211' },{ letter: 'N', name: '瑙鲁', code: '+674' },{ letter: 'N', name: '尼泊尔', code: '+977' },{ letter: 'N', name: '尼加拉瓜', code: '+505' },{ letter: 'N', name: '尼日尔', code: '+227' },{ letter: 'N', name: '尼日利亚', code: '+234' },{ letter: 'N', name: '纽埃', code: '+683' },{ letter: 'N', name: '诺福克岛', code: '+672' },{ letter: 'N', name: '挪威', code: '+47' },
+        { letter: 'P', name: '帕劳群岛', code: '+680' }, { letter: 'P', name: '葡萄牙', code: '+351' },
+        { letter: 'R', name: '日本', code: '+81' }, { letter: 'R', name: '瑞典', code: '+46' },{ letter: 'R', name: '瑞士', code: '+41' },
+        { letter: 'S', name: '萨尔瓦多', code: '+503' }, { letter: 'S', name: '塞尔维亚', code: '+381' },{ letter: 'S', name: '塞拉利昂', code: '+232' },{ letter: 'S', name: '塞内加尔', code: '+221' },{ letter: 'S', name: '塞浦路斯', code: '+357' },{ letter: 'S', name: '塞舌尔', code: '+248' },{ letter: 'S', name: '萨摩亚', code: '+685' },{ letter: 'S', name: '沙特阿拉伯', code: '+966' },{ letter: 'S', name: '圣巴泰勒米', code: '+590' },{ letter: 'S', name: '圣诞岛', code: '+61' },{ letter: 'S', name: '圣多美与普林希', code: '+239' },{ letter: 'S', name: '圣赫勒拿', code: '+290' },{ letter: 'S', name: '圣基茨和尼维斯', code: '+1869' },{ letter: 'S', name: '圣卢西亚', code: '+1758' },{ letter: 'S', name: '荷属圣马丁', code: '+1721' },{ letter: 'S', name: '圣马力诺', code: '+378' },{ letter: 'S', name: '圣皮埃尔和密克隆', code: '+508' },{ letter: 'S', name: '圣文森特和格林纳丁斯', code: '+1784' },{ letter: 'S', name: '斯里兰卡', code: '+94' },{ letter: 'S', name: '斯洛伐克', code: '+421' },{ letter: 'S', name: '斯洛文尼亚', code: '+386' },{ letter: 'S', name: '斯瓦尔巴特和扬马延', code: '+47' },{ letter: 'S', name: '斯威士兰', code: '+268' },{ letter: 'S', name: '苏丹', code: '+249' },{ letter: 'S', name: '苏里南', code: '+597' },{ letter: 'S', name: '所罗门群岛', code: '+677' },{ letter: 'S', name: '索马里', code: '+252' },
+        { letter: 'T', name: '泰国', code: '+66' },{ letter: 'T', name: '塔吉克斯坦', code: '+992' },{ letter: 'T', name: '汤加', code: '+676' },{ letter: 'T', name: '坦桑尼亚', code: '+255' },{ letter: 'T', name: '特克斯和凯科斯群岛', code: '+1649' },{ letter: 'T', name: '特立尼达和多巴哥', code: '+1868' },{ letter: 'T', name: '土耳其', code: '+90' },{ letter: 'T', name: '土库曼斯坦', code: '+993' },{ letter: 'T', name: '突尼斯', code: '+216' },{ letter: 'T', name: '托克劳', code: '+690' },{ letter: 'T', name: '图瓦卢', code: '+688' },
+        { letter: 'W', name: '瓦利斯群岛和富图纳群岛', code: '+681' },{ letter: 'W', name: '瓦努阿图', code: '+678' }, { letter: 'W', name: '危地马拉', code: '+502' },{ letter: 'W', name: '美属维京群岛', code: '+1340' },{ letter: 'W', name: '委内瑞拉', code: '+58' },{ letter: 'W', name: '文莱', code: '+673' },{ letter: 'W', name: '乌干达', code: '+256' },{ letter: 'W', name: '乌克兰', code: '+380' },{ letter: 'W', name: '乌拉圭', code: '+598' },{ letter: 'W', name: '乌兹别克斯坦', code: '+998' },
+        { letter: 'X', name: '西班牙', code: '+34' },{ letter: 'X', name: '希腊', code: '+30' },{ letter: 'X', name: '新加坡', code: '+65' },{ letter: 'X', name: '新喀里多尼亚', code: '+687' },{ letter: 'X', name: '新西兰', code: '+64' },{ letter: 'X', name: '匈牙利', code: '+36' },{ letter: 'X', name: '叙利亚', code: '+963' },
+        { letter: 'Y', name: '牙买加', code: '+1876' },{ letter: 'Y', name: '亚美尼亚', code: '+374' },{ letter: 'Y', name: '也门', code: '+967' },{ letter: 'Y', name: '意大利', code: '+39' },{ letter: 'Y', name: '伊拉克', code: '+964' },{ letter: 'Y', name: '伊朗', code: '+98' },{ letter: 'Y', name: '印度', code: '+91' },{ letter: 'Y', name: '印度尼西亚', code: '+62' },{ letter: 'Y', name: '英国', code: '+44' },{ letter: 'Y', name: '英属维尔京群岛', code: '+1284' },{ letter: 'Y', name: '英属印度洋领地', code: '+246' },{ letter: 'Y', name: '以色列', code: '+972' },{ letter: 'Y', name: '约旦', code: '+962' },{ letter: 'Y', name: '越南', code: '+84' },
+        { letter: 'Z', name: '赞比亚', code: '+260' }, 
+        { letter: 'Z', name: '泽西岛', code: '+44' }, 
+        { letter: 'Z', name: '乍得', code: '+235' },
+        { letter: 'Z', name: '直布罗陀', code: '+350' },
+        { letter: 'Z', name: '智利', code: '+56' },
+        { letter: 'Z', name: '中非共和国', code: '+236' },
+        { letter: 'Z', name: '中国大陆', code: '+86' },
+        { letter: 'Z', name: '中国澳门', code: '+853' },
+        { letter: 'Z', name: '中国台湾', code: '+886' },
+        { letter: 'Z', name: '中国香港', code: '+852' }
+    ];
+
+    const noResultTips = document.getElementById('no-result-tips');
+
+    function renderCountryList(dataArray) {
+        countryListContainer.innerHTML = '';
+        if (dataArray.length === 0) {
+            noResultTips.style.display = 'block';
+            return;
+        } else {
+            noResultTips.style.display = 'none';
+        }
+
+        const groupedData = {};
+        dataArray.forEach(item => {
+            if (!groupedData[item.letter]) groupedData[item.letter] = [];
+            groupedData[item.letter].push(item);
+        });
+
+        const sortedLetters = Object.keys(groupedData).sort();
+        
+        sortedLetters.forEach(letter => {
+            const groupTitle = document.createElement('div');
+            groupTitle.className = 'list-group-title';
+            groupTitle.id = 'group-' + letter;
+            groupTitle.innerText = letter;
+            countryListContainer.appendChild(groupTitle);
+
+            groupedData[letter].forEach(country => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'list-item';
+                itemDiv.innerHTML = `<span>${country.name}</span><span class="item-code">${country.code}</span>`;
+                itemDiv.addEventListener('click', () => selectCountry(country.name, country.code));
+                countryListContainer.appendChild(itemDiv);
+            });
+        });
+    }
+
+    renderCountryList(globalCountryData);
+
+    searchInput.addEventListener('input', function() {
+        const keyword = this.value.trim().toLowerCase();
+        if (keyword === '') {
+            renderCountryList(globalCountryData);
+            return;
+        }
+        const filteredData = globalCountryData.filter(country => {
+            return country.name.includes(keyword) || country.code.includes(keyword);
+        });
+        renderCountryList(filteredData);
+    });
+
+    // ---------- 侧边栏索引高亮与滚动联动 ----------
+    const indexItems = document.querySelectorAll('.side-index-item');
+
+    function setActiveIndex(letter) {
+        indexItems.forEach(item => {
+            if (item.innerText === letter) {
+                item.classList.add('active');
+            } else {
+                item.classList.remove('active');
+            }
+        });
+    }
+
+    window.scrollToGroup = function(letter) {
+        const group = document.getElementById('group-' + letter);
+        if (group) {
+            group.scrollIntoView({ behavior: 'smooth' });
+            setActiveIndex(letter);
+        }
+    }
+    
+    window.scrollToTop = function() {
+        countryListContainer.scrollTo({ top: 0, behavior: 'smooth' });
+        setActiveIndex('A');
+    }
+
+    // 监听列表滚动，自动点亮右侧对应字母
+    countryListContainer.addEventListener('scroll', function() {
+        const groupTitles = document.querySelectorAll('.list-group-title');
+        let currentLetter = '';
+        
+        groupTitles.forEach(title => {
+            const rect = title.getBoundingClientRect();
+            // 110是顶部搜索栏和标题的高度估算值
+            if (rect.top <= 110) {
+                currentLetter = title.innerText;
+            }
+        });
+        if (currentLetter) {
+            setActiveIndex(currentLetter);
+        }
+    });
+
+    const openPickerBtn = document.getElementById('open-picker-btn');
+    const closePickerBtn = document.getElementById('close-picker-btn');
+    const countryPickerPage = document.getElementById('country-picker');
+    const selectedCountryText = document.getElementById('selected-country-text');
+    const countryCodeInput = document.getElementById('country-code'); 
+    
+    openPickerBtn.addEventListener('click', function() {
+        countryPickerPage.style.display = 'flex';
+        cancelSearchBtn.click();
+    });
+
+    closePickerBtn.addEventListener('click', function() {
+        countryPickerPage.style.display = 'none';
+    });
+
+    function selectCountry(name, code) {
+        selectedCountryText.textContent = `${name} (${code})`;
+        countryCodeInput.value = code;
+        phoneInput.value = ''; // 切换国家清空手机号
+        checkFormStatus();
+        countryPickerPage.style.display = 'none';
+    }
+
+
+    // ---------- 主页面表单逻辑与【智能手机号格式化】 ----------
+    const avatarInput = document.getElementById('avatar-input');
+    const avatarPreview = document.getElementById('avatar-preview');
+    const cameraIcon = document.getElementById('camera-icon');
+    const nicknameInput = document.getElementById('nickname');
+    const phoneInput = document.getElementById('phone');
+    const passwordInput = document.getElementById('password');
+    const agreeCheckbox = document.getElementById('agree-checkbox');
+    const submitBtn = document.getElementById('submit-btn');
+
+    avatarInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                avatarPreview.src = event.target.result;
+                avatarPreview.style.display = 'block';
+                cameraIcon.style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+// 动态判断区号，严格限制位数并排版
+phoneInput.addEventListener('input', function() {
+    let code = countryCodeInput.value;
+    // 获取当前国家的规则，找不到就用 default
+    let rule = phoneValidationRules[code] || phoneValidationRules['default'];
+    
+    // 1. 过滤所有非数字字符（自动去掉用户乱敲的空格、括号等特殊符号）
+    let rawValue = this.value.replace(/\D/g, ''); 
+    
+    // 2. 严格截断：超出该国最大位数的部分直接抛弃
+    rawValue = rawValue.substring(0, rule.maxLength);
+    
+    // 3. 赋值回输入框（应用对应的排版格式）
+    this.value = rule.format(rawValue);
+    
+    // 4. 每次输入都触发整体表单校验
+    checkFormStatus();
+});
+
+function checkFormStatus() {
+    const isNicknameFilled = nicknameInput.value.trim().length > 0;
+    const isPasswordFilled = passwordInput.value.trim().length > 0;
+    const isAgreed = agreeCheckbox.checked;
+
+    // 获取当前选中的区号和纯数字手机号
+    let code = countryCodeInput.value;
+    let rawPhoneValue = phoneInput.value.replace(/\D/g, ''); 
+    let rule = phoneValidationRules[code] || phoneValidationRules['default'];
+
+    // 【核心】使用该国家的专属正则进行合法性校验
+    const isPhoneValid = rule.isValid(rawPhoneValue);
+
+    // 只有全部条件满足，按钮才激活
+    if (isNicknameFilled && isPhoneValid && isPasswordFilled && isAgreed) {
+        submitBtn.className = 'submit-btn active';
+    } else {
+        submitBtn.className = 'submit-btn disabled';
+    }
+}
+
+    nicknameInput.addEventListener('input', checkFormStatus);
+    passwordInput.addEventListener('input', checkFormStatus);
+    agreeCheckbox.addEventListener('change', checkFormStatus);
+const phoneValidationRules = {
+    '+86': { 
+        maxLength: 11, 
+        // 3-4-4 排版
+        format: (v) => v.length > 7 ? v.replace(/^(\d{3})(\d{4})(\d+)/, '$1 $2 $3') : (v.length > 3 ? v.replace(/^(\d{3})(\d+)/, '$1 $2') : v),
+        // 大陆手机号正则：1开头，第二位3-9，共11位
+        isValid: (v) => /^1[3-9]\d{9}$/.test(v) 
+    },
+    '+81': { 
+        maxLength: 11, 
+        // 3-4-4 排版
+        format: (v) => v.length > 7 ? v.replace(/^(\d{3})(\d{4})(\d+)/, '$1 $2 $3') : (v.length > 3 ? v.replace(/^(\d{3})(\d+)/, '$1 $2') : v),
+        // 日本手机号：通常070/080/090开头，共11位
+        isValid: (v) => /^(070|080|090)\d{8}$/.test(v) 
+    },
+    '+1': { 
+        maxLength: 10, 
+        // 3-3-4 排版，中间用横杠连接
+        format: (v) => v.length > 6 ? v.replace(/^(\d{3})(\d{3})(\d+)/, '$1-$2-$3') : (v.length > 3 ? v.replace(/^(\d{3})(\d+)/, '$1-$2') : v),
+        // 北美手机号：10位纯数字
+        isValid: (v) => /^\d{10}$/.test(v) 
+    },
+    // 默认通用兜底规则（针对你没写明规则的其他国家）
+    'default': {
+        maxLength: 15, 
+        format: (v) => v.replace(/(.{4})/g, '$1 ').trim(),
+        isValid: (v) => v.length >= 6 
+    }
+};
+</script>
+</body>
+</html>
