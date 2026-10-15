@@ -2,7 +2,7 @@ const CACHE_NAME = '雪兔机';
 const ASSETS = [
   './',
   './index.html',
-  'weixin.html',
+  'wechat.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
